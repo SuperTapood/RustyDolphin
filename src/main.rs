@@ -1,3 +1,7 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
+
 use std::mem;
 
 const NICE: u8 = 69;
@@ -28,6 +32,7 @@ fn main() {
     let mut p3 = *p2;
     println!("{}", p3.x);
     func(&mut p3);
-    println!("{}", p2.x);
+    let var = p2.x;
+    println!("{var}");
     println!("{}", p3.x);
 }
