@@ -16,7 +16,6 @@
 #include <string>
 #include <string_view>
 
-
 std::string exec(const char* cmd) {
 	std::array<char, 128> buffer{};
 	std::string result;
@@ -31,7 +30,6 @@ std::string exec(const char* cmd) {
 	return result;
 }
 
-
 /* 4 bytes IP address */
 using ip_address = struct ip_address {
 	u_char byte1;
@@ -43,8 +41,8 @@ using ip_address = struct ip_address {
 /* IPv4 header */
 using ip_header = struct ip_header {
 	u_char  ver_ihl; // Version (4 bits) + IP header length (4 bits)
-	u_char  tos;     // Type of service 
-	u_short tlen;    // Total length 
+	u_char  tos;     // Type of service
+	u_short tlen;    // Total length
 	u_short identification; // Identification
 	u_short flags_fo; // Flags (3 bits) + Fragment offset (13 bits)
 	u_char  ttl;      // Time to live
@@ -78,10 +76,10 @@ void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_cha
 	/*
 	 * unused parameters
 	 */
-	/*(VOID)(param);
-	(VOID)(pkt_data);*/
+	 /*(VOID)(param);
+	 (VOID)(pkt_data);*/
 
-	/* convert the timestamp to readable format */
+	 /* convert the timestamp to readable format */
 	local_tv_sec = header->ts.tv_sec;
 	struct tm timeinfo;
 	char buffer[80];
@@ -124,118 +122,118 @@ void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_cha
 
 int main()
 {
-//	pcap_if_t* alldevs;
-//	pcap_if_t* d;
-//	int inum;
-//	int i = 0;
-//	pcap_t* adhandle;
-//	char errbuf[PCAP_ERRBUF_SIZE];
-//	struct bpf_program fcode;
-//
-//#ifdef _WIN32
-//	/* Load Npcap and its functions. */
-//	if (!LoadNpcapDlls())
-//	{
-//		fprintf(stderr, "Couldn't load Npcap\n");
-//		exit(1);
-//	}
-//#endif
-//
-//	/* Retrieve the device list */
-//	if (pcap_findalldevs(&alldevs, errbuf) == -1)
-//	{
-//		fprintf(stderr, "Error in pcap_findalldevs: %s\n", errbuf);
-//		exit(1);
-//	}
-//
-//	///* Print the list */
-//	//for (d = alldevs; d; d = d->next)
-//	//{
-//	//	printf("%d. %s", ++i, d->name);
-//	//	if (d->description)
-//	//		printf(" (%s)\n", d->description);
-//	//	else
-//	//		printf(" (No description available)\n");
-//	//}
-//
-//	/*if (i == 0)
-//	{
-//		printf("\nNo interfaces found! Make sure Npcap is installed.\n");
-//		return -1;
-//	}*/
-//
-//	/*printf("Enter the interface number (1-%d):", i);
-//	scanf_s("%d", &inum);
-//
-//	std::cout << inum << std::endl;
-//
-//	scanf_s("%d", &inum);*/
-//
-//	inum = 4;
-//
-//	//if (inum < 1 || inum > i)
-//	//{
-//	//	printf("\nInterface number out of range.\n");
-//	//	/* Free the device list */
-//	//	pcap_freealldevs(alldevs);
-//	//	return -1;
-//	//}
-//
-//	/* Jump to the selected adapter */
-//	for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
-//
-//	/* Open the device */
-//	/* Open the adapter */
-//	if ((adhandle = pcap_open_live(d->name,	// name of the device
-//		65536,			// portion of the packet to capture.
-//		// 65536 grants that the whole packet will be captured on all the MACs.
-//		1,				// promiscuous mode (nonzero means promiscuous)
-//		1000,			// read timeout
-//		errbuf			// error buffer
-//	)) == NULL)
-//	{
-//		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by Npcap\n", d->name);
-//		/* Free the device list */
-//		pcap_freealldevs(alldevs);
-//		return -1;
-//	}
-//
-//	printf("listening on %s...\n", d->description);
-//
-//	/* At this point, we don't need any more the device list. Free it */
-//	pcap_freealldevs(alldevs);
-//	int netmask;
-//	if (d->addresses != NULL)
-//		/* Retrieve the mask of the first address of the interface */
-//		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-//	else
-//		/* If the interface is without an address
-//		 * we suppose to be in a C class network */
-//		netmask = 0xffffff;
-//
-//	//compile the filter
-//	if (pcap_compile(adhandle, &fcode, "udp", 1, netmask) < 0)
-//	{
-//		fprintf(stderr,
-//			"\nUnable to compile the packet filter. Check the syntax.\n");
-//		/* Free the device list */
-//		pcap_freealldevs(alldevs);
-//		return -1;
-//	}
-//
-//	//set the filter
-//	if (pcap_setfilter(adhandle, &fcode) < 0)
-//	{
-//		fprintf(stderr, "\nError setting the filter.\n");
-//		/* Free the device list */
-//		pcap_freealldevs(alldevs);
-//		return -1;
-//	}
-//
-//	/* start the capture */
-//	pcap_loop(adhandle, 0, packet_handler, NULL);
-//
-//	pcap_close(adhandle);
+	//	pcap_if_t* alldevs;
+	//	pcap_if_t* d;
+	//	int inum;
+	//	int i = 0;
+	//	pcap_t* adhandle;
+	//	char errbuf[PCAP_ERRBUF_SIZE];
+	//	struct bpf_program fcode;
+	//
+	//#ifdef _WIN32
+	//	/* Load Npcap and its functions. */
+	//	if (!LoadNpcapDlls())
+	//	{
+	//		fprintf(stderr, "Couldn't load Npcap\n");
+	//		exit(1);
+	//	}
+	//#endif
+	//
+	//	/* Retrieve the device list */
+	//	if (pcap_findalldevs(&alldevs, errbuf) == -1)
+	//	{
+	//		fprintf(stderr, "Error in pcap_findalldevs: %s\n", errbuf);
+	//		exit(1);
+	//	}
+	//
+	//	///* Print the list */
+	//	//for (d = alldevs; d; d = d->next)
+	//	//{
+	//	//	printf("%d. %s", ++i, d->name);
+	//	//	if (d->description)
+	//	//		printf(" (%s)\n", d->description);
+	//	//	else
+	//	//		printf(" (No description available)\n");
+	//	//}
+	//
+	//	/*if (i == 0)
+	//	{
+	//		printf("\nNo interfaces found! Make sure Npcap is installed.\n");
+	//		return -1;
+	//	}*/
+	//
+	//	/*printf("Enter the interface number (1-%d):", i);
+	//	scanf_s("%d", &inum);
+	//
+	//	std::cout << inum << std::endl;
+	//
+	//	scanf_s("%d", &inum);*/
+	//
+	//	inum = 4;
+	//
+	//	//if (inum < 1 || inum > i)
+	//	//{
+	//	//	printf("\nInterface number out of range.\n");
+	//	//	/* Free the device list */
+	//	//	pcap_freealldevs(alldevs);
+	//	//	return -1;
+	//	//}
+	//
+	//	/* Jump to the selected adapter */
+	//	for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
+	//
+	//	/* Open the device */
+	//	/* Open the adapter */
+	//	if ((adhandle = pcap_open_live(d->name,	// name of the device
+	//		65536,			// portion of the packet to capture.
+	//		// 65536 grants that the whole packet will be captured on all the MACs.
+	//		1,				// promiscuous mode (nonzero means promiscuous)
+	//		1000,			// read timeout
+	//		errbuf			// error buffer
+	//	)) == NULL)
+	//	{
+	//		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by Npcap\n", d->name);
+	//		/* Free the device list */
+	//		pcap_freealldevs(alldevs);
+	//		return -1;
+	//	}
+	//
+	//	printf("listening on %s...\n", d->description);
+	//
+	//	/* At this point, we don't need any more the device list. Free it */
+	//	pcap_freealldevs(alldevs);
+	//	int netmask;
+	//	if (d->addresses != NULL)
+	//		/* Retrieve the mask of the first address of the interface */
+	//		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
+	//	else
+	//		/* If the interface is without an address
+	//		 * we suppose to be in a C class network */
+	//		netmask = 0xffffff;
+	//
+	//	//compile the filter
+	//	if (pcap_compile(adhandle, &fcode, "udp", 1, netmask) < 0)
+	//	{
+	//		fprintf(stderr,
+	//			"\nUnable to compile the packet filter. Check the syntax.\n");
+	//		/* Free the device list */
+	//		pcap_freealldevs(alldevs);
+	//		return -1;
+	//	}
+	//
+	//	//set the filter
+	//	if (pcap_setfilter(adhandle, &fcode) < 0)
+	//	{
+	//		fprintf(stderr, "\nError setting the filter.\n");
+	//		/* Free the device list */
+	//		pcap_freealldevs(alldevs);
+	//		return -1;
+	//	}
+	//
+	//	/* start the capture */
+	//	pcap_loop(adhandle, 0, packet_handler, NULL);
+	//
+	//	pcap_close(adhandle);
 
 	std::string res = exec("netstat -aon");
 
@@ -260,16 +258,15 @@ int main()
 			else {
 				if (temp == "") {
 					continue;
-				}				
+				}
 				t.push_back(temp);
 				temp = "";
 			}
 		}
 
 		t.push_back(temp);
-		
-		data.push_back(t);
 
+		data.push_back(t);
 	}
 
 	std::string tasklist = exec("tasklist");
