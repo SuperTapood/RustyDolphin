@@ -9,14 +9,54 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <windows.h>
+#include <iphlpapi.h>
+#include <iostream>
+#include <iomanip>
 
 #include "networks/networks.h"
 #include "win/win.h"
+#include "base/base.h"
+
+void printTables() {
+	auto pTcpTable = getTcpTable();
+
+	// Print the TCP table
+	std::cout << "Num Entries: " << pTcpTable->dwNumEntries << std::endl;
+	for (DWORD i = 0; i < pTcpTable->dwNumEntries; i++) {
+		auto& row = pTcpTable->table[i];
+		std::cout << "Local Addr: " << ADDR2STR(row.dwLocalAddr) << ", Local Port: " << ntohs((u_short)row.dwLocalPort) << std::endl;
+		std::cout << "Remote Addr: " << ADDR2STR(row.dwRemoteAddr) << ", Remote Port: " << ntohs((u_short)row.dwRemotePort) << std::endl;
+		std::cout << "pid: " << row.dwOwningPid << " name: " << getNameFromPID(row.dwOwningPid) << std::endl;
+	}
+
+	// Free memory
+	free(pTcpTable);
+
+	auto pUdpTable = getUdpTable();
+
+	// Print the UDP table
+	std::cout << "Num Entries: " << pUdpTable->dwNumEntries << std::endl;
+	for (DWORD i = 0; i < pUdpTable->dwNumEntries; i++) {
+		auto& row = pUdpTable->table[i];
+		
+		std::cout << "Local Addr: " << ADDR2STR(row.dwLocalAddr) << ", Local Port: " << ntohs((u_short)row.dwLocalPort) << std::endl;
+	}
+
+	// Free memory
+	free(pUdpTable);
+}
+
+void init() {
+	initPIDCache();
+}
 
 int main()
 {
-	initPIDCache();
-	std::string res = exec("netstat -aon");
+	init();
+	printTables();
+	return 0;
+	/*std::string res = exec("netstat -aon");
 	size_t pos = 0;
 	std::string token;
 	int index = 0;
@@ -62,7 +102,7 @@ int main()
 		std::cout << std::endl;
 	}
 
-	return 0;
+	return 0;*/
 
 	pcap_if_t* alldevs;
 	pcap_if_t* d;
@@ -88,7 +128,7 @@ int main()
 		exit(1);
 	}
 
-	///* Print the list */
+	// Print the list
 	for (d = alldevs; d; d = d->next)
 	{
 		printf("%d. %s", ++i, d->name);

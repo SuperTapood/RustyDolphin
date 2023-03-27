@@ -1,7 +1,7 @@
 #include "capture.h"
 
 #include <pcap.h>
-#include "structs.h"
+#include "../base/base.h"
 #include <iostream>
 
 #include <cstdint>
