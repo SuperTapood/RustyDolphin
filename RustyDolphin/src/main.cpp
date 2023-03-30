@@ -3,20 +3,20 @@
 #include <iostream>
 #include <WinSock2.h>
 #include <tchar.h>
-#include <array>
 #include <vector>
-#include <format>
 #include <iostream>
 #include <string>
-#include <string_view>
-#include <windows.h>
+#include <Windows.h>
 #include <iphlpapi.h>
 #include <iostream>
-#include <iomanip>
 
 #include "networks/networks.h"
 #include "win/win.h"
 #include "base/base.h"
+
+
+
+
 
 void printTables() {
 	auto pTcpTable = getTcpTable();
@@ -51,58 +51,32 @@ void init() {
 	initPIDCache();
 }
 
+struct MemoryStruct {
+	char* memory;
+	size_t size;
+};
+
+static size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+	size_t realsize = size * nmemb;
+	struct MemoryStruct* mem = (struct MemoryStruct*)userp;
+
+	mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
+	if (mem->memory == NULL) {
+		printf("not enough memory (realloc returned NULL)\n");
+		return 0;
+	}
+
+	memcpy(&(mem->memory[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->memory[mem->size] = 0;
+
+	return realsize;
+}
+
 int main()
 {
-	init();
-	printTables();
 	return 0;
-	/*std::string res = exec("netstat -aon");
-	size_t pos = 0;
-	std::string token;
-	int index = 0;
-	std::string delimiter = "\n";
-	std::vector<std::vector<std::string>> data;
-
-	while ((pos = res.find(delimiter)) != std::string::npos) {
-		token = res.substr(0, pos);
-		res.erase(0, pos + delimiter.length());
-		if (index++ < 4) {
-			continue;
-		}
-		std::string temp = "";
-		std::vector<std::string> t;
-		for (char c : token) {
-			if (c != ' ') {
-				temp += c;
-			}
-			else {
-				if (temp == "") {
-					continue;
-				}
-				t.push_back(temp);
-				temp = "";
-			}
-		}
-
-		t.push_back(temp);
-
-		data.push_back(t);
-	}
-
-	for (std::vector<std::string>& arr : data) {
-		std::string pid = arr.at(arr.size() - 1);
-		arr.push_back(getNameFromPID(std::stoul(pid)));
-	}
-
-	for (std::vector<std::string> arr : data) {
-		std::cout << "connection: ";
-		for (std::string s : arr) {
-			std::cout << s << ", ";
-		}
-		std::cout << std::endl;
-	}
-
-	return 0;*/
+	init();
 
 	pcap_if_t* alldevs;
 	pcap_if_t* d;

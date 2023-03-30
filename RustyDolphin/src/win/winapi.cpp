@@ -111,6 +111,10 @@ std::string getNameFromPID(DWORD pid) {
     processName.assign(buffer.begin(), buffer.end() - 1); // -1 to remove the null terminator
 
     CloseHandle(hProcess);
+
+    Data::pids.push_back(pid);
+    Data::names.push_back(processName);
+
     return processName;
 }
 
