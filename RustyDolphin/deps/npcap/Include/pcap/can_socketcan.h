@@ -41,10 +41,10 @@
 
 #include <pcap/pcap-inttypes.h>
 
- /*
-  * SocketCAN header, as per Documentation/networking/can.txt in the
-  * Linux source.
-  */
+/*
+ * SocketCAN header, as per Documentation/networking/can.txt in the
+ * Linux source.
+ */
 typedef struct {
 	uint32_t can_id;
 	uint8_t payload_length;

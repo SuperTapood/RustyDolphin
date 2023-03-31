@@ -1,4 +1,4 @@
-#include "structs.h"
+#include "Structs.h"
 
 ip_address* LONG2ADDR(DWORD addr) {
 	ip_address* out = new ip_address();

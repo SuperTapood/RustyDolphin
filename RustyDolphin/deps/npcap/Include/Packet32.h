@@ -71,49 +71,49 @@
  * changes made by the Nmap Project or to this entire file.
  *
  ***************************************************************************/
- /*
-  * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
-  * Copyright (c) 2005 - 2007 CACE Technologies, Davis (California)
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-  * modification, are permitted provided that the following conditions
-  * are met:
-  *
-  * 1. Redistributions of source code must retain the above copyright
-  * notice, this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright
-  * notice, this list of conditions and the following disclaimer in the
-  * documentation and/or other materials provided with the distribution.
-  * 3. Neither the name of the Politecnico di Torino, CACE Technologies
-  * nor the names of its contributors may be used to endorse or promote
-  * products derived from this software without specific prior written
-  * permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-  * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  */
+/*
+ * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 2005 - 2007 CACE Technologies, Davis (California)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 
-  /** @ingroup packetapi
-   *  @{
-   */
+/** @ingroup packetapi
+ *  @{ 
+ */
 
-   /** @defgroup packet32h Packet.dll definitions and data structures
-	*  Packet32.h contains the data structures and the definitions used by packet.dll.
-	*  The file is used both by the Win9x and the WinNTx versions of packet.dll, and can be included
-	*  by the applications that use the functions of this library
-	*  @{
-	*/
+/** @defgroup packet32h Packet.dll definitions and data structures
+ *  Packet32.h contains the data structures and the definitions used by packet.dll.
+ *  The file is used both by the Win9x and the WinNTx versions of packet.dll, and can be included
+ *  by the applications that use the functions of this library
+ *  @{
+ */
 
 #ifndef __PACKET32
 #define __PACKET32
@@ -145,9 +145,10 @@ typedef struct _AirpcapHandle* PAirpcapHandle;
 #define PACKET_MODE_DUMP 0x10 ///< Dump mode
 #define PACKET_MODE_STAT_DUMP PACKET_MODE_DUMP | PACKET_MODE_STAT ///< Statistical dump Mode
 
+
 /// Alignment macro. Defines the alignment size.
 #define Packet_ALIGNMENT sizeof(int)
-/// Alignment macro. Rounds up to the next even multiple of Packet_ALIGNMENT.
+/// Alignment macro. Rounds up to the next even multiple of Packet_ALIGNMENT. 
 #define Packet_WORDALIGN(x) (((x)+(Packet_ALIGNMENT-1))&~(Packet_ALIGNMENT-1))
 
 #define NdisMediumNull	-1		///< Custom linktype: NDIS doesn't provide an equivalent
@@ -177,6 +178,7 @@ typedef struct NetType
 	ULONGLONG LinkSpeed;	/// UNUSED, set to 0
 }NetType;
 
+
 //some definitions stolen from libpcap
 
 #ifndef BPF_MAJOR_VERSION
@@ -184,13 +186,13 @@ typedef struct NetType
 /*!
   \brief A BPF pseudo-assembly program.
 
-  The program will be injected in the kernel by the PacketSetBPF() function and applied to every incoming packet.
+  The program will be injected in the kernel by the PacketSetBPF() function and applied to every incoming packet. 
 */
 struct bpf_program
 {
 	UINT bf_len;				///< Indicates the number of instructions of the program, i.e. the number of struct bpf_insn that will follow.
 	_Field_size_full_(bf_len)
-		struct bpf_insn* bf_insns;	///< A pointer to the first instruction of the program.
+	struct bpf_insn* bf_insns;	///< A pointer to the first instruction of the program.
 };
 
 /*!
@@ -213,11 +215,11 @@ struct bpf_insn
 */
 struct bpf_stat
 {
-	UINT bs_recv;		///< Number of packets that the driver received from the network adapter
-	///< from the beginning of the current capture. This value includes the packets
+	UINT bs_recv;		///< Number of packets that the driver received from the network adapter 
+	///< from the beginning of the current capture. This value includes the packets 
 	///< lost by the driver.
-	UINT bs_drop;		///< number of packets that the driver lost from the beginning of a capture.
-	///< Basically, a packet is lost when the the buffer of the driver is full.
+	UINT bs_drop;		///< number of packets that the driver lost from the beginning of a capture. 
+	///< Basically, a packet is lost when the the buffer of the driver is full. 
 	///< In this situation the packet cannot be stored and the driver rejects it.
 	UINT ps_ifdrop;		///< drops by interface. XXX not yet supported
 	UINT bs_capt;		///< number of packets that pass the filter, find place in the kernel buffer and
@@ -231,7 +233,7 @@ struct bpf_stat
 */
 struct bpf_hdr
 {
-	struct timeval bh_tstamp;	///< The timestamp associated with the captured packet.
+	struct timeval bh_tstamp;	///< The timestamp associated with the captured packet. 
 	///< It is stored in a TimeVal structure.
 	UINT bh_caplen;			///< Length of captured portion. The captured portion <b>can be different</b>
 	///< from the original packet, because it is possible (with a proper filter)
@@ -239,7 +241,7 @@ struct bpf_hdr
 	UINT bh_datalen;			///< Original length of packet
 	USHORT bh_hdrlen;		///< Length of bpf header (this struct plus alignment padding). In some cases,
 	///< a padding could be added between the end of this structure and the packet
-	///< data for performance reasons. This filed can be used to retrieve the actual data
+	///< data for performance reasons. This filed can be used to retrieve the actual data 
 	///< of the packet.
 };
 
@@ -253,11 +255,12 @@ struct bpf_hdr
 struct dump_bpf_hdr
 {
 	struct timeval ts;			///< Time stamp of the packet
-	UINT caplen;		///< Length of captured portion. The captured portion can smaller than the
-	///< the original packet, because it is possible (with a proper filter) to
-	///< instruct the driver to capture only a portion of the packets.
+	UINT caplen;		///< Length of captured portion. The captured portion can smaller than the 
+	///< the original packet, because it is possible (with a proper filter) to 
+	///< instruct the driver to capture only a portion of the packets. 
 	UINT len;		///< Length of the original packet (off wire).
 };
+
 
 #endif
 
@@ -270,7 +273,7 @@ struct bpf_stat;
 /*!
   \brief Addresses of a network adapter.
 
-  This structure is used by the PacketGetNetInfoEx() function to return the IP addresses associated with
+  This structure is used by the PacketGetNetInfoEx() function to return the IP addresses associated with 
   an adapter.
 */
 typedef struct npf_if_addr
@@ -280,10 +283,12 @@ typedef struct npf_if_addr
 	struct sockaddr_storage Broadcast;	///< Broadcast address.
 }npf_if_addr;
 
+
 #define ADAPTER_NAME_LENGTH 256 + 12	///<  Maximum length for the name of an adapter. The value is the same used by the IP Helper API.
 #define ADAPTER_DESC_LENGTH 128			///<  Maximum length for the description of an adapter. The value is the same used by the IP Helper API.
 #define MAX_MAC_ADDR_LENGTH 8			///<  Maximum length for the link layer address of an adapter. The value is the same used by the IP Helper API.
 #define MAX_NETWORK_ADDRESSES 16		///<  Maximum length for the link layer address of an adapter. The value is the same used by the IP Helper API.
+
 
 typedef struct WAN_ADAPTER_INT WAN_ADAPTER; ///< Describes an opened wan (dialup, VPN...) network adapter using the NetMon API
 typedef WAN_ADAPTER* PWAN_ADAPTER; ///< Describes an opened wan (dialup, VPN...) network adapter using the NetMon API
@@ -309,15 +314,15 @@ typedef struct _ADAPTER
 {
 	HANDLE hFile;				///< \internal Handle to an open instance of the NPF driver.
 	CHAR SymbolicLink[MAX_LINK_NAME_LENGTH]; ///< \internal A string containing the name of the network adapter currently opened.
-	int NumWrites;				///< \internal Number of times a packets written on this adapter will be repeated
+	int NumWrites;				///< \internal Number of times a packets written on this adapter will be repeated 
 	///< on the wire.
 	HANDLE ReadEvent;			///< A notification event associated with the read calls on the adapter.
 	///< It can be passed to standard Win32 functions (like WaitForSingleObject
-	///< or WaitForMultipleObjects) to wait until the driver's buffer contains some
-	///< data. It is particularly useful in GUI applications that need to wait
+	///< or WaitForMultipleObjects) to wait until the driver's buffer contains some 
+	///< data. It is particularly useful in GUI applications that need to wait 
 	///< concurrently on several events. The PacketSetMinToCopy()
 	///< function can be used to define the minimum amount of data in the kernel buffer
-	///< that will cause the event to be signalled.
+	///< that will cause the event to be signalled. 
 
 	UINT ReadTimeOut;  ///< \internal The amount of time PacketReceivePacket will wait for the ReadEvent to be signalled before issuing a ReadFile.
 	CHAR Name[ADAPTER_NAME_LENGTH];
@@ -339,7 +344,7 @@ typedef struct _PACKET
 	HANDLE hEvent;		///< \deprecated Still present for compatibility with old applications.
 	OVERLAPPED OverLapped;	///< \deprecated Still present for compatibility with old applications.
 	_Field_size_bytes_part_(Length, ulBytesReceived)
-		PVOID Buffer;		///< Buffer with containing the packets. See the PacketReceivePacket() for
+	PVOID Buffer;		///< Buffer with containing the packets. See the PacketReceivePacket() for
 	///< details about the organization of the data in this buffer
 	UINT Length;		///< Length of the buffer
 	DWORD ulBytesReceived;	///< Number of valid bytes present in the buffer, i.e. amount of data
@@ -350,8 +355,8 @@ typedef struct _PACKET
 /*!
   \brief Structure containing an OID request.
 
-  It is used by the PacketRequest() function to send an OID to the interface card driver.
-  It can be used, for example, to retrieve the status of the error counters on the adapter, its MAC address,
+  It is used by the PacketRequest() function to send an OID to the interface card driver. 
+  It can be used, for example, to retrieve the status of the error counters on the adapter, its MAC address, 
   the list of the multicast groups defined on it, and so on.
 */
 struct _PACKET_OID_DATA
@@ -360,9 +365,9 @@ struct _PACKET_OID_DATA
 	///< for a complete list of valid codes.
 	ULONG Length;				///< Length of the data field
 	_Field_size_full_(Length)
-		UCHAR Data[1];				///< variable-lenght field that contains the information passed to or received
+	UCHAR Data[1];				///< variable-lenght field that contains the information passed to or received 
 	///< from the adapter.
-};
+}; 
 typedef struct _PACKET_OID_DATA PACKET_OID_DATA, * PPACKET_OID_DATA;
 
 #ifdef __cplusplus
@@ -374,20 +379,20 @@ extern "C"
 	 *  @}
 	 */
 
-	 /*
-	 BOOLEAN QueryWinPcapRegistryStringA(CHAR *SubKeyName,
-									  CHAR *Value,
-									  UINT *pValueLen,
-									  CHAR *DefaultVal);
-	 BOOLEAN QueryWinPcapRegistryStringW(WCHAR *SubKeyName,
-									  WCHAR *Value,
-									  UINT *pValueLen,
-									  WCHAR *DefaultVal);
-	 */
+	/*
+	BOOLEAN QueryWinPcapRegistryStringA(CHAR *SubKeyName,
+									 CHAR *Value,
+									 UINT *pValueLen,
+									 CHAR *DefaultVal);
+	BOOLEAN QueryWinPcapRegistryStringW(WCHAR *SubKeyName,
+									 WCHAR *Value,
+									 UINT *pValueLen,
+									 WCHAR *DefaultVal);
+	*/
 
-	 //---------------------------------------------------------------------------
-	 // EXPORTED FUNCTIONS
-	 //---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	// EXPORTED FUNCTIONS
+	//---------------------------------------------------------------------------
 
 	LPCSTR PacketGetVersion();
 	LPCSTR PacketGetDriverVersion();
@@ -418,7 +423,7 @@ extern "C"
 	_Success_(return) BOOLEAN PacketReceivePacket(_In_ LPADAPTER AdapterObject, _Out_ LPPACKET lpPacket, _In_ BOOLEAN Sync);
 	_Success_(return) BOOLEAN PacketSetHwFilter(_In_ LPADAPTER AdapterObject, _In_ ULONG Filter);
 	_Success_(return) BOOLEAN PacketGetAdapterNames(_Out_writes_opt_(_Old_(*BufferSize)) PCHAR pStr, _Inout_ PULONG  BufferSize);
-	_Success_(return) BOOLEAN PacketGetNetInfoEx(_In_ PCCH AdapterName, _Out_writes_to_(_Old_(*NEntries), *NEntries) npf_if_addr* buffer, _Inout_ PLONG NEntries);
+	_Success_(return) BOOLEAN PacketGetNetInfoEx(_In_ PCCH AdapterName, _Out_writes_to_(_Old_(*NEntries),*NEntries) npf_if_addr* buffer, _Inout_ PLONG NEntries);
 	_Success_(return) BOOLEAN PacketRequest(_In_ LPADAPTER  AdapterObject, _In_ BOOLEAN Set, _Inout_ PPACKET_OID_DATA  OidData);
 	HANDLE PacketGetReadEvent(_In_ LPADAPTER AdapterObject);
 	__declspec(deprecated("Kernel dump mode is not supported")) BOOLEAN PacketSetDumpName(LPADAPTER AdapterObject, void* name, int len);
@@ -438,6 +443,6 @@ extern "C"
 
 #ifdef __cplusplus
 }
-#endif
+#endif 
 
 #endif //__PACKET32

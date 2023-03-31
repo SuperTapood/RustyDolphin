@@ -36,10 +36,10 @@
 
 #include <pcap/pcap-inttypes.h>
 
- /*
-  * Header prepended libpcap to each bluetooth h4 frame,
-  * fields are in network byte order
-  */
+/*
+ * Header prepended libpcap to each bluetooth h4 frame,
+ * fields are in network byte order
+ */
 typedef struct _pcap_bluetooth_h4_header {
 	uint32_t direction; /* if first bit is set direction is incoming */
 } pcap_bluetooth_h4_header;

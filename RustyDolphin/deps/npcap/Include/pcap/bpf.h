@@ -34,56 +34,56 @@
  *      @(#)bpf.h       7.1 (Berkeley) 5/7/91
  */
 
- /*
-  * This is libpcap's cut-down version of bpf.h; it includes only
-  * the stuff needed for the code generator and the userland BPF
-  * interpreter, and the libpcap APIs for setting filters, etc..
-  *
-  * "pcap-bpf.c" will include the native OS version, as it deals with
-  * the OS's BPF implementation.
-  *
-  * At least two programs found by Google Code Search explicitly includes
-  * <pcap/bpf.h> (even though <pcap.h>/<pcap/pcap.h> includes it for you),
-  * so moving that stuff to <pcap/pcap.h> would break the build for some
-  * programs.
-  */
+/*
+ * This is libpcap's cut-down version of bpf.h; it includes only
+ * the stuff needed for the code generator and the userland BPF
+ * interpreter, and the libpcap APIs for setting filters, etc..
+ *
+ * "pcap-bpf.c" will include the native OS version, as it deals with
+ * the OS's BPF implementation.
+ *
+ * At least two programs found by Google Code Search explicitly includes
+ * <pcap/bpf.h> (even though <pcap.h>/<pcap/pcap.h> includes it for you),
+ * so moving that stuff to <pcap/pcap.h> would break the build for some
+ * programs.
+ */
 
-  /*
-   * If we've already included <net/bpf.h>, don't re-define this stuff.
-   * We assume BSD-style multiple-include protection in <net/bpf.h>,
-   * which is true of all but the oldest versions of FreeBSD and NetBSD,
-   * or Tru64 UNIX-style multiple-include protection (or, at least,
-   * Tru64 UNIX 5.x-style; I don't have earlier versions available to check),
-   * or AIX-style multiple-include protection (or, at least, AIX 5.x-style;
-   * I don't have earlier versions available to check), or QNX-style
-   * multiple-include protection (as per GitHub pull request #394).
-   *
-   * We trust that they will define structures and macros and types in
-   * a fashion that's source-compatible and binary-compatible with our
-   * definitions.
-   *
-   * We do not check for BPF_MAJOR_VERSION, as that's defined by
-   * <linux/filter.h>, which is directly or indirectly included in some
-   * programs that also include pcap.h, and <linux/filter.h> doesn't
-   * define stuff we need.  We *do* protect against <linux/filter.h>
-   * defining various macros for BPF code itself; <linux/filter.h> says
-   *
-   *	Try and keep these values and structures similar to BSD, especially
-   *	the BPF code definitions which need to match so you can share filters
-   *
-   * so we trust that it will define them in a fashion that's source-compatible
-   * and binary-compatible with our definitions.
-   *
-   * This also provides our own multiple-include protection.
-   */
+/*
+ * If we've already included <net/bpf.h>, don't re-define this stuff.
+ * We assume BSD-style multiple-include protection in <net/bpf.h>,
+ * which is true of all but the oldest versions of FreeBSD and NetBSD,
+ * or Tru64 UNIX-style multiple-include protection (or, at least,
+ * Tru64 UNIX 5.x-style; I don't have earlier versions available to check),
+ * or AIX-style multiple-include protection (or, at least, AIX 5.x-style;
+ * I don't have earlier versions available to check), or QNX-style
+ * multiple-include protection (as per GitHub pull request #394).
+ *
+ * We trust that they will define structures and macros and types in
+ * a fashion that's source-compatible and binary-compatible with our
+ * definitions.
+ *
+ * We do not check for BPF_MAJOR_VERSION, as that's defined by
+ * <linux/filter.h>, which is directly or indirectly included in some
+ * programs that also include pcap.h, and <linux/filter.h> doesn't
+ * define stuff we need.  We *do* protect against <linux/filter.h>
+ * defining various macros for BPF code itself; <linux/filter.h> says
+ *
+ *	Try and keep these values and structures similar to BSD, especially
+ *	the BPF code definitions which need to match so you can share filters
+ *
+ * so we trust that it will define them in a fashion that's source-compatible
+ * and binary-compatible with our definitions.
+ *
+ * This also provides our own multiple-include protection.
+ */
 #if !defined(_NET_BPF_H_) && !defined(_NET_BPF_H_INCLUDED) && !defined(_BPF_H_) && !defined(_H_BPF) && !defined(lib_pcap_bpf_h)
 #define lib_pcap_bpf_h
 
-   /* u_char, u_short and u_int */
+/* u_char, u_short and u_int */
 #if defined(_WIN32)
-#include <winsock2.h>
+  #include <winsock2.h>
 #elif defined(HAVE_SYS_TYPES_H)
-#include <sys/types.h>
+  #include <sys/types.h>
 #endif
 
 #include <pcap/funcattrs.h>
@@ -93,23 +93,23 @@
 extern "C" {
 #endif
 
-	/* BSD style release date */
+/* BSD style release date */
 #define BPF_RELEASE 199606
 
 #ifdef MSDOS /* must be 32-bit */
-	typedef long          bpf_int32;
-	typedef unsigned long bpf_u_int32;
+typedef long          bpf_int32;
+typedef unsigned long bpf_u_int32;
 #else
-	typedef	int bpf_int32;
-	typedef	u_int bpf_u_int32;
+typedef	int bpf_int32;
+typedef	u_int bpf_u_int32;
 #endif
 
-	/*
-	 * Alignment macros.  BPF_WORDALIGN rounds up to the next
-	 * even multiple of BPF_ALIGNMENT.
-	 *
-	 * Tcpdump's print-pflog.c uses this, so we define it here.
-	 */
+/*
+ * Alignment macros.  BPF_WORDALIGN rounds up to the next
+ * even multiple of BPF_ALIGNMENT.
+ *
+ * Tcpdump's print-pflog.c uses this, so we define it here.
+ */
 #ifndef __NetBSD__
 #define BPF_ALIGNMENT sizeof(bpf_int32)
 #else
@@ -117,28 +117,28 @@ extern "C" {
 #endif
 #define BPF_WORDALIGN(x) (((x)+(BPF_ALIGNMENT-1))&~(BPF_ALIGNMENT-1))
 
-	 /*
-	  * Structure for "pcap_compile()", "pcap_setfilter()", etc..
-	  */
-	struct bpf_program {
-		u_int bf_len;
-		struct bpf_insn* bf_insns;
-	};
+/*
+ * Structure for "pcap_compile()", "pcap_setfilter()", etc..
+ */
+struct bpf_program {
+	u_int bf_len;
+	struct bpf_insn *bf_insns;
+};
 
-	/*
-	 * The instruction encodings.
-	 *
-	 * Please inform tcpdump-workers@lists.tcpdump.org if you use any
-	 * of the reserved values, so that we can note that they're used
-	 * (and perhaps implement it in the reference BPF implementation
-	 * and encourage its implementation elsewhere).
-	 */
+/*
+ * The instruction encodings.
+ *
+ * Please inform tcpdump-workers@lists.tcpdump.org if you use any
+ * of the reserved values, so that we can note that they're used
+ * (and perhaps implement it in the reference BPF implementation
+ * and encourage its implementation elsewhere).
+ */
 
-	 /*
-	  * The upper 8 bits of the opcode aren't used. BSD/OS used 0x8000.
-	  */
+/*
+ * The upper 8 bits of the opcode aren't used. BSD/OS used 0x8000.
+ */
 
-	  /* instruction classes */
+/* instruction classes */
 #define BPF_CLASS(code) ((code) & 0x07)
 #define		BPF_LD		0x00
 #define		BPF_LDX		0x01
@@ -248,23 +248,23 @@ extern "C" {
 /*
  * The instruction data structure.
  */
-	struct bpf_insn {
-		u_short	code;
-		u_char 	jt;
-		u_char 	jf;
-		bpf_u_int32 k;
-	};
+struct bpf_insn {
+	u_short	code;
+	u_char 	jt;
+	u_char 	jf;
+	bpf_u_int32 k;
+};
 
-	/*
-	 * Macros for insn array initializers.
-	 *
-	 * In case somebody's included <linux/filter.h>, or something else that
-	 * gives the kernel's definitions of BPF statements, get rid of its
-	 * definitions, so we can supply ours instead.  If some kernel's
-	 * definitions aren't *binary-compatible* with what BPF has had
-	 * since it first sprung from the brows of Van Jacobson and Steve
-	 * McCanne, that kernel should be fixed.
-	 */
+/*
+ * Macros for insn array initializers.
+ *
+ * In case somebody's included <linux/filter.h>, or something else that
+ * gives the kernel's definitions of BPF statements, get rid of its
+ * definitions, so we can supply ours instead.  If some kernel's
+ * definitions aren't *binary-compatible* with what BPF has had
+ * since it first sprung from the brows of Van Jacobson and Steve
+ * McCanne, that kernel should be fixed.
+ */
 #ifdef BPF_STMT
 #undef BPF_STMT
 #endif
@@ -274,21 +274,21 @@ extern "C" {
 #endif
 #define BPF_JUMP(code, k, jt, jf) { (u_short)(code), jt, jf, k }
 
-	PCAP_AVAILABLE_0_4
-		PCAP_API u_int	bpf_filter(const struct bpf_insn*, const u_char*, u_int, u_int);
+PCAP_AVAILABLE_0_4
+PCAP_API u_int	bpf_filter(const struct bpf_insn *, const u_char *, u_int, u_int);
 
-	PCAP_AVAILABLE_0_6
-		PCAP_API int	bpf_validate(const struct bpf_insn* f, int len);
+PCAP_AVAILABLE_0_6
+PCAP_API int	bpf_validate(const struct bpf_insn *f, int len);
 
-	PCAP_AVAILABLE_0_4
-		PCAP_API char* bpf_image(const struct bpf_insn*, int);
+PCAP_AVAILABLE_0_4
+PCAP_API char	*bpf_image(const struct bpf_insn *, int);
 
-	PCAP_AVAILABLE_0_6
-		PCAP_API void	bpf_dump(const struct bpf_program*, int);
+PCAP_AVAILABLE_0_6
+PCAP_API void	bpf_dump(const struct bpf_program *, int);
 
-	/*
-	 * Number of scratch memory words (for BPF_LD|BPF_MEM and BPF_ST).
-	 */
+/*
+ * Number of scratch memory words (for BPF_LD|BPF_MEM and BPF_ST).
+ */
 #define BPF_MEMWORDS 16
 
 #ifdef __cplusplus

@@ -36,26 +36,26 @@
 
 #include <pcap/pcap-inttypes.h>
 
- /*
-  * possible transfer mode
-  */
+/*
+ * possible transfer mode
+ */
 #define URB_TRANSFER_IN   0x80
 #define URB_ISOCHRONOUS   0x0
 #define URB_INTERRUPT     0x1
 #define URB_CONTROL       0x2
 #define URB_BULK          0x3
 
-  /*
-   * possible event type
-   */
+/*
+ * possible event type
+ */
 #define URB_SUBMIT        'S'
 #define URB_COMPLETE      'C'
 #define URB_ERROR         'E'
 
-   /*
-	* USB setup header as defined in USB specification.
-	* Appears at the front of each Control S-type packet in DLT_USB captures.
-	*/
+/*
+ * USB setup header as defined in USB specification.
+ * Appears at the front of each Control S-type packet in DLT_USB captures.
+ */
 typedef struct _usb_setup {
 	uint8_t bmRequestType;
 	uint8_t bRequest;

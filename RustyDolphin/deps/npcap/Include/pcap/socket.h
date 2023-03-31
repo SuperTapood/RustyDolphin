@@ -35,30 +35,30 @@
 #ifndef lib_pcap_socket_h
 #define lib_pcap_socket_h
 
- /*
-  * Some minor differences between sockets on various platforms.
-  * We include whatever sockets are needed for Internet-protocol
-  * socket access on UN*X and Windows.
-  */
+/*
+ * Some minor differences between sockets on various platforms.
+ * We include whatever sockets are needed for Internet-protocol
+ * socket access on UN*X and Windows.
+ */
 #ifdef _WIN32
   /* Need windef.h for defines used in winsock2.h under MingW32 */
-#ifdef __MINGW32__
-#include <windef.h>
-#endif
-#include <winsock2.h>
-#include <ws2tcpip.h>
+  #ifdef __MINGW32__
+    #include <windef.h>
+  #endif
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
 
-/*
- * Winsock doesn't have this POSIX type; it's used for the
- * tv_usec value of struct timeval.
- */
-typedef long suseconds_t;
+  /*
+   * Winsock doesn't have this POSIX type; it's used for the
+   * tv_usec value of struct timeval.
+   */
+  typedef long suseconds_t;
 #else /* _WIN32 */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>		/* for struct addrinfo/getaddrinfo() */
-#include <netinet/in.h>	/* for sockaddr_in, in BSD at least */
-#include <arpa/inet.h>
+  #include <sys/types.h>
+  #include <sys/socket.h>
+  #include <netdb.h>		/* for struct addrinfo/getaddrinfo() */
+  #include <netinet/in.h>	/* for sockaddr_in, in BSD at least */
+  #include <arpa/inet.h>
 
   /*!
    * \brief In Winsock, a socket handle is of type SOCKET; in UN*X, it's
@@ -66,19 +66,19 @@ typedef long suseconds_t;
    * We define SOCKET to be a signed integer on UN*X, so that it can
    * be used on both platforms.
    */
-#ifndef SOCKET
-#define SOCKET int
-#endif
+  #ifndef SOCKET
+    #define SOCKET int
+  #endif
 
-   /*!
-	* \brief In Winsock, the error return if socket() fails is INVALID_SOCKET;
-	* in UN*X, it's -1.
-	* We define INVALID_SOCKET to be -1 on UN*X, so that it can be used on
-	* both platforms.
-	*/
-#ifndef INVALID_SOCKET
-#define INVALID_SOCKET -1
-#endif
+  /*!
+   * \brief In Winsock, the error return if socket() fails is INVALID_SOCKET;
+   * in UN*X, it's -1.
+   * We define INVALID_SOCKET to be -1 on UN*X, so that it can be used on
+   * both platforms.
+   */
+  #ifndef INVALID_SOCKET
+    #define INVALID_SOCKET -1
+  #endif
 #endif /* _WIN32 */
 
 #endif /* lib_pcap_socket_h */

@@ -30,17 +30,17 @@
 
 #include <pcap/pcap-inttypes.h>
 
- /*
-  * Structure of an NFLOG header and TLV parts, as described at
-  * https://www.tcpdump.org/linktypes/LINKTYPE_NFLOG.html
-  *
-  * The NFLOG header is big-endian.
-  *
-  * The TLV length and type are in host byte order.  The value is either
-  * big-endian or is an array of bytes in some externally-specified byte
-  * order (text string, link-layer address, link-layer header, packet
-  * data, etc.).
-  */
+/*
+ * Structure of an NFLOG header and TLV parts, as described at
+ * https://www.tcpdump.org/linktypes/LINKTYPE_NFLOG.html
+ *
+ * The NFLOG header is big-endian.
+ *
+ * The TLV length and type are in host byte order.  The value is either
+ * big-endian or is an array of bytes in some externally-specified byte
+ * order (text string, link-layer address, link-layer header, packet
+ * data, etc.).
+ */
 typedef struct nflog_hdr {
 	uint8_t		nflog_family;	/* address family */
 	uint8_t		nflog_version;	/* version */

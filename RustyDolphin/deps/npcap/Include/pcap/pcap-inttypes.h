@@ -31,46 +31,46 @@
 #ifndef pcap_pcap_inttypes_h
 #define pcap_pcap_inttypes_h
 
- /*
-  * If we're compiling with Visual Studio, make sure the C99 integer
-  * types are defined, by hook or by crook.
-  *
-  * XXX - verify that we have at least C99 support on UN*Xes?
-  *
-  * What about MinGW or various DOS toolchains?  We're currently assuming
-  * sufficient C99 support there.
-  */
+/*
+ * If we're compiling with Visual Studio, make sure the C99 integer
+ * types are defined, by hook or by crook.
+ *
+ * XXX - verify that we have at least C99 support on UN*Xes?
+ *
+ * What about MinGW or various DOS toolchains?  We're currently assuming
+ * sufficient C99 support there.
+ */
 #if defined(_MSC_VER)
   /*
    * Compiler is MSVC.
    */
-#if _MSC_VER >= 1800
-   /*
-	* VS 2013 or newer; we have <inttypes.h>.
-	*/
-#include <inttypes.h>
-#else
-   /*
-	* Earlier VS; we have to define this stuff ourselves.
-	* We don't support building libpcap with earlier versions of VS,
-	* but SDKs for Npcap have to support building applications using
-	* earlier versions of VS, so we work around this by defining
-	* those types ourselves, as some files use them.
-	*/
-typedef unsigned char uint8_t;
-typedef signed char int8_t;
-typedef unsigned short uint16_t;
-typedef signed short int16_t;
-typedef unsigned int uint32_t;
-typedef signed int int32_t;
-#ifdef _MSC_EXTENSIONS
-typedef unsigned _int64 uint64_t;
-typedef _int64 int64_t;
-#else /* _MSC_EXTENSIONS */
-typedef unsigned long long uint64_t;
-typedef long long int64_t;
-#endif
-#endif
+  #if _MSC_VER >= 1800
+    /*
+     * VS 2013 or newer; we have <inttypes.h>.
+     */
+    #include <inttypes.h>
+  #else
+    /*
+     * Earlier VS; we have to define this stuff ourselves.
+     * We don't support building libpcap with earlier versions of VS,
+     * but SDKs for Npcap have to support building applications using
+     * earlier versions of VS, so we work around this by defining
+     * those types ourselves, as some files use them.
+     */
+    typedef unsigned char uint8_t;
+    typedef signed char int8_t;
+    typedef unsigned short uint16_t;
+    typedef signed short int16_t;
+    typedef unsigned int uint32_t;
+    typedef signed int int32_t;
+    #ifdef _MSC_EXTENSIONS
+      typedef unsigned _int64 uint64_t;
+      typedef _int64 int64_t;
+    #else /* _MSC_EXTENSIONS */
+      typedef unsigned long long uint64_t;
+      typedef long long int64_t;
+    #endif
+  #endif
 #else /* defined(_MSC_VER) */
   /*
    * Not Visual Studio.
@@ -90,12 +90,12 @@ typedef long long int64_t;
    * I.e., assume we have <inttypes.h> and that it suffices.
    */
 
-   /*
-	* XXX - somehow make sure we have enough C99 support with other
-	* compilers and support libraries?
-	*/
+  /*
+   * XXX - somehow make sure we have enough C99 support with other
+   * compilers and support libraries?
+   */
 
-#include <inttypes.h>
+  #include <inttypes.h>
 #endif /* defined(_MSC_VER) */
 
 #endif /* pcap/pcap-inttypes.h */

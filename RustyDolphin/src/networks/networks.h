@@ -1,4 +1,3 @@
 #pragma once
 
-
-#include "capture.h"
+#include "Capture.h"
