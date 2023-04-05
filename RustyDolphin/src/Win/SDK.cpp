@@ -178,7 +178,7 @@ DWORD SDK::getPIDFromPort(DWORD port) {
 		return PORT2PID.at(port);
 	}
 
-	refreshTables();
+	//refreshTables();
 
 	if (PORT2PID.count(port) > 0) {
 		return PORT2PID.at(port);
@@ -189,7 +189,7 @@ DWORD SDK::getPIDFromPort(DWORD port) {
 
 std::string SDK::getProcFromPID(DWORD PID) {
 	if (PID == MAXDWORD) {
-		return "1";
+		return "<UNKNOWN>";
 	}
 
 	if (PID2PROC.count(PID) == 1) {
@@ -200,11 +200,11 @@ std::string SDK::getProcFromPID(DWORD PID) {
 	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID);
 
 	if (hProcess == NULL) {
-		return "2";
+		return "<BADPROCESS>";
 	}
 
 	if (!GetModuleBaseName(hProcess, NULL, szProcessName, sizeof(szProcessName))) {
-		return "3";
+		return "<NAMELESS>";
 	}
 
 	std::string processName;

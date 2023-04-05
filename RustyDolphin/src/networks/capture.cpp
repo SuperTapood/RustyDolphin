@@ -118,17 +118,44 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 	return adhandle;
 }
 
-void Capture::loop(int devIndex, void (*func)(int, pcap_pkthdr*, const u_char*), bool promiscuous = false) {
+void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool promiscuous = false) {
+	auto d = getDev(devIndex);
 	auto adhandle = createAdapter(devIndex, promiscuous);
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
 
+	//struct bpf_program fcode;
+
+	//int netmask;
+	//if (d->addresses != NULL)
+	//	/* Retrieve the mask of the first address of the interface */
+	//	netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
+	//else
+	//	/* If the interface is without an address
+	//	 * we suppose to be in a C class network */
+	//	netmask = 0xffffff;
+
+	////compile the filter
+	//if (pcap_compile(adhandle, &fcode, "", 1, netmask) < 0)
+	//{
+	//	fprintf(stderr,
+	//		"\nUnable to compile the packet filter. Check the syntax.\n");
+	//	exit(-1);
+	//}
+
+	////set the filter
+	//if (pcap_setfilter(adhandle, &fcode) < 0)
+	//{
+	//	fprintf(stderr, "\nError setting the filter.\n");
+	//	exit(-1);
+	//}
+
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
 		if (r == 0) {
 			continue;
 		}
-		func(r, header, pkt_data);
+		func(header, pkt_data);
 	}
 
 	pcap_close(adhandle);

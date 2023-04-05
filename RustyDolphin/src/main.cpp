@@ -10,8 +10,48 @@
 #include "Win/Win.h"
 #include <cstdint>
 
+/*
+* 
+There are many possible protocol values that can be used in a packet. Some common protocol values include:
+
+- ICMP (Internet Control Message Protocol): 1
+- TCP (Transmission Control Protocol): 6
+- UDP (User Datagram Protocol): 17
+- IGMP (Internet Group Management Protocol): 2
+- OSPF (Open Shortest Path First): 89
+- GRE (Generic Routing Encapsulation): 47
+- ESP (Encapsulating Security Payload): 50
+- AH (Authentication Header): 51
+
+These are just a few examples of the many possible protocol values that can be used in a packet. The protocol value tells the system how to treat the incoming packet.
+
+Is there anything else you would like to know?
+
+EtherType is a two-octet field in an Ethernet frame that is used to indicate which protocol is encapsulated in the payload of the frame. It is used at the receiving end by the data link layer to determine how the payload is processed. The same field is also used to indicate the size of some Ethernet frames².
+
+Some common EtherType values include:
+
+- IPv4: 0x0800
+- ARP: 0x0806
+- Wake-on-LAN: 0x0842
+- VLAN-tagged frame (IEEE 802.1Q) and Shortest Path Bridging IEEE 802.1aq: 0x8100
+- IPv6: 0x86DD
+- MPLS unicast: 0x8847
+- MPLS multicast: 0x8848
+
+These are just a few examples of the many possible EtherType values that can be used in an Ethernet frame.
+
+Is there anything else you would like to know?
+
+Source: Conversation with Bing, 04/04/2023(1) EtherType - Wikipedia. https://en.wikipedia.org/wiki/EtherType Accessed 04/04/2023.
+(2) Ether - Wikipedia. https://en.wikipedia.org/wiki/Ether Accessed 04/04/2023.
+(3) EtherType - NETWORX SECURITY. https://www.networxsecurity.org/members-area/glossary/e/ethertype.html Accessed 04/04/2023.
+*/
+
 #define ETH_ALEN 6
-#define ETHERTYPE_IP 0x0800
+#define ETHERTYPE_IPV4 0x0800
+#define ETHERTYPE_ARP 0x0806
+#define ETHERTYPE_IPV6 0x86DD
 
 void free() {
 	Logger::free();
@@ -22,6 +62,7 @@ void init() {
 	atexit(free);
 	Logger::init();
 	Capture::init();
+	SDK::init();
 }
 
 struct ether_header
@@ -50,37 +91,57 @@ struct tcphdr {
 	uint16_t urg_ptr;
 };
 
-void callback(int code, pcap_pkthdr* header, const u_char* pkt_data) {
-	time_t local_tv_sec;
-	struct tm timeinfo;
-	char timestr[16];
-	ip_header* ih;
-	udp_header* uh;
+void callback(pcap_pkthdr* header, const u_char* pkt_data) {
 	u_int ip_len;
 	u_short sport;
 
-	local_tv_sec = header->ts.tv_sec;
-	localtime_s(&timeinfo, &local_tv_sec);
-	strftime(timestr, sizeof(timestr), "%H:%M:%S", &timeinfo);
-
 	struct ether_header* eth_header;
 	eth_header = (struct ether_header*)pkt_data;
-	long port = -1;
+	long dport = -1, srport = -1;
 	int type = 0;
+	ip_header* ip_hdr = nullptr;
 
-	if (ntohs(eth_header->ether_type) == ETHERTYPE_IP) {
-		ip_header* ip_hdr = (ip_header*)(pkt_data + sizeof(struct ether_header));
+	auto p = std::make_unique<Packet>(header, pkt_data);
+
+	if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV4) {
+		ip_hdr = (ip_header*)(pkt_data + sizeof(struct ether_header));
 		if (ip_hdr->proto == IPPROTO_TCP) {
-			struct tcphdr* tcp = (struct tcphdr*)(pkt_data + sizeof(struct ether_header) + sizeof(struct ip_header));
-			port = ntohs(tcp->dest);
-			type = 1;
+			u_char a = pkt_data[34];
+			u_char b = pkt_data[35];
+			srport = (a << 8) | b;
+			a = pkt_data[36];
+			b = pkt_data[37];
+			dport = (a << 8) | b;
+			type = 6;
 		}
 		else if (ip_hdr->proto == IPPROTO_UDP) {
-			struct udp_header* udp = (struct udp_header*)(pkt_data + sizeof(struct ether_header) + sizeof(struct ip_header));
-			port = ntohs(udp->dport);
-			type = 2;
+			u_char a = pkt_data[34];
+			u_char b = pkt_data[35];
+			srport = (a << 8) | b;
+			a = pkt_data[36];
+			b = pkt_data[37];
+			dport = (a << 8) | b;
+			type = 17;
+		}
+		else {
+			type = int(ip_hdr->proto);
 		}
 		// printf("Port: %d\n", port);
+	} 
+	else {
+		if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP || ntohs(eth_header->ether_type) == ETHERTYPE_IPV6) {
+			std::cout << "i know this guy!\n";
+			return;
+		}
+		std::stringstream ss;
+		ss << std::hex << eth_header->ether_type;
+		auto s = ss.str();
+		std::reverse(s.begin(), s.end());
+		if (s.length() == 3) {
+			s = "0" + s;
+		}
+		std::cout << "what the fuck is this protocol: 0x" << s << std::endl;
+		return;
 	}
 
 	///* retireve the position of the ip header */
@@ -91,15 +152,24 @@ void callback(int code, pcap_pkthdr* header, const u_char* pkt_data) {
 	//uh = (udp_header*)((u_char*)ih + ip_len);
 	//sport = ntohs(uh->sport);
 	std::string name;
-	if (port == -1) {
-		name = "fuck";
+	std::stringstream ss;
+	ss << (ip_hdr->proto);
+	if (srport == -1) {
+		name = type == 0 ? ss.str() : "fuck";
 	}
 	else {
-		name = SDK::getProcFromPort(port);
+		name = SDK::getProcFromPort(srport);
+		if (name == "<UNKNOWN>") {
+			name = SDK::getProcFromPort(dport);
+		}
 	}
 	// printf("%s,%.6d len:%d port:%d name:%s \n", timestr, header->ts.tv_usec, header->len, port, name);
 
-	std::cout << "packet of port: " << port << " process: " << name  << "(type: " << type << ")" << std::endl;
+	/*if (type == 6 || type == 17) {
+		return;
+	}*/
+	/*std::cout << p.time << " packet of type " << type << " sport: " << srport << " and dport : " << dport << "process : " << name << " (type : " << type << ")" << std::endl;*/
+	std::cout << p->toString() << std::endl;
 }
 
 
@@ -119,9 +189,8 @@ int main()
 	//	std::cout << "pid: " << row.dwOwningPid << " name: " << getNameFromPID(row.dwOwningPid) << std::endl;
 	//}
 
-	SDK::printTables();
+	// SDK::printTables();
 	
-	std::cout << SDK::getProcFromPort(8396) << std::endl;
 	Capture::loop(3, callback, true);
 
 	return 0;
@@ -210,33 +279,7 @@ int main()
 	//
 	//	/* At this point, we don't need any more the device list. Free it */
 	//	pcap_freealldevs(alldevs);
-	//	int netmask;
-	//	if (d->addresses != NULL)
-	//		/* Retrieve the mask of the first address of the interface */
-	//		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-	//	else
-	//		/* If the interface is without an address
-	//		 * we suppose to be in a C class network */
-	//		netmask = 0xffffff;
-	//
-	//	//compile the filter
-	//	if (pcap_compile(adhandle, &fcode, "udp", 1, netmask) < 0)
-	//	{
-	//		fprintf(stderr,
-	//			"\nUnable to compile the packet filter. Check the syntax.\n");
-	//		/* Free the device list */
-	//		pcap_freealldevs(alldevs);
-	//		return -1;
-	//	}
-	//
-	//	//set the filter
-	//	if (pcap_setfilter(adhandle, &fcode) < 0)
-	//	{
-	//		fprintf(stderr, "\nError setting the filter.\n");
-	//		/* Free the device list */
-	//		pcap_freealldevs(alldevs);
-	//		return -1;
-	//	}
+		
 
 		//struct tm* ltime;
 		//char timestr[16];

@@ -23,5 +23,5 @@ public:
 	static pcap_if_t* getDev(int index);
 	static std::vector<std::string>* getDeviceNames();
 	static pcap_t* createAdapter(int devIndex, bool promiscuous = false);
-	static void loop(int devIndex, void (*func)(int, pcap_pkthdr*, const u_char*), bool promiscuous);
+	static void loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool promiscuous);
 };
