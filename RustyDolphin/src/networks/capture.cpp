@@ -3,10 +3,12 @@
 #include <sstream>
 #include <tchar.h>
 #include <vector>
+#include <string>
 
 pcap_if_t* Capture::alldevs;
 int Capture::len;
 std::vector<std::string>* Capture::names;
+pcap_dumper_t* Capture::dumpfile;
 
 bool Capture::LoadNpcapDlls() {
 	_TCHAR npcap_dir[512];
@@ -125,31 +127,37 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 	const u_char* pkt_data;
 	int r;
 
-	//struct bpf_program fcode;
+	std::stringstream ss;
 
-	//int netmask;
-	//if (d->addresses != NULL)
-	//	/* Retrieve the mask of the first address of the interface */
-	//	netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-	//else
-	//	/* If the interface is without an address
-	//	 * we suppose to be in a C class network */
-	//	netmask = 0xffffff;
+	ss << time(nullptr) << "-output.pcap";
 
-	////compile the filter
-	//if (pcap_compile(adhandle, &fcode, "", 1, netmask) < 0)
-	//{
-	//	fprintf(stderr,
-	//		"\nUnable to compile the packet filter. Check the syntax.\n");
-	//	exit(-1);
-	//}
+	dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
 
-	////set the filter
-	//if (pcap_setfilter(adhandle, &fcode) < 0)
-	//{
-	//	fprintf(stderr, "\nError setting the filter.\n");
-	//	exit(-1);
-	//}
+	struct bpf_program fcode;
+
+	int netmask;
+	if (d->addresses != NULL)
+		/* Retrieve the mask of the first address of the interface */
+		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
+	else
+		/* If the interface is without an address
+		 * we suppose to be in a C class network */
+		netmask = 0xffffff;
+
+	//compile the filter
+	if (pcap_compile(adhandle, &fcode, "", 1, netmask) < 0)
+	{
+		fprintf(stderr,
+			"\nUnable to compile the packet filter. Check the syntax.\n");
+		exit(-1);
+	}
+
+	//set the filter
+	if (pcap_setfilter(adhandle, &fcode) < 0)
+	{
+		fprintf(stderr, "\nError setting the filter.\n");
+		exit(-1);
+	}
 
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
 		if (r == 0) {
@@ -159,4 +167,8 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 	}
 
 	pcap_close(adhandle);
+}
+
+void Capture::dump(struct pcap_pkthdr* h, const u_char* pkt) {
+	pcap_dump((u_char*)dumpfile, h, pkt);
 }

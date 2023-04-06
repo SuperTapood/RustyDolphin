@@ -13,12 +13,14 @@ namespace {
 
 		switch (proto) {
 		case IPPROTO_TCP:
-			return std::make_unique<TCPV4>(header, pkt_data);
+			return new TCPV4(header, pkt_data);
 		case IPPROTO_UDP:
-			return std::make_unique<UDPV4>(header, pkt_data);
+			return new UDPV4(header, pkt_data);
 		case IPPROTO_IGMP:
-			return std::make_unique<IGMPV4>(header, pkt_data);
+			return new IGMPV4(header, pkt_data);
 		}
+
+		return new IPV4(header, pkt_data);
 	}
 
 	IPV6_PKT fromIPV6(pcap_pkthdr* header, const u_char* pkt_data) {
@@ -26,12 +28,14 @@ namespace {
 
 		switch (proto) {
 		case IPPROTO_TCP:
-			return std::make_unique<TCPV6>(header, pkt_data);
+			return new TCPV6(header, pkt_data);
 		case IPPROTO_UDP:
-			return std::make_unique<UDPV6>(header, pkt_data);
+			return new UDPV6(header, pkt_data);
 		case IPPROTO_IGMP:
-			return std::make_unique<IGMPV6>(header, pkt_data);
+			return new IGMPV6(header, pkt_data);
 		}
+
+		return new IPV6(header, pkt_data);
 	}
 }
 
@@ -46,8 +50,8 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data) {
 	case ETHERTYPE_IPV6:
 		return fromIPV6(header, pkt_data);
 	case ETHERTYPE_ARP:
-		return std::make_unique<ARP>(header, pkt_data);
+		return new ARP(header, pkt_data);
 	}
 
-	return std::make_unique<Packet>(header, pkt_data);
+	return new Packet(header, pkt_data);
 }

@@ -5,21 +5,13 @@
 #include <sstream>
 
 UDPV4::UDPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_data) {
-	auto a = pkt_data[34];
-	auto b = pkt_data[35];
-	srcPort = (a << 8) | b;
+	srcPort = (int)parseLong(&pos, pos + 2);
 
-	a = pkt_data[36];
-	b = pkt_data[37];
-	destPort = (a << 8) | b;
+	destPort = (int)parseLong(&pos, pos + 2);
 
-	a = pkt_data[38];
-	b = pkt_data[39];
-	length = (a << 8) | b;
+	length = (int)parseLong(&pos, pos + 2);
 
-	a = pkt_data[40];
-	b = pkt_data[41];
-	checksum = (a << 8) | b;
+	checksum = (int)parseLong(&pos, pos + 2);
 }
 
 std::string UDPV4::toString() {

@@ -9,7 +9,7 @@
 class Packet {
 public:
 	// header stuff
-	std::string time;
+	std::string m_time;
 	time_t epoch;
 	int len;
 
@@ -19,15 +19,17 @@ public:
 	int type;
 	const u_char* pkt_data;
 
+	Packet(pcap_pkthdr* header, const u_char* pkt_data);
+	virtual std::string toString();
+
 private:
 	std::string padDate(int t);
 
 protected:
-	std::string parseMAC(int start, int end);
-	std::string parseIPV4(int start, int end);
-	std::string parseIPV6(int start, int end);
+	int pos;
 
-public:
-	Packet(pcap_pkthdr* header, const u_char* pkt_data);
-	virtual std::string toString();
+	std::string parseMAC(int* start, int end);
+	std::string parseIPV4(int* start, int end);
+	std::string parseIPV6(int* start, int end);
+	long long parseLong(int* start, int end);
 };

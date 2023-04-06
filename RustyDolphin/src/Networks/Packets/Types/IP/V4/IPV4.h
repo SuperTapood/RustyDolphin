@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Eth/Packet.h"
+#include "../../TCPOptions/TCPOption.h"
+#include "IPV4Options/IPV4Options.h"
 
 class IPV4 : public Packet {
 public:
@@ -15,6 +17,9 @@ public:
 	int headerChecksum;
 	std::string srcAddr;
 	std::string destAddr;
+	int IPoptionsCount;
+	IPV4Option* opts;
+
 
 	IPV4(pcap_pkthdr* header, const u_char* pkt_data);
 

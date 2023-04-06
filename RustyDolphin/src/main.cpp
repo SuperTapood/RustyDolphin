@@ -1,3 +1,5 @@
+// todo: fix the igmp thing for some reason it's parsing the wrong values from the packet
+
 #include <iostream>
 #include <cstdio>
 #include <stdio.h>
@@ -101,48 +103,48 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data) {
 	int type = 0;
 	ip_header* ip_hdr = nullptr;
 
-	auto p = std::make_unique<Packet>(header, pkt_data);
+	auto p = fromRaw(header, pkt_data);
 
-	if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV4) {
-		ip_hdr = (ip_header*)(pkt_data + sizeof(struct ether_header));
-		if (ip_hdr->proto == IPPROTO_TCP) {
-			u_char a = pkt_data[34];
-			u_char b = pkt_data[35];
-			srport = (a << 8) | b;
-			a = pkt_data[36];
-			b = pkt_data[37];
-			dport = (a << 8) | b;
-			type = 6;
-		}
-		else if (ip_hdr->proto == IPPROTO_UDP) {
-			u_char a = pkt_data[34];
-			u_char b = pkt_data[35];
-			srport = (a << 8) | b;
-			a = pkt_data[36];
-			b = pkt_data[37];
-			dport = (a << 8) | b;
-			type = 17;
-		}
-		else {
-			type = int(ip_hdr->proto);
-		}
-		// printf("Port: %d\n", port);
-	} 
-	else {
-		if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP || ntohs(eth_header->ether_type) == ETHERTYPE_IPV6) {
-			std::cout << "i know this guy!\n";
-			return;
-		}
-		std::stringstream ss;
-		ss << std::hex << eth_header->ether_type;
-		auto s = ss.str();
-		std::reverse(s.begin(), s.end());
-		if (s.length() == 3) {
-			s = "0" + s;
-		}
-		std::cout << "what the fuck is this protocol: 0x" << s << std::endl;
-		return;
-	}
+	//if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV4) {
+	//	ip_hdr = (ip_header*)(pkt_data + sizeof(struct ether_header));
+	//	if (ip_hdr->proto == IPPROTO_TCP) {
+	//		u_char a = pkt_data[34];
+	//		u_char b = pkt_data[35];
+	//		srport = (a << 8) | b;
+	//		a = pkt_data[36];
+	//		b = pkt_data[37];
+	//		dport = (a << 8) | b;
+	//		type = 6;
+	//	}
+	//	else if (ip_hdr->proto == IPPROTO_UDP) {
+	//		u_char a = pkt_data[34];
+	//		u_char b = pkt_data[35];
+	//		srport = (a << 8) | b;
+	//		a = pkt_data[36];
+	//		b = pkt_data[37];
+	//		dport = (a << 8) | b;
+	//		type = 17;
+	//	}
+	//	else {
+	//		type = int(ip_hdr->proto);
+	//	}
+	//	// printf("Port: %d\n", port);
+	//} 
+	//else {
+	//	if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP || ntohs(eth_header->ether_type) == ETHERTYPE_IPV6) {
+	//		std::cout << "i know this guy!\n";
+	//		return;
+	//	}
+	//	std::stringstream ss;
+	//	ss << std::hex << eth_header->ether_type;
+	//	auto s = ss.str();
+	//	std::reverse(s.begin(), s.end());
+	//	if (s.length() == 3) {
+	//		s = "0" + s;
+	//	}
+	//	std::cout << "what the fuck is this protocol: 0x" << s << std::endl;
+	//	return;
+	//}
 
 	///* retireve the position of the ip header */
 	//ih = (ip_header*)(pkt_data +
@@ -151,7 +153,7 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data) {
 	//ip_len = (ih->ver_ihl & 0xf) * 4;
 	//uh = (udp_header*)((u_char*)ih + ip_len);
 	//sport = ntohs(uh->sport);
-	std::string name;
+	/*std::string name;
 	std::stringstream ss;
 	ss << (ip_hdr->proto);
 	if (srport == -1) {
@@ -162,7 +164,7 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data) {
 		if (name == "<UNKNOWN>") {
 			name = SDK::getProcFromPort(dport);
 		}
-	}
+	}*/
 	// printf("%s,%.6d len:%d port:%d name:%s \n", timestr, header->ts.tv_usec, header->len, port, name);
 
 	/*if (type == 6 || type == 17) {
