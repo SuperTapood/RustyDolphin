@@ -7,6 +7,7 @@ void Logger::init() {
 }
 
 void Logger::log(std::string str) {
+	std::cout << "log: " << str << std::endl;
 	file << str << std::endl;
 }
 

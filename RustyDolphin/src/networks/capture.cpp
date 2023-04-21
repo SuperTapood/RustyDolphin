@@ -113,7 +113,7 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 	if (adhandle == nullptr) {
 		std::stringstream ss;
 		ss << "Unable to open the adapter. " << dev->name << " is not supported by Npcap";
-		Logger::log(ss.str());
+		Logger::log("adapter handle is nullptr. ");
 		exit(1);
 	}
 
@@ -145,7 +145,7 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 		netmask = 0xffffff;
 
 	//compile the filter
-	if (pcap_compile(adhandle, &fcode, "", 1, netmask) < 0)
+	if (pcap_compile(adhandle, &fcode, "igmp", 1, netmask) < 0)
 	{
 		fprintf(stderr,
 			"\nUnable to compile the packet filter. Check the syntax.\n");

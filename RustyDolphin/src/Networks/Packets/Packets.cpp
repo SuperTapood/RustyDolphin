@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <ws2def.h>
+#include "../../Base/Logger.h"
 
 #define ETHERTYPE_IPV4 0x0800
 #define ETHERTYPE_ARP 0x0806
@@ -20,6 +21,8 @@ namespace {
 			return new IGMPV4(header, pkt_data);
 		}
 
+		Logger::log("unknown v4 protocol: ");
+
 		return new IPV4(header, pkt_data);
 	}
 
@@ -31,9 +34,10 @@ namespace {
 			return new TCPV6(header, pkt_data);
 		case IPPROTO_UDP:
 			return new UDPV6(header, pkt_data);
-		case IPPROTO_IGMP:
-			return new IGMPV6(header, pkt_data);
 		}
+
+		Logger::log("unknown v6 protocol: ");
+		std::cout << "bad proto " << proto << std::endl;
 
 		return new IPV6(header, pkt_data);
 	}
@@ -52,6 +56,8 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data) {
 	case ETHERTYPE_ARP:
 		return new ARP(header, pkt_data);
 	}
+
+	Logger::log("unknown type: ");
 
 	return new Packet(header, pkt_data);
 }

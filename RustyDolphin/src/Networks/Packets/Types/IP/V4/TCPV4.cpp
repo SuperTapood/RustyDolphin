@@ -68,6 +68,7 @@ TCPV4::TCPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_dat
 }
 
 std::string TCPV4::toString() {
+	return "";
 	std::stringstream ss;
 
 	ss << "TCPV4 Packet at " << m_time << " from " << srcAddr << " at port " << srcPort << " to " << destAddr << " at port " << destPort << " with options: (";
@@ -77,7 +78,7 @@ std::string TCPV4::toString() {
 		ss << o->toString() << ", ";
 	}
 
-	ss << ")";
+	ss << ")\n";
 
 	return ss.str();
 }

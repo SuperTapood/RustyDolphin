@@ -76,7 +76,7 @@ std::string TCPV6::toString() {
 		ss << o->toString() << ", ";
 	}
 
-	ss << ")";
+	ss << ")\n";
 
 	return ss.str();
 }

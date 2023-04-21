@@ -9,7 +9,7 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 
 	flowLabel = (((pkt_data[pos] & 0x00001111) << 16) | (pkt_data[pos + 1] << 8)) | pkt_data[pos + 2];
 
-	pos += 3;
+	pos += 2;
 
 	payloadLength = parseLong(&pos, pos + 2);
 
@@ -25,7 +25,7 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 std::string IPV6::toString() {
 	std::stringstream ss;
 
-	ss << "IPV6 Packet at " << m_time << " of length " << payloadLength << " from " << srcAddr << " to " << destAddr << " transfer protocol is " << proto;
+	ss << "IPV6 Packet at " << m_time << " of length " << payloadLength << " from " << srcAddr << " to " << destAddr << "of payload length: " << payloadLength << " transfer protocol is " << proto << "\n";
 
 	return ss.str();
 }

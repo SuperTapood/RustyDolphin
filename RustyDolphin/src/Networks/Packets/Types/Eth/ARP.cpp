@@ -30,6 +30,7 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data)
 }
 
 std::string ARP::toString() {
+	return "";
 	std::stringstream ss;
 
 	ss << "ARP Packet at " << m_time;
@@ -43,6 +44,8 @@ std::string ARP::toString() {
 	else {
 		ss << " unknown opcode " << opcode;
 	}
+
+	ss << "\n";
 
 	return ss.str();
 }

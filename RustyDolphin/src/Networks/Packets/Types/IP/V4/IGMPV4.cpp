@@ -12,7 +12,7 @@ IGMPV4::IGMPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_d
 std::string IGMPV4::toString() {
 	std::stringstream ss;
 
-	ss << "IGMP of group type " << groupType << " max resp time is " << maxResp << " for multicast addr: " << multicastAddr;
+	ss << "IGMP of group type " << groupType << " max resp time is " << maxResp << " for multicast addr: " << multicastAddr << "\n";
 
 	return ss.str();
 }

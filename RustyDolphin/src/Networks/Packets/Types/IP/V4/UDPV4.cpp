@@ -17,7 +17,7 @@ UDPV4::UDPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_dat
 std::string UDPV4::toString() {
 	std::stringstream ss;
 
-	ss << "UDP Packet (V4) at " << time << " from " << srcAddr << " (port " << srcPort << " - " << SDK::getProcFromPort(srcPort) << " to " << destAddr << " (port " << destPort << " - " << SDK::getProcFromPort(destPort);
+	ss << "UDP Packet (V4) at " << m_time << " from " << srcAddr << " (port " << srcPort << " - " << SDK::getProcFromPort(srcPort) << " to " << destAddr << " (port " << destPort << " - " << SDK::getProcFromPort(destPort) << "))\n";
 
 	return ss.str();
 }

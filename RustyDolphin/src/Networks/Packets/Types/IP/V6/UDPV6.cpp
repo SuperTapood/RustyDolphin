@@ -17,7 +17,7 @@ UDPV6::UDPV6(pcap_pkthdr* header, const u_char* pkt_data) : IPV6(header, pkt_dat
 std::string UDPV6::toString() {
 	std::stringstream ss;
 
-	ss << "UDP Packet (V4) at " << time << " from " << srcAddr << " (port " << srcPort << " - " << SDK::getProcFromPort(srcPort) << " to " << destAddr << " (port " << destPort << " - " << SDK::getProcFromPort(destPort);
+	ss << "UDP Packet (V4) at " << time << " from " << srcAddr << " (port " << srcPort << " - " << SDK::getProcFromPort(srcPort) << " to " << destAddr << " (port " << destPort << " - " << SDK::getProcFromPort(destPort) << "\n";
 
 	return ss.str();
 }

@@ -32,7 +32,7 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 std::string Packet::toString() {
 	std::stringstream ss;
 
-	ss << "Base Packet at " << m_time << " of len " << len << " type: " << type << " from " << phySrc << " to " << phyDst;
+	ss << "Base Packet at " << m_time << " of len " << len << " type: " << type << " from " << phySrc << " to " << phyDst << "\n";
 
 	return ss.str();
 }
