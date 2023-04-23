@@ -15,7 +15,7 @@ TCPV4::TCPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_dat
 	seqNum = parseLong(&pos, pos + 4);
 
 	ackNum = parseLong(&pos, pos + 4);
-	
+
 	TCPLength = (pkt_data[pos] >> 4) * 4;
 
 	TCPflags = (pkt_data[pos] & 0x0F) | pkt_data[pos + 1];
@@ -43,7 +43,7 @@ TCPV4::TCPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_dat
 	while (total - pos > 0) {
 		int code = pkt_data[pos++];
 		optionCount++;
-		
+
 		switch (code) {
 		case NOP:
 			vec.push_back(new TCPNOP());

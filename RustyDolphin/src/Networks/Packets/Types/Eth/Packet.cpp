@@ -4,7 +4,6 @@
 
 #define MACSIZE 6
 
-
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 	this->pkt_data = pkt_data;
 	struct tm timeinfo;
@@ -18,7 +17,7 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 	m_time = ss.str();
 
 	pos = 0;
-	
+
 	phyDst = parseMAC(&pos, pos + MACSIZE);
 
 	phySrc = parseMAC(&pos, pos + MACSIZE);
@@ -27,7 +26,6 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 
 	type = (int)parseLong(&pos, pos + 2);
 }
-
 
 std::string Packet::toString() {
 	std::stringstream ss;

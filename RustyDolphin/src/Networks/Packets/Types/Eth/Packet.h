@@ -5,7 +5,6 @@
 #include <pcap.h>
 #include <string>
 
-
 class Packet {
 public:
 	// header stuff

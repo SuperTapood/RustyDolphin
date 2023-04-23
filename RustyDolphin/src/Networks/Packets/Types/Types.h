@@ -1,11 +1,9 @@
 #pragma once
 
-
 #include "Eth/Eth.h"
 #include "IP/IP.h"
 
 #include <memory>
-
 
 #define PKT             Packet*
 #define ARP_PKT         ARP*

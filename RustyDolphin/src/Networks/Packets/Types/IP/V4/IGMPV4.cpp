@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-IGMPV4::IGMPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_data){
+IGMPV4::IGMPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_data) {
 	groupType = pkt_data[pos++];
 	maxResp = pkt_data[pos++] / 10;
 	checksum = (int)parseLong(&pos, pos + 2);

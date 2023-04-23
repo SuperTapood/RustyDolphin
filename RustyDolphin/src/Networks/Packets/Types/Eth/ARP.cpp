@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-
 ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
 	auto a = pkt_data[pos++];
 	auto b = pkt_data[pos++];

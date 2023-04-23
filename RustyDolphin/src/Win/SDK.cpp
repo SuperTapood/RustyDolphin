@@ -167,7 +167,6 @@ void SDK::refreshTables() {
 	refreshUDP();
 }
 
-
 void SDK::init() {
 	initPIDCache();
 	refreshTables();

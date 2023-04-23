@@ -1,6 +1,5 @@
 #include "TCPSACK.h"
 
-
 TCPSACK::TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, int* pos) : TCPOption(5) {
 	len = pkt_data[(*pos)++];
 

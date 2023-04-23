@@ -36,7 +36,6 @@ using udp_header = struct udp_header {
 	u_short crc;   // Checksum
 };
 
-
 ip_address* LONG2ADDR(DWORD addr);
 std::string ADDR2STR(const ip_address* addr);
 std::string ADDR2STR(DWORD addr);
