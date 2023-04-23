@@ -4,6 +4,9 @@
 #include <WinSock2.h>
 #include <pcap.h>
 #include <string>
+#include <json.hpp>
+
+using json = nlohmann::ordered_json;
 
 class Packet {
 public:
@@ -20,6 +23,7 @@ public:
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data);
 	virtual std::string toString();
+	virtual json jsonify();
 
 private:
 	std::string padDate(int t);

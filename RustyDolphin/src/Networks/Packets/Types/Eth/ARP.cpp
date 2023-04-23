@@ -29,7 +29,6 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data)
 }
 
 std::string ARP::toString() {
-	return "";
 	std::stringstream ss;
 
 	ss << "ARP Packet at " << m_time;
@@ -47,4 +46,21 @@ std::string ARP::toString() {
 	ss << "\n";
 
 	return ss.str();
+}
+
+json ARP::jsonify() {
+	auto j = Packet::jsonify();
+
+	j["ARP"] = "start";
+	j["hardware type"] = hardType;
+	j["protocol type"] = protoType;
+	j["hardware size"] = hardSize;
+	j["protocol size"] = protoSize;
+	j["operation code"] = opcode;
+	j["sender MAC Address"] = sendMAC;
+	j["sender IP Address"] = sendAddr;
+	j["target MAC Address"] = targetMAC;
+	j["target IP Address"] = targetAddr;
+
+	return j;
 }

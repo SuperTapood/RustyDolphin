@@ -21,3 +21,15 @@ std::string UDPV4::toString() {
 
 	return ss.str();
 }
+
+json UDPV4::jsonify() {
+	auto j = IPV4::jsonify();
+
+	j["UDPV4"] = "start";
+	j["Source Port"] = srcPort;
+	j["Destination Port"] = destPort;
+	j["UDP Length"] = length;
+	j["UDP Checksum"] = checksum;
+
+	return j;
+}

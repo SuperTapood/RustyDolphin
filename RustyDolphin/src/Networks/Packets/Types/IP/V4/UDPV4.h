@@ -11,4 +11,5 @@ public:
 
 	UDPV4(pcap_pkthdr* header, const u_char* pkt_data);
 	std::string toString() override;
+	json jsonify() override;
 };

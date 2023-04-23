@@ -29,3 +29,20 @@ std::string IPV6::toString() {
 
 	return ss.str();
 }
+
+json IPV6::jsonify() {
+	auto j = Packet::jsonify();
+
+	j["IPV6"] = "start";
+	j["Version"] = version;
+	j["Traffic Class"] = trafficCls;
+	j["Flow Label"] = flowLabel;
+	j["Payload Length"] = payloadLength;
+	j["Protocol"] = proto;
+	j["Hop Limit"] = hopLimit;
+	j["Source Address"] = srcAddr;
+	j["Destination Address"] = destAddr;
+	j["Header Length"] = headerLength;
+
+	return j;
+}

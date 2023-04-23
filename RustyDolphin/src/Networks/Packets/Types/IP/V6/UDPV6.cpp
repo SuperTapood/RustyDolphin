@@ -21,3 +21,15 @@ std::string UDPV6::toString() {
 
 	return ss.str();
 }
+
+json UDPV6::jsonify() {
+	auto j = UDPV6::jsonify();
+
+	j["UDPV6"] = "start";
+	j["Source Port"] = srcPort;
+	j["Destination Port"] = destPort;
+	j["UDP Length"] = length;
+	j["UDP Checksum"] = checksum;
+
+	return j;
+}

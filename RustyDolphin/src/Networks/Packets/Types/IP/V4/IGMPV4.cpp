@@ -16,3 +16,15 @@ std::string IGMPV4::toString() {
 
 	return ss.str();
 }
+
+json IGMPV4::jsonify() {
+	auto j = IPV4::jsonify();
+
+	j["IGMP"] = "start";
+	j["Group Type"] = groupType;
+	j["Max Response Time"] = maxResp;
+	j["IGMP Checksum"] = checksum;
+	j["Multicast Address"] = multicastAddr;
+
+	return j;
+}

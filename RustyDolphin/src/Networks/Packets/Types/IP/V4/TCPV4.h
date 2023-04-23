@@ -11,7 +11,7 @@ public:
 	int TCPLength;
 	int TCPflags;
 	int window;
-	int checksum;
+	int TCPchecksum;
 	int urgentPtr;
 
 	int optionCount;
@@ -19,4 +19,5 @@ public:
 
 	TCPV4(pcap_pkthdr* header, const u_char* pkt_data);
 	std::string toString() override;
+	json jsonify() override;
 };

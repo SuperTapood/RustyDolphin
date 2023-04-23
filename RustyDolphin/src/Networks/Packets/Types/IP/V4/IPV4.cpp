@@ -79,3 +79,29 @@ std::string IPV4::toString() {
 
 	return ss.str();
 }
+
+json IPV4::jsonify() {
+	auto j = Packet::jsonify();
+
+	j["IPV4"] = "start";
+	j["IPV4 Header Length"] = headerLength;
+	j["Differentiated Services"] = differServ;
+	j["Total Length"] = totalLength;
+	j["Identification"] = identification;
+	j["Flags"] = flags;
+	j["Fragmentation Offset"] = fragmentationOffset;
+	j["Time to Live"] = ttl;
+	j["protocol"] = proto;
+	j["IPV4 Checksum"] = headerChecksum;
+	j["Source Address"] = srcAddr;
+	j["Destination Address"] = destAddr;
+	j["IP Options Count"] = IPoptionsCount;
+	
+	std::stringstream ss;
+	for (int i = 0; i < IPoptionsCount; i++) {
+		ss << opts[i].toString() << ", ";
+	}
+	j["IP Options"] = ss.str();
+
+	return j;
+}

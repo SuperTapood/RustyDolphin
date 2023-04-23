@@ -23,7 +23,7 @@ TCPV6::TCPV6(pcap_pkthdr* header, const u_char* pkt_data) : IPV6(header, pkt_dat
 
 	window = (int)parseLong(&pos, pos + 2);
 
-	checksum = (int)parseLong(&pos, pos + 2);
+	TCPchecksum = (int)parseLong(&pos, pos + 2);
 
 	urgentPtr = (int)parseLong(&pos, pos + 2);
 
@@ -69,7 +69,7 @@ TCPV6::TCPV6(pcap_pkthdr* header, const u_char* pkt_data) : IPV6(header, pkt_dat
 std::string TCPV6::toString() {
 	std::stringstream ss;
 
-	ss << "TCPV4 Packet at " << m_time << " from " << srcAddr << " at port " << srcPort << " to " << destAddr << " at port " << destPort << " with options: (";
+	ss << "TCPV6 Packet at " << m_time << " from " << srcAddr << " at port " << srcPort << " to " << destAddr << " at port " << destPort << " with options: (";
 
 	for (int i = 0; i < optionCount; i++) {
 		auto o = options[i];
@@ -79,4 +79,30 @@ std::string TCPV6::toString() {
 	ss << ")\n";
 
 	return ss.str();
+}
+
+json TCPV6::jsonify() {
+	auto j = IPV6::jsonify();
+
+	j["TCPV6"] = "start";
+	j["Source Port"] = srcPort;
+	j["Destination Port"] = destPort;
+	j["Sequence Number"] = seqNum;
+	j["Acknoledgement Number"] = ackNum;
+	j["TCP Header Length"] = TCPLength;
+	j["TCP Flags"] = TCPflags;
+	j["Window"] = window;
+	j["TCP Checksum"] = TCPchecksum;
+	j["Urgent Pointer"] = urgentPtr;
+	j["Number of Options"] = optionCount;
+
+	std::stringstream ss;
+	for (int i = 0; i < optionCount; i++) {
+		auto o = options[i];
+		ss << o->toString() << ", ";
+	}
+
+	j["TCP Options"] = ss.str();
+
+	return j;
 }

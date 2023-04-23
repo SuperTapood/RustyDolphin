@@ -61,6 +61,9 @@ void Capture::init() {
 
 void Capture::free() {
 	pcap_freealldevs(alldevs);
+	if (dumpfile != NULL) {
+		pcap_dump_close(dumpfile);
+	}
 }
 
 pcap_if_t* Capture::getDev(int index) {
@@ -132,7 +135,7 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 
 	std::stringstream ss;
 
-	ss << "captures/" << time(nullptr) << "-output.pcap";
+	ss << "captures/output.pcap";
 
 	dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
 
@@ -172,7 +175,7 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 	pcap_close(adhandle);
 }
 
-void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string), bool promiscuous, int maxPackets) {
+void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string), bool promiscuous, int maxPackets, std::string filter) {
 	auto d = getDev(devIndex);
 	auto adhandle = createAdapter(devIndex, promiscuous);
 	struct pcap_pkthdr* header;
@@ -181,9 +184,14 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 	std::stringstream ss;
 
-	ss << "captures/" << time(nullptr) << "-output.pcap";
+	ss << "captures/output.pcap";
 
 	dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
+
+	if (dumpfile == NULL) {
+		fprintf(stderr, "Couldn't open output file: %s\n", pcap_geterr(adhandle));
+		exit(-2);
+	}
 
 	struct bpf_program fcode;
 
@@ -197,7 +205,7 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 		netmask = 0xffffff;
 
 	//compile the filter
-	if (pcap_compile(adhandle, &fcode, "igmp", 1, netmask) < 0)
+	if (pcap_compile(adhandle, &fcode, filter.c_str(), 1, netmask) < 0)
 	{
 		fprintf(stderr,
 			"\nUnable to compile the packet filter. Check the syntax.\n");
@@ -211,11 +219,12 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 		exit(-1);
 	}
 
-	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
+	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {
 			continue;
 		}
 		maxPackets--;
+
 		pcap_dump((u_char*)dumpfile, header, pkt_data);
 
 		func(header, pkt_data, ss.str());

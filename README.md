@@ -3,18 +3,14 @@
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  b4 school:
-- captures saves and analyzes x packets to compare with wireshark
-- possibly test all other features? (Dearimgui, curl, winsdk, threading???)
-- check multiple apis to see which one works best!!! (Vulkan probs will, dx11 and dx9 are good bets (maybe metal for funsies?))
+- add ICMP!!!!!!!!!!!!
 
-- [ ] fix writing to file
 - [ ] change members to m_
 - [ ] Make var names make sense
 - [ ] use std memcpy instead of getting from the buffer
 - [ ] Better types in packets
 - [ ] winsdk free lol
 - [ ] to strings should really return constant values lol
-- [ ] each packet has two ui elements 1. Little summed up thing for the table view 2. Complex view for the little and big present windows
 - [ ] switch to unique pointers for packets?
 
 Filtering:

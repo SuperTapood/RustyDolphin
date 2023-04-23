@@ -35,6 +35,21 @@ std::string Packet::toString() {
 	return ss.str();
 }
 
+json Packet::jsonify() {
+	json j = {
+		{"header", "start"},
+		{"time", m_time},
+		{"epoch", epoch},
+		{"len", len},
+		{"base packet", "start"},
+		{"physical destination", phyDst},
+		{"physical source", phySrc},
+		{"packet type", type},
+	};
+
+	return j;
+}
+
 std::string Packet::padDate(int t) {
 	std::stringstream ss;
 	ss << t;
