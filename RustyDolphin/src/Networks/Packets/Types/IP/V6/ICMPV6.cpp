@@ -3,6 +3,7 @@
 #include "../../../../../Base/Logger.h"
 #include "../../../../../Networks/Capture.h"
 #include <iostream>
+#include <sstream>
 
 
 

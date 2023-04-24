@@ -4,15 +4,15 @@
 
 class ARP : public Packet {
 public:
-	int hardType;
-	int protoType;
-	int hardSize;
-	int protoSize;
-	int opcode;
-	std::string sendMAC;
-	std::string sendAddr;
-	std::string targetMAC;
-	std::string targetAddr;
+	int m_hardType;
+	int m_protoType;
+	int m_hardSize;
+	int m_protoSize;
+	int m_opcode;
+	std::string m_sendMAC;
+	std::string m_sendAddr;
+	std::string m_targetMAC;
+	std::string m_targetAddr;
 
 	ARP(pcap_pkthdr* header, const u_char* pkt_data);
 

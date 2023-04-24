@@ -12,21 +12,19 @@ class Packet {
 public:
 	// header stuff
 	std::string m_time;
-	time_t epoch;
-	int len;
+	time_t m_epoch;
+	int m_len;
 
 	// ether stuff
-	std::string phyDst;
-	std::string phySrc;
-	int type;
-	const u_char* pkt_data;
+	std::string m_phyDst;
+	std::string m_phySrc;
+	int m_type;
+	const u_char* m_pktData;
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data);
+	virtual ~Packet() = default;
 	virtual std::string toString();
 	virtual json jsonify();
-
-private:
-	std::string padDate(int t);
 
 protected:
 	int pos;
@@ -35,4 +33,7 @@ protected:
 	std::string parseIPV4(int* start, int end);
 	std::string parseIPV6(int* start, int end);
 	long long parseLong(int* start, int end);
+
+private:
+	std::string padDate(int t);
 };

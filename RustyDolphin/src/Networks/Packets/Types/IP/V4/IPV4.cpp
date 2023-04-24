@@ -4,6 +4,7 @@
 #include <vector>
 #include "../../../../../Base/Logger.h"
 #include "../../../../Capture.h"
+#include <iostream>
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
 	headerLength = ((int)pkt_data[pos++] & 0x0F) * 4;

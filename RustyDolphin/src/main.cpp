@@ -156,6 +156,8 @@ int itsDearingTime() {
 int main(int argc, char* argv[])
 {
 	init();
+
+	return itsDearingTime();
 	
 	if (argc > 1) {
 		std::string arg = argv[1];

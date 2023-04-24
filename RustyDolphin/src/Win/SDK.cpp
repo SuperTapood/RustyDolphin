@@ -8,7 +8,8 @@
 #include <Psapi.h>
 #include <vector>
 #include <tchar.h>
-#include "../base/Structs.h"
+#include <iostream>
+// #include "../base/Structs.h"
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
 std::map<DWORD, std::string> SDK::PID2PROC;
@@ -222,33 +223,4 @@ std::string SDK::getProcFromPID(DWORD PID) {
 
 std::string SDK::getProcFromPort(DWORD port) {
 	return getProcFromPID(getPIDFromPort(port));
-}
-
-void SDK::printTables() {
-	auto pTcpTable = getTCPTable();
-
-	// Print the TCP table
-	std::cout << "Num Entries: " << pTcpTable->dwNumEntries << std::endl;
-	for (DWORD i = 0; i < pTcpTable->dwNumEntries; i++) {
-		auto& row = pTcpTable->table[i];
-		std::cout << "Local Addr: " << ADDR2STR(row.dwLocalAddr) << ", Local Port: " << ntohs((u_short)row.dwLocalPort) << std::endl;
-		std::cout << "Remote Addr: " << ADDR2STR(row.dwRemoteAddr) << ", Remote Port: " << ntohs((u_short)row.dwRemotePort) << std::endl;
-		std::cout << "pid: " << row.dwOwningPid << " name: " << getProcFromPID(row.dwOwningPid) << std::endl;
-	}
-
-	// Free memory
-	free(pTcpTable);
-
-	auto pUdpTable = getUDPTable();
-
-	// Print the UDP table
-	std::cout << "Num Entries: " << pUdpTable->dwNumEntries << std::endl;
-	for (DWORD i = 0; i < pUdpTable->dwNumEntries; i++) {
-		auto& row = pUdpTable->table[i];
-
-		std::cout << "Local Addr: " << ADDR2STR(row.dwLocalAddr) << ", Local Port: " << ntohs((u_short)row.dwLocalPort) << std::endl;
-	}
-
-	// Free memory
-	free(pUdpTable);
 }

@@ -2,8 +2,7 @@
  
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
- b4 school:
-- add ICMP!!!!!!!!!!!!
+ https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
 - [ ] change members to m_
 - [ ] Make var names make sense
@@ -12,6 +11,9 @@
 - [ ] winsdk free lol
 - [ ] to strings should really return constant values lol
 - [ ] switch to unique pointers for packets?
+- [ ] exapand IPV4 Options
+- [ ] expand TCPOptions
+- [ ] wrap experimental stuff with try catch to prevent crashing later
 
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.

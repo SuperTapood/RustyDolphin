@@ -5,10 +5,10 @@
 #define MACSIZE 6
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
-	this->pkt_data = pkt_data;
+	this->m_pktData = pkt_data;
 	struct tm timeinfo;
-	epoch = header->ts.tv_sec;
-	localtime_s(&timeinfo, &epoch);
+	m_epoch = header->ts.tv_sec;
+	localtime_s(&timeinfo, &m_epoch);
 	std::stringstream ss;
 	int year = 1900 + timeinfo.tm_year;
 	int month = 1 + timeinfo.tm_mon;
@@ -18,19 +18,19 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 
 	pos = 0;
 
-	phyDst = parseMAC(&pos, pos + MACSIZE);
+	m_phyDst = parseMAC(&pos, pos + MACSIZE);
 
-	phySrc = parseMAC(&pos, pos + MACSIZE);
+	m_phySrc = parseMAC(&pos, pos + MACSIZE);
 
-	len = header->len;
+	m_len = header->len;
 
-	type = (int)parseLong(&pos, pos + 2);
+	m_type = (int)parseLong(&pos, pos + 2);
 }
 
 std::string Packet::toString() {
 	std::stringstream ss;
 
-	ss << "Base Packet at " << m_time << " of len " << len << " type: " << type << " from " << phySrc << " to " << phyDst << "\n";
+	ss << "Base Packet at " << m_time << " of len " << m_len << " type: " << m_type << " from " << m_phySrc << " to " << m_phyDst << "\n";
 
 	return ss.str();
 }
@@ -39,12 +39,12 @@ json Packet::jsonify() {
 	json j = {
 		{"header", "start"},
 		{"time", m_time},
-		{"epoch", epoch},
-		{"len", len},
+		{"epoch", m_epoch},
+		{"len", m_len},
 		{"base packet", "start"},
-		{"physical destination", phyDst},
-		{"physical source", phySrc},
-		{"packet type", type},
+		{"physical destination", m_phyDst},
+		{"physical source", m_phySrc},
+		{"packet type", m_type},
 	};
 
 	return j;
@@ -69,7 +69,7 @@ std::string Packet::parseMAC(int* start, int end) {
 	ss << std::hex;
 
 	for (; (*start) < end; (*start)++) {
-		auto v = (int)pkt_data[(*start)];
+		auto v = (int)m_pktData[(*start)];
 		if (v < 10) {
 			ss << "0";
 		}
@@ -87,7 +87,7 @@ std::string Packet::parseIPV4(int* start, int end) {
 	std::stringstream ss;
 
 	for (; (*start) < end; (*start)++) {
-		ss << (int)pkt_data[(*start)] << ".";
+		ss << (int)m_pktData[(*start)] << ".";
 	}
 
 	ip = ss.str();
@@ -103,11 +103,11 @@ std::string Packet::parseIPV6(int* start, int end) {
 	ss << std::hex;
 
 	for (; (*start) + 1 < end; (*start)++) {
-		auto v1 = (int)pkt_data[(*start)];
+		auto v1 = (int)m_pktData[(*start)];
 		if (v1 < 10) {
 			ss << "0";
 		}
-		auto v2 = (int)pkt_data[(*start) + 1];
+		auto v2 = (int)m_pktData[(*start) + 1];
 		if (v2 < 10) {
 			ss << "0";
 		}
@@ -125,7 +125,7 @@ long long Packet::parseLong(int* start, int end) {
 	int n = end - (*start);
 
 	for (int i = 0; (*start) < end; (*start)++, i++) {
-		out |= (long long)pkt_data[(*start)] << ((n - i - 1) * 8);
+		out |= (long long)m_pktData[(*start)] << ((n - i - 1) * 8);
 	}
 
 	return out;

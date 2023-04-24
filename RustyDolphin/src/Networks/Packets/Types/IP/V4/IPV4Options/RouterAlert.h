@@ -6,11 +6,11 @@
 
 class RouterAlert : public IPV4Option {
 public:
-	bool copyOnFrag;
-	int clsType;
-	int code;
-	int length;
-	long extra;
+	bool m_copyOnFrag;
+	int m_clsType;
+	int m_code;
+	int m_length;
+	long m_extra;
 
 	RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, int* pos);
 

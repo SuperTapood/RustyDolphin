@@ -17,6 +17,7 @@ public:
 	int headerLength = 40;
 
 	IPV6(pcap_pkthdr* header, const u_char* pkt_data);
+	~IPV6() override = default;
 
 	std::string toString() override;
 	json jsonify() override;

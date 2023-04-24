@@ -21,6 +21,7 @@ public:
 	IPV4Option* opts;
 
 	IPV4(pcap_pkthdr* header, const u_char* pkt_data);
+	~IPV4() override = default;
 
 	std::string toString() override;
 	json jsonify() override;

@@ -5,9 +5,9 @@
 #include <vector>
 #include <string>
 
-pcap_if_t* Capture::alldevs;
-int Capture::len;
-std::vector<std::string>* Capture::names;
+pcap_if_t* Capture::m_alldevs;
+int Capture::m_devs;
+std::vector<std::string>* Capture::m_devNames;
 pcap_dumper_t* Capture::dumpfile;
 
 bool Capture::LoadNpcapDlls() {
@@ -42,51 +42,51 @@ void Capture::init() {
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	// get the stupid devices and put  them into the stupid variable
-	if (pcap_findalldevs(&alldevs, errbuf) == -1)
+	if (pcap_findalldevs(&m_alldevs, errbuf) == -1)
 	{
 		ss << errbuf;
 		Logger::log("Error in pcap_findalldevs: " + ss.str());
 		exit(1);
 	}
 
-	len = 0;
+	m_devs = 0;
 
-	for (pcap_if_t* d = alldevs; d; d = d->next, len++);
+	for (pcap_if_t* d = m_alldevs; d; d = d->next, m_devs++);
 
-	if (len == 0) {
+	if (m_devs == 0) {
 		Logger::log("No interfaces found! Make sure Npcap is installed.");
 		exit(1);
 	}
 }
 
 void Capture::free() {
-	pcap_freealldevs(alldevs);
+	pcap_freealldevs(m_alldevs);
 	if (dumpfile != NULL) {
 		pcap_dump_close(dumpfile);
 	}
 }
 
 pcap_if_t* Capture::getDev(int index) {
-	if (index < 0 || index > len) {
+	if (index < 0 || index > m_devs) {
 		std::stringstream ss;
 		ss << index;
 		Logger::log("device index " + ss.str() + " does not exist :(");
 		exit(1);
 	}
 
-	pcap_if_t* d = alldevs;
+	pcap_if_t* d = m_alldevs;
 	for (; index > 0; index--, d = d->next);
 
 	return d;
 }
 
 std::vector<std::string>* Capture::getDeviceNames(bool verbose) {
-	if (names != nullptr) {
-		return names;
+	if (m_devNames != nullptr) {
+		return m_devNames;
 	}
-	names = new std::vector<std::string>;
-	auto d = alldevs;
-	for (int i = 0; i < len; i++) {
+	m_devNames = new std::vector<std::string>;
+	auto d = m_alldevs;
+	for (int i = 0; i < m_devs; i++) {
 		std::stringstream ss;
 		if (d->description) {
 			ss << d->description;
@@ -98,11 +98,11 @@ std::vector<std::string>* Capture::getDeviceNames(bool verbose) {
 		if (verbose) {
 			ss << "(" << d->name << ")";
 		}
-		names->push_back(ss.str());
+		m_devNames->push_back(ss.str());
 		d = d->next;
 	}
 
-	return names;
+	return m_devNames;
 }
 
 pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {

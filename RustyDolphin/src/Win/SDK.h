@@ -6,6 +6,13 @@
 #include <iphlpapi.h>
 
 class SDK {
+public:
+	static std::string exec(const char* cmd);
+	static void init();
+	static DWORD getPIDFromPort(DWORD port);
+	static std::string getProcFromPID(DWORD PID);
+	static std::string getProcFromPort(DWORD port);
+
 private:
 	static std::map<DWORD, DWORD> PORT2PID;
 	static std::map<DWORD, std::string> PID2PROC;
@@ -16,12 +23,4 @@ private:
 	static void refreshTCP();
 	static PMIB_UDPTABLE_OWNER_PID getUDPTable();
 	static void refreshUDP();
-
-public:
-	static std::string exec(const char* cmd);
-	static void init();
-	static DWORD getPIDFromPort(DWORD port);
-	static std::string getProcFromPID(DWORD PID);
-	static std::string getProcFromPort(DWORD port);
-	static void printTables();
 };

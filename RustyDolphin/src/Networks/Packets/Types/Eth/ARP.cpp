@@ -5,27 +5,27 @@
 ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
 	auto a = pkt_data[pos++];
 	auto b = pkt_data[pos++];
-	hardType = (a << 8) | b;
+	m_hardType = (a << 8) | b;
 
 	a = pkt_data[pos++];
 	b = pkt_data[pos++];
-	protoType = (a << 8) | b;
+	m_protoType = (a << 8) | b;
 
-	hardSize = pkt_data[pos++];
+	m_hardSize = pkt_data[pos++];
 
-	protoSize = pkt_data[pos++];
+	m_protoSize = pkt_data[pos++];
 
 	a = pkt_data[pos++];
 	b = pkt_data[pos++];
-	opcode = (a << 8) | b;
+	m_opcode = (a << 8) | b;
 
-	sendMAC = parseMAC(&pos, pos + hardSize);
+	m_sendMAC = parseMAC(&pos, pos + m_hardSize);
 
-	sendAddr = parseIPV4(&pos, pos + protoSize);
+	m_sendAddr = parseIPV4(&pos, pos + m_protoSize);
 
-	targetMAC = parseMAC(&pos, pos + hardSize);
+	m_targetMAC = parseMAC(&pos, pos + m_hardSize);
 
-	targetAddr = parseIPV4(&pos, pos + protoSize);
+	m_targetAddr = parseIPV4(&pos, pos + m_protoSize);
 }
 
 std::string ARP::toString() {
@@ -33,14 +33,14 @@ std::string ARP::toString() {
 
 	ss << "ARP Packet at " << m_time;
 
-	if (opcode == 1) {
-		ss << " who tf is " << targetAddr << "? Tell " << sendAddr;
+	if (m_opcode == 1) {
+		ss << " who tf is " << m_targetAddr << "? Tell " << m_sendAddr;
 	}
-	else if (opcode == 2) {
-		ss << " " << sendAddr << " is at physical address " << sendMAC;
+	else if (m_opcode == 2) {
+		ss << " " << m_sendAddr << " is at physical address " << m_sendMAC;
 	}
 	else {
-		ss << " unknown opcode " << opcode;
+		ss << " unknown opcode " << m_opcode;
 	}
 
 	ss << "\n";
@@ -52,15 +52,15 @@ json ARP::jsonify() {
 	auto j = Packet::jsonify();
 
 	j["ARP"] = "start";
-	j["hardware type"] = hardType;
-	j["protocol type"] = protoType;
-	j["hardware size"] = hardSize;
-	j["protocol size"] = protoSize;
-	j["operation code"] = opcode;
-	j["sender MAC Address"] = sendMAC;
-	j["sender IP Address"] = sendAddr;
-	j["target MAC Address"] = targetMAC;
-	j["target IP Address"] = targetAddr;
+	j["hardware type"] = m_hardType;
+	j["protocol type"] = m_protoType;
+	j["hardware size"] = m_hardSize;
+	j["protocol size"] = m_protoSize;
+	j["operation code"] = m_opcode;
+	j["sender MAC Address"] = m_sendMAC;
+	j["sender IP Address"] = m_sendAddr;
+	j["target MAC Address"] = m_targetMAC;
+	j["target IP Address"] = m_targetAddr;
 
 	return j;
 }
