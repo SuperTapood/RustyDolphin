@@ -4,11 +4,13 @@
 #include <tchar.h>
 #include <vector>
 #include <string>
+#include "../Win/SDK.h"
+#include <iostream>
 
 pcap_if_t* Capture::m_alldevs;
 int Capture::m_devs;
 std::vector<std::string>* Capture::m_devNames;
-pcap_dumper_t* Capture::dumpfile;
+pcap_dumper_t* Capture::m_dumpfile;
 
 bool Capture::LoadNpcapDlls() {
 	_TCHAR npcap_dir[512];
@@ -57,14 +59,37 @@ void Capture::init() {
 		Logger::log("No interfaces found! Make sure Npcap is installed.");
 		exit(1);
 	}
-	m_devNames = nullptr;
+
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+		Logger::log("Error initializing Winsock");
+		exit(1);
+	}
+
+	struct in_addr ipAddress;
+	for (pcap_addr_t* address = m_alldevs->addresses; address != nullptr; address = address->next) {
+		if (address->addr->sa_family == AF_INET) {
+			ipAddress = ((struct sockaddr_in*)address->addr)->sin_addr;
+			break;
+		}
+	}
+
+	char ipString[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &ipAddress, ipString, sizeof(ipString));
+
+	ss.clear();
+
+	ss << ipString;
+
+	SDK::ipAddress = ss.str();
 }
 
 void Capture::free() {
 	pcap_freealldevs(m_alldevs);
-	if (dumpfile != NULL) {
-		pcap_dump_close(dumpfile);
+	if (m_dumpfile != NULL) {
+		pcap_dump_close(m_dumpfile);
 	}
+	WSACleanup();
 }
 
 pcap_if_t* Capture::getDev(int index) {
@@ -138,7 +163,7 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 
 	ss << "captures/output.pcap";
 
-	dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
+	m_dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
 
 	struct bpf_program fcode;
 
@@ -187,9 +212,9 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 	ss << "captures/output.pcap";
 
-	dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
+	m_dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
 
-	if (dumpfile == NULL) {
+	if (m_dumpfile == NULL) {
 		fprintf(stderr, "Couldn't open output file: %s\n", pcap_geterr(adhandle));
 		exit(-2);
 	}
@@ -226,10 +251,9 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 		}
 		maxPackets--;
 
-		pcap_dump((u_char*)dumpfile, header, pkt_data);
+		pcap_dump((u_char*)m_dumpfile, header, pkt_data);
 
 		func(header, pkt_data, ss.str());
-		return;
 	}
 
 	pcap_close(adhandle);

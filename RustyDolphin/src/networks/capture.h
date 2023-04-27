@@ -24,7 +24,7 @@ private:
 	static pcap_if_t* m_alldevs;
 	static int m_devs;
 	static std::vector<std::string>* m_devNames;
-	static pcap_dumper_t* dumpfile;
+	static pcap_dumper_t* m_dumpfile;
 
 	static bool LoadNpcapDlls();
 };

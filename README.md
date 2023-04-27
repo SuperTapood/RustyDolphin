@@ -4,9 +4,8 @@
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
-- [ ] change members to m_
-- [ ] Make var names make sense
 - [ ] use std memcpy instead of getting from the buffer
+- [ ] udp and tcp v6s to properly get the process name
 - [ ] Better types in packets
 - [ ] winsdk free lol
 - [ ] to strings should really return constant values lol
@@ -14,6 +13,9 @@
 - [ ] exapand IPV4 Options
 - [ ] expand TCPOptions
 - [ ] wrap experimental stuff with try catch to prevent crashing later
+- [ ] use ifdef _DEBUG
+- [ ] curl with tracert
+- [ ] GUI
 
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.

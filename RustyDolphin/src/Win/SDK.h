@@ -7,6 +7,8 @@
 
 class SDK {
 public:
+	static std::string ipAddress;
+
 	static std::string exec(const char* cmd);
 	static void init();
 	static DWORD getPIDFromPort(DWORD port);

@@ -13,6 +13,7 @@
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
 std::map<DWORD, std::string> SDK::PID2PROC;
+std::string SDK::ipAddress;
 
 std::string SDK::exec(const char* cmd) {
 	std::array<char, 128> buffer{};
@@ -77,8 +78,8 @@ void SDK::initPIDCache() {
 			pos--;
 		}
 
-		if (PID2PROC.count(pid) == 0) {
-			PID2PROC.insert({ pid, name });
+		if (!PID2PROC.contains(pid)) {
+			PID2PROC.try_emplace(pid, name);
 		}
 
 		tasklist.erase(0, p + str.length());
@@ -116,10 +117,10 @@ void SDK::refreshTCP() {
 	auto table = SDK::getTCPTable();
 
 	for (DWORD i = 0; i < table->dwNumEntries; i++) {
-		auto& row = table->table[i];
+		auto const& row = table->table[i];
 		u_short port = ntohs((u_short)row.dwLocalPort);
 		DWORD pid = row.dwOwningPid;
-		if (PORT2PID.count(port) == 0) {
+		if (!PORT2PID.contains(port)) {
 			PORT2PID.insert({ port, pid });
 		}
 	}
@@ -174,13 +175,13 @@ void SDK::init() {
 }
 
 DWORD SDK::getPIDFromPort(DWORD port) {
-	if (PORT2PID.count(port) > 0) {
+	if (PORT2PID.contains(port)) {
 		return PORT2PID.at(port);
 	}
 
-	//refreshTables();
+	refreshTables();
 
-	if (PORT2PID.count(port) > 0) {
+	if (PORT2PID.contains(port)) {
 		return PORT2PID.at(port);
 	}
 
@@ -192,7 +193,7 @@ std::string SDK::getProcFromPID(DWORD PID) {
 		return "<UNKNOWN>";
 	}
 
-	if (PID2PROC.count(PID) == 1) {
+	if (PID2PROC.contains(PID)) {
 		return PID2PROC.at(PID);
 	}
 
@@ -203,7 +204,7 @@ std::string SDK::getProcFromPID(DWORD PID) {
 		return "<BADPROCESS>";
 	}
 
-	if (!GetModuleBaseName(hProcess, NULL, szProcessName, sizeof(szProcessName))) {
+	if (!GetModuleBaseName(hProcess, nullptr, szProcessName, sizeof(szProcessName))) {
 		return "<NAMELESS>";
 	}
 
@@ -216,7 +217,7 @@ std::string SDK::getProcFromPID(DWORD PID) {
 
 	CloseHandle(hProcess);
 
-	PID2PROC.insert({ PID, processName });
+	PID2PROC.try_emplace(PID, processName);
 
 	return processName;
 }

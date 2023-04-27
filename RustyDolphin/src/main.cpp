@@ -42,40 +42,40 @@ void init() {
 //	// std::cout << p->toString();
 //}
 
-struct baseP {
-	u_char phyDst[6];
-	u_char phySrc[6];
-	short type;
-};
-
-struct caseP : public baseP{
-	long l;
-	u_char chars[6];
-};
-
-class Renderer {
-public:
-	static void render(baseP v) {
-		std::cout << "rendering A packet" << std::endl;
-	}
-	static void render(caseP v) {
-		std::cout << "rendering B packet" << std::endl;
-	}
-};
-
-template <typename T>
-class P {
-public:
-	T data;
-
-	P(const u_char* pkt_data) {
-		std::memcpy(&data, pkt_data, sizeof(T));
-	}
-
-	void render() {
-		Renderer::render(data);
-	}
-};
+//struct baseP {
+//	u_char phyDst[6];
+//	u_char phySrc[6];
+//	short type;
+//};
+//
+//struct caseP : public baseP{
+//	long l;
+//	u_char chars[6];
+//};
+//
+//class Renderer {
+//public:
+//	static void render(baseP v) {
+//		std::cout << "rendering A packet" << std::endl;
+//	}
+//	static void render(caseP v) {
+//		std::cout << "rendering B packet" << std::endl;
+//	}
+//};
+//
+//template <typename T>
+//class P {
+//public:
+//	T data;
+//
+//	P(const u_char* pkt_data) {
+//		std::memcpy(&data, pkt_data, sizeof(T));
+//	}
+//
+//	void render() {
+//		Renderer::render(data);
+//	}
+//};
 
 void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename) {
 	auto p = fromRaw(header, pkt_data);
@@ -95,6 +95,8 @@ void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string fil
 	file << p->jsonify().dump(4) << "\n";*/
 
 	// std::cout << p->jsonify().dump(4) << std::endl;
+
+	std::cout << p->toString() << std::endl;
 }
 
 void countPackets(std::vector<int>* counts, int adapterIdx) {
@@ -189,19 +191,9 @@ int itsDearingTime() {
 	return 0;
 }
 
-#include <type_traits>
-#include <cstdint>
-#include <bitset>
-
-#include <iostream>
-#include <type_traits>
-#include <string>
-
-
 
 int main(int argc, char* argv[])
 {
-	std::cout << "fuck" << std::endl;
 	//UINT16 chars[] {47, 51, 33, 21};
 	//A a;
 	//std::memcpy(&a, chars, sizeof(A));
