@@ -57,6 +57,7 @@ void Capture::init() {
 		Logger::log("No interfaces found! Make sure Npcap is installed.");
 		exit(1);
 	}
+	m_devNames = nullptr;
 }
 
 void Capture::free() {
@@ -228,6 +229,7 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 		pcap_dump((u_char*)dumpfile, header, pkt_data);
 
 		func(header, pkt_data, ss.str());
+		return;
 	}
 
 	pcap_close(adhandle);
