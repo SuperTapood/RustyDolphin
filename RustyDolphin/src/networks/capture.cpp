@@ -260,5 +260,5 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 }
 
 void Capture::dump(struct pcap_pkthdr* h, const u_char* pkt) {
-	// pcap_dump((u_char*)dumpfile, h, pkt);
+	pcap_dump((u_char*)m_dumpfile, h, pkt);
 }

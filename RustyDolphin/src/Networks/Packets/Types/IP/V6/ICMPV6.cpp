@@ -5,9 +5,6 @@
 #include <iostream>
 #include <sstream>
 
-
-
-
 ICMPV6::ICMPV6(pcap_pkthdr* header, const u_char* pkt_data) : IPV6(header, pkt_data) {
 	m_type = pkt_data[pos++];
 	m_code = pkt_data[pos++];

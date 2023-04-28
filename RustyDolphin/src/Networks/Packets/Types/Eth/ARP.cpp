@@ -3,29 +3,23 @@
 #include <sstream>
 
 ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
-	auto a = pkt_data[pos++];
-	auto b = pkt_data[pos++];
-	m_hardType = (a << 8) | b;
+	m_hardType = parseShort();
 
-	a = pkt_data[pos++];
-	b = pkt_data[pos++];
-	m_protoType = (a << 8) | b;
+	m_protoType = parseShort();
 
 	m_hardSize = pkt_data[pos++];
 
 	m_protoSize = pkt_data[pos++];
 
-	a = pkt_data[pos++];
-	b = pkt_data[pos++];
-	m_opcode = (a << 8) | b;
+	m_opcode = parseShort();
 
-	m_sendMAC = parseMAC(&pos, pos + m_hardSize);
+	m_sendMAC = parseMAC(m_hardSize);
 
-	m_sendAddr = parseIPV4(&pos, pos + m_protoSize);
+	m_sendAddr = parseIPV4(m_protoSize);
 
-	m_targetMAC = parseMAC(&pos, pos + m_hardSize);
+	m_targetMAC = parseMAC(m_hardSize);
 
-	m_targetAddr = parseIPV4(&pos, pos + m_protoSize);
+	m_targetAddr = parseIPV4(m_protoSize);
 }
 
 std::string ARP::toString() {

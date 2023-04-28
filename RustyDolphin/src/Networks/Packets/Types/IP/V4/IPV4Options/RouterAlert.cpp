@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-RouterAlert::RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, int* pos) : IPV4Option(20) {
+RouterAlert::RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos) : IPV4Option(20) {
 	m_copyOnFrag = pkt_data[*pos] & 0x10000000;
 	m_clsType = pkt_data[*pos] & 0x01100000;
 	m_code = pkt_data[*pos] & 0x00011111;

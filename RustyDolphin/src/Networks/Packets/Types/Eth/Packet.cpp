@@ -1,8 +1,15 @@
 #include "Packet.h"
 #include <iostream>
 #include <sstream>
-
-#define MACSIZE 6
+#include <memory>
+#include <string>
+#include <json.hpp>
+#include <type_traits>
+#include <pcap.h>
+#include <iostream>
+#include <sstream>
+#include <ctime>
+#include <WinSock2.h>
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 	this->m_pktData = pkt_data;
@@ -14,17 +21,17 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
 	int month = 1 + timeinfo.tm_mon;
 
 	ss << year << "/" << padDate(month) << "/" << padDate(timeinfo.tm_mday) << " " << padDate(timeinfo.tm_hour) << ":" << padDate(timeinfo.tm_min) << ":" << padDate(timeinfo.tm_sec);
-	m_time = ss.str();
 
 	pos = 0;
+	m_time = ss.str();
 
-	m_phyDst = parseMAC(&pos, pos + MACSIZE);
+	m_phyDst = parseMAC();
 
-	m_phySrc = parseMAC(&pos, pos + MACSIZE);
+	m_phySrc = parseMAC();
 
 	m_len = header->len;
 
-	m_type = (int)parseLong(&pos, pos + 2);
+	m_type = parseShort();
 }
 
 std::string Packet::toString() {
@@ -62,18 +69,12 @@ std::string Packet::padDate(int t) {
 	return s;
 }
 
-std::string Packet::parseMAC(int* start, int end) {
+std::string Packet::parseMAC(unsigned int* start, unsigned int end) {
 	std::stringstream ss;
 	std::string mac;
 
-	ss << std::hex;
-
 	for (; (*start) < end; (*start)++) {
-		auto v = (int)m_pktData[(*start)];
-		if (v < 10) {
-			ss << "0";
-		}
-		ss << v << ":";
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[(*start)] << ":";
 	}
 
 	mac = ss.str();
@@ -82,7 +83,7 @@ std::string Packet::parseMAC(int* start, int end) {
 	return mac;
 }
 
-std::string Packet::parseIPV4(int* start, int end) {
+std::string Packet::parseIPV4(unsigned int* start, unsigned int end) {
 	std::string ip;
 	std::stringstream ss;
 
@@ -96,7 +97,7 @@ std::string Packet::parseIPV4(int* start, int end) {
 	return ip;
 }
 
-std::string Packet::parseIPV6(int* start, int end) {
+std::string Packet::parseIPV6(unsigned int* start, unsigned int end) {
 	std::stringstream ss;
 	std::string ip;
 
@@ -120,13 +121,140 @@ std::string Packet::parseIPV6(int* start, int end) {
 	return ip;
 }
 
-long long Packet::parseLong(int* start, int end) {
+long long Packet::parseLong(unsigned int* start, unsigned int end) {
 	long long out = 0;
 	int n = end - (*start);
 
 	for (int i = 0; (*start) < end; (*start)++, i++) {
 		out |= (long long)m_pktData[(*start)] << ((n - i - 1) * 8);
 	}
+	//std::memcpy(&out, m_pktData + (*start), end - (*start));
+
+	//(*start) = end;
+
+	//return htons(out);
 
 	return out;
+}
+
+std::string Packet::parseMAC(unsigned int size) {
+	std::stringstream ss;
+	std::string mac;
+
+	for (int i = pos + size; pos < i; pos++) {
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos] << ":";
+	}
+
+	mac = ss.str();
+	mac.pop_back();
+
+	return mac;
+}
+
+std::string Packet::parseIPV4(unsigned int size) {
+	std::stringstream ss;
+	std::string ip;
+
+	for (int i = pos + size; pos < i; pos++) {
+		ss << (int)m_pktData[pos] << ".";
+	}
+
+	ip = ss.str();
+	ip.pop_back();
+
+	return ip;
+}
+
+std::string Packet::parseIPV6(unsigned int size) {
+	std::stringstream ss;
+	std::string ip;
+
+	for (int i = pos + size; pos < i; pos += 2) {
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos] << std::hex << (int)m_pktData[pos + 1] << ":";
+	}
+
+	ip = ss.str();
+	ip.pop_back();
+
+	return ip;
+}
+
+std::string Packet::parse(unsigned long long size) {
+	std::stringstream ss;
+
+	for (int end = pos + size; pos < end; pos++) {
+		ss << std::hex << (int)m_pktData[pos];
+	}
+
+	return ss.str();
+}
+
+uint64_t Packet::htonll(uint64_t x) {
+	if (htonl(1) == 1) {
+		// The system is already in network byte order
+		return x;
+	}
+	else {
+		// Swap the bytes
+		return ((uint64_t)htonl(x & 0xFFFFFFFF) << 32) | htonl(x >> 32);
+	}
+}
+
+int Packet::htoni(int x) {
+	if (htons(1) == 1) {
+		// The system is already in network byte order
+		return x;
+	}
+	else {
+		// Swap the bytes
+		return ((int)htons(x & 0xFFFFFFFF) << 16) | htons(x >> 16);
+	}
+}
+
+long long Packet::parseLongLong() {
+	long long out;
+
+	constexpr auto len = 8;
+
+	std::memcpy(&out, m_pktData + pos, len);
+
+	pos += len;
+
+	return htonll(out);
+}
+
+long Packet::parseLong() {
+	short out;
+
+	constexpr auto len = 4;
+
+	std::memcpy(&out, m_pktData + pos, len);
+
+	pos += len;
+
+	return htonl(out);
+}
+
+int Packet::parseInt() {
+	int out;
+
+	constexpr auto len = 4;
+
+	std::memcpy(&out, m_pktData + pos, len);
+
+	pos += len;
+
+	return htoni(out);
+}
+
+short Packet::parseShort() {
+	short out;
+
+	constexpr auto len = 2;
+
+	std::memcpy(&out, m_pktData + pos, len);
+
+	pos += len;
+
+	return htons(out);
 }

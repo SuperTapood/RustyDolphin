@@ -4,11 +4,11 @@
 
 class ARP : public Packet {
 public:
-	int m_hardType;
-	int m_protoType;
-	int m_hardSize;
-	int m_protoSize;
-	int m_opcode;
+	unsigned short m_hardType;
+	unsigned short m_protoType;
+	unsigned short m_hardSize;
+	unsigned short m_protoSize;
+	unsigned short m_opcode;
 	std::string m_sendMAC;
 	std::string m_sendAddr;
 	std::string m_targetMAC;

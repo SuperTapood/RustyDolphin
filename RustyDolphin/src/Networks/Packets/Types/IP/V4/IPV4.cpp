@@ -7,7 +7,8 @@
 #include <iostream>
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
-	m_headerLength = ((int)pkt_data[pos++] & 0x0F) * 4;
+	auto start = pos;
+	m_headerLength = ((int)pkt_data[pos++] & 0xF) * 4;
 	m_differServ = (int)pkt_data[pos++];
 
 	m_totalLength = (int)parseLong(&pos, pos + 2);
@@ -29,7 +30,7 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 
 	m_destAddr = parseIPV4(&pos, pos + 4);
 
-	int diff = m_headerLength - 20;
+	int diff = (m_headerLength + start) - pos;
 
 	m_IPoptionsCount = 0;
 	std::vector<IPV4Option> vec;
@@ -48,12 +49,14 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 			vec.push_back(RouterAlert(header, pkt_data, &pos));
 			break;
 		default:
+#ifdef _DEBUG
 			std::stringstream ss;
 			ss << "bad ip option of packet data: " << code;
 			Logger::log(ss.str());
 			Capture::dump(header, pkt_data);
 			pos += diff;
 			diff = 0;
+#endif
 			break;
 		}
 
@@ -97,7 +100,7 @@ json IPV4::jsonify() {
 	j["Source Address"] = m_srcAddr;
 	j["Destination Address"] = m_destAddr;
 	j["IP Options Count"] = m_IPoptionsCount;
-	
+
 	std::stringstream ss;
 	for (int i = 0; i < m_IPoptionsCount; i++) {
 		ss << m_opts[i].toString() << ", ";

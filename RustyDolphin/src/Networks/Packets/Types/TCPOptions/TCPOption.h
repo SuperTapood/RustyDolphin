@@ -7,7 +7,7 @@
 
 class TCPOption {
 protected:
-	long long parseLong(int* start, int end, const u_char* pkt_data);
+	long long parseLong(unsigned int* start, int end, const u_char* pkt_data);
 public:
 	int m_code;
 

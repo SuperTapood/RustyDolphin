@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-long long IPV4Option::parseLong(int* start, int end, const u_char* pkt_data) {
+long long IPV4Option::parseLong(unsigned int* start, int end, const u_char* pkt_data) {
 	long long out = 0;
 	int n = end - (*start);
 

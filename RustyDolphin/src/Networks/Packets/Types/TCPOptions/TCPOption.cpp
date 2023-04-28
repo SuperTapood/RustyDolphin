@@ -12,7 +12,7 @@ std::string TCPOption::toString() {
 	return ss.str();
 }
 
-long long TCPOption::parseLong(int* start, int end, const u_char* pkt_data) {
+long long TCPOption::parseLong(unsigned int* start, int end, const u_char* pkt_data) {
 	long long out = 0;
 	int n = end - (*start);
 

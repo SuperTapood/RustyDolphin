@@ -53,10 +53,14 @@ TCPV4::TCPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_dat
 			vec.push_back(new TCPSACK(header, pkt_data, &pos));
 			break;
 		default:
-			Logger::log("bad option of packet data");
+#ifdef _DEBUG
+			std::stringstream ss;
+			ss << "bad option of packet data: " << code;
+			Logger::log(ss.str());
 			Capture::dump(header, pkt_data);
 			m_optionCount--;
 			exit(code);
+#endif
 			break;
 		}
 	}

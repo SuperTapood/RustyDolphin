@@ -9,7 +9,7 @@ public:
 	long long* m_Redges;
 	long long* m_Ledges;
 
-	TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, int* pos);
+	TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos);
 
 	std::string toString() override;
 };

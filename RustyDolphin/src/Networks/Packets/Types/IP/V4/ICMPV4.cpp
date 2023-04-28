@@ -4,14 +4,16 @@
 #include "../../../../../Networks/Capture.h"
 #include <iostream>
 
-
-
-
 ICMPV4::ICMPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_data) {
 	m_ICMPtype = pkt_data[pos++];
 	m_code = pkt_data[pos++];
-	m_ICMPChecksum = (long)parseLong(&pos, pos + 2);
-	m_restOfHeader = (long)parseLong(&pos, pos + 4);
+	m_ICMPChecksum = parseShort();
+	m_indentifierLE = parseShort();
+	m_indentifierBE = htons(m_indentifierLE);
+	m_seqNumberLE = parseShort();
+	m_seqNumberBE = htons(m_seqNumberLE);
+	m_ROHLength = Packet::m_len - pos;
+	m_restOfHeader = parse(m_ROHLength);
 }
 
 std::string ICMPV4::toString() {
@@ -29,6 +31,11 @@ json ICMPV4::jsonify() {
 	j["Type"] = m_ICMPtype;
 	j["Code"] = m_code;
 	j["ICMP Checksum"] = m_ICMPChecksum;
+	j["Indentifier BE"] = m_indentifierBE;
+	j["Indentifier LE"] = m_indentifierLE;
+	j["Sequence Number BE"] = m_seqNumberBE;
+	j["Sequence Number LE"] = m_seqNumberLE;
+	j["ROH Length"] = m_ROHLength;
 	j["The Rest of the Header"] = m_restOfHeader;
 
 	return j;

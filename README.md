@@ -4,8 +4,10 @@
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
+- [ ] start putting release in releases on github and explore release optimizations
 - [ ] use std memcpy instead of getting from the buffer
-- [ ] udp and tcp v6s to properly get the process name
+- [ ] change functions to take duration rather than the start and end
+- [ ] udp and tcp v6s to properly get the process name (also make process name fetching faster (don't check both compare ip))
 - [ ] Better types in packets
 - [ ] winsdk free lol
 - [ ] to strings should really return constant values lol
@@ -13,6 +15,7 @@
 - [ ] exapand IPV4 Options
 - [ ] expand TCPOptions
 - [ ] wrap experimental stuff with try catch to prevent crashing later
+- [ ] add a function to detect eth padding for arp?
 - [ ] use ifdef _DEBUG
 - [ ] curl with tracert
 - [ ] GUI

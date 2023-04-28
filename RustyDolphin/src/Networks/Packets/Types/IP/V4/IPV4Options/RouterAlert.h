@@ -12,7 +12,7 @@ public:
 	int m_length;
 	long m_extra;
 
-	RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, int* pos);
+	RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos);
 
 	std::string toString() override;
 };

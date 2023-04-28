@@ -11,5 +11,5 @@ public:
 	virtual std::string toString();
 
 protected:
-	long long parseLong(int* start, int end, const u_char* pkt_data);
+	long long parseLong(unsigned int* start, int end, const u_char* pkt_data);
 };

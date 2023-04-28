@@ -25,7 +25,7 @@ public:
 	static void free();
 private:
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 	static std::ofstream m_file;
 };

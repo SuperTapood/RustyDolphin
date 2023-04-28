@@ -20,7 +20,6 @@
 #include <fstream>
 #include <string>
 
-
 static std::atomic<bool> done(false);
 
 void free() {
@@ -80,19 +79,19 @@ void init() {
 void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename) {
 	auto p = fromRaw(header, pkt_data);
 
-	/*std::size_t pos = filename.find('.');
+	std::size_t pos = filename.find('.');
 	if (pos != std::string::npos) {
 		filename.erase(pos);
-	}*/
+	}
 
-	/*std::ofstream file(filename + ".txt", std::ios_base::app);
+	std::ofstream file(filename + ".txt", std::ios_base::app);
 
 	if (!file) {
 		std::cerr << "Error opening file: " << filename + ".txt" << '\n';
 		exit(69);
 	}
 
-	file << p->jsonify().dump(4) << "\n";*/
+	file << p->jsonify().dump(4) << "\n";
 
 	// std::cout << p->jsonify().dump(4) << std::endl;
 
@@ -119,7 +118,6 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 
 	pcap_close(adhandle);
 }
-
 
 int itsDearingTime() {
 	GLFWwindow* window;
@@ -191,41 +189,32 @@ int itsDearingTime() {
 	return 0;
 }
 
-
 int main(int argc, char* argv[])
 {
-	//UINT16 chars[] {47, 51, 33, 21};
-	//A a;
-	//std::memcpy(&a, chars, sizeof(A));
-	//std::cout << std::bitset<16>(47) << " + " << std::bitset<16>(51) << " = " << std::bitset<32>(a.a) << std::endl;
-	//std::cout << std::bitset<16>(33) << " + " << std::bitset<16>(21) << " = " << std::bitset<32>(a.b) << std::endl;
-	//return 0;
 	init();
 
-	//return itsDearingTime();
-	//
-	//if (argc > 1) {
-	//	std::string arg = argv[1];
+	if (argc > 1) {
+		std::string arg = argv[1];
 
-	//	if (arg == "curl") {
-	//		std::string addr;
-	//		std::cout << "enter the address to geo locate: ";
-	//		std::cin >> addr;
-	//		std::string cmd = R"(curl -s -H "User-Agent: keycdn-tools:https://amalb.iscool.co.il/" "https://tools.keycdn.com/geo.json?host=")";
-	//		cmd += addr;
-	//		auto res = SDK::exec(cmd.c_str());
-	//		auto j = json::parse(res);
-	//		std::cout << j.dump(4);
-	//	}
-	//	else if (arg == "gui") {
-	//		return itsDearingTime();
-	//	}
+		if (arg == "curl") {
+			std::string addr;
+			std::cout << "enter the address to geo locate: ";
+			std::cin >> addr;
+			std::string cmd = R"(curl -s -H "User-Agent: keycdn-tools:https://amalb.iscool.co.il/" "https://tools.keycdn.com/geo.json?host=")";
+			cmd += addr;
+			auto res = SDK::exec(cmd.c_str());
+			auto j = json::parse(res);
+			std::cout << j.dump(4);
+		}
+		else if (arg == "gui") {
+			return itsDearingTime();
+		}
 
-	//	return 0;
-	//}	
-	//
-	//remove("captures/output.pcap");
-	//remove("captures/output.txt");
+		return 0;
+	}
+
+	remove("captures/output.pcap");
+	remove("captures/output.txt");
 
 	//std::cout << "hold on. rates are being captured.\n";
 
@@ -297,7 +286,7 @@ int main(int argc, char* argv[])
 
 	//Capture::sample(adapterIdx, sampleCallback, promiscuous, maxPackets, filter);
 
-	Capture::sample(3, sampleCallback, true, 8, "tcp");
+	Capture::sample(3, sampleCallback, true, 1, "icmp");
 
 	return 0;
 }

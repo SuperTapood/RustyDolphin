@@ -1,6 +1,6 @@
 #include "TCPSACK.h"
 
-TCPSACK::TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, int* pos) : TCPOption(5) {
+TCPSACK::TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos) : TCPOption(5) {
 	m_len = pkt_data[(*pos)++];
 
 	m_edges = (m_len - 2) / 8;
