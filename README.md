@@ -1,4 +1,8 @@
 # RustyDolphin
+
+time spent making this nonsense in the best language ever made:
+
+[![wakatime](https://wakatime.com/badge/user/8b4f0bdc-5133-4fba-98d4-d75498fa71f2/project/73bc670d-dbbf-467b-af69-086d56b73c16.svg)](https://wakatime.com/badge/user/8b4f0bdc-5133-4fba-98d4-d75498fa71f2/project/73bc670d-dbbf-467b-af69-086d56b73c16)
  
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
