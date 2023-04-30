@@ -70,6 +70,11 @@ TCPV4::TCPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_dat
 	for (size_t i = 0; i < vec.size(); i++) {
 		m_options[i] = vec[i];
 	}
+
+	if (Packet::m_len > pos) {
+		m_payloadLength = Packet::m_len - pos;
+		m_payload = parse(m_payloadLength);
+	}
 }
 
 std::string TCPV4::toString() {
@@ -121,6 +126,8 @@ json TCPV4::jsonify() {
 	}
 
 	j["TCP Options"] = ss.str();
+	j["Payload Length"] = m_payloadLength;
+	j["Payload"] = m_payload;
 
 	return j;
 }

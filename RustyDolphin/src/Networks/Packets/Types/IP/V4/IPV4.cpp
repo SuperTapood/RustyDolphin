@@ -8,27 +8,26 @@
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
 	auto start = pos;
-	m_headerLength = ((int)pkt_data[pos++] & 0xF) * 4;
-	m_differServ = (int)pkt_data[pos++];
+	m_headerLength = (pkt_data[pos++] & 0x0000FFFF) * 4;
+	m_differServ = pkt_data[pos++];
 
-	m_totalLength = (int)parseLong(&pos, pos + 2);
+	m_totalLength = parseShort();
 
-	m_identification = (int)parseLong(&pos, pos + 2);
+	m_identification = parseShort();
 
-	m_flags = pkt_data[pos++];
+	m_flags = (pkt_data[pos] & 0xFFF0);
 
-	m_fragmentationOffset = pkt_data[pos++];
+	m_fragmentationOffset = parseInt() & 8191;
 
 	m_ttl = pkt_data[pos++];
 
 	m_proto = pkt_data[pos++];
 
-	m_headerChecksum = (int)parseLong(&pos, pos + 2);
+	m_headerChecksum = parseShort();
 
-	// proto size is 4 :)
-	m_srcAddr = parseIPV4(&pos, pos + 4);
+	m_srcAddr = parseIPV4();
 
-	m_destAddr = parseIPV4(&pos, pos + 4);
+	m_destAddr = parseIPV4();
 
 	int diff = (m_headerLength + start) - pos;
 
@@ -66,7 +65,7 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 	if (diff > 0) {
 		m_opts = (IPV4Option*)malloc(sizeof(IPV4Option) * m_IPoptionsCount);
 
-		std::copy(vec.begin(), vec.end(), m_opts);
+		std::ranges::copy(vec.begin(), vec.end(), m_opts);
 	}
 }
 

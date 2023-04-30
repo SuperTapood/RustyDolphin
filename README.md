@@ -9,6 +9,7 @@ time spent making this nonsense in the best language ever made:
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
 - [ ] start putting release in releases on github and explore release optimizations
+- [ ] __template the stupid packets so i dont have to create two types of each packet dear lord why have i not thought of this before__
 - [ ] use std memcpy instead of getting from the buffer
 - [ ] change functions to take duration rather than the start and end
 - [ ] udp and tcp v6s to properly get the process name (also make process name fetching faster (don't check both compare ip))
@@ -20,6 +21,7 @@ time spent making this nonsense in the best language ever made:
 - [ ] expand TCPOptions
 - [ ] wrap experimental stuff with try catch to prevent crashing later
 - [ ] add a function to detect eth padding for arp?
+- [ ] add dns, mdns, quic, ssdp, BROWSER?, nbns, tls
 - [ ] use ifdef _DEBUG
 - [ ] curl with tracert
 - [ ] GUI

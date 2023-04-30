@@ -5,8 +5,8 @@
 IGMPV4::IGMPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_data) {
 	m_groupType = pkt_data[pos++];
 	m_maxResp = pkt_data[pos++] / 10;
-	m_checksum = (int)parseLong(&pos, pos + 2);
-	m_multicastAddr = parseIPV4(&pos, pos + 4);
+	m_checksum = parseInt();
+	m_multicastAddr = parseIPV4();
 }
 
 std::string IGMPV4::toString() {

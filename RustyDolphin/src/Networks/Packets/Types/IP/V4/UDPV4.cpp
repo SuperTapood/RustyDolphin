@@ -5,13 +5,17 @@
 #include <sstream>
 
 UDPV4::UDPV4(pcap_pkthdr* header, const u_char* pkt_data) : IPV4(header, pkt_data) {
-	m_srcPort = (int)parseLong(&pos, pos + 2);
+	m_srcPort = parseShort();
 
-	m_destPort = (int)parseLong(&pos, pos + 2);
+	m_destPort = parseShort();
 
-	m_length = (int)parseLong(&pos, pos + 2);
+	m_length = parseShort();
 
-	m_UDPChecksum = (int)parseLong(&pos, pos + 2);
+	m_UDPChecksum = parseShort();
+
+	m_payloadLength = m_length - 8;
+
+	m_payload = parse(m_payloadLength);
 }
 
 std::string UDPV4::toString() {
@@ -40,6 +44,8 @@ json UDPV4::jsonify() {
 	j["Destination Port"] = m_destPort;
 	j["UDP Length"] = m_length;
 	j["UDP Checksum"] = m_UDPChecksum;
+	j["Payload Length"] = m_payloadLength;
+	j["Payload"] = m_payload;
 
 	return j;
 }

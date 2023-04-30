@@ -5,11 +5,13 @@
 #include <string>
 #include <sstream>
 
+#include "../Eth/Packet.h"
+
 class TCPOption {
 protected:
 	long long parseLong(unsigned int* start, int end, const u_char* pkt_data);
 public:
-	int m_code;
+	unsigned int m_code;
 
 	TCPOption(int code);
 

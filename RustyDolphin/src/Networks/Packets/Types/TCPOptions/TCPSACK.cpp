@@ -5,12 +5,12 @@ TCPSACK::TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos)
 
 	m_edges = (m_len - 2) / 8;
 
-	m_Ledges = new long long[m_edges];
-	m_Redges = new long long[m_edges];
+	m_Ledges = new unsigned int[m_edges];
+	m_Redges = new unsigned int[m_edges];
 
 	for (int i = 0; i < m_edges; i++) {
-		m_Ledges[i] = parseLong(pos, (*pos) + 4, pkt_data);
-		m_Redges[i] = parseLong(pos, (*pos) + 4, pkt_data);
+		m_Ledges[i] = (unsigned int)parseLong(pos, (*pos) + 4, pkt_data);
+		m_Redges[i] = (unsigned int)parseLong(pos, (*pos) + 4, pkt_data);
 	}
 }
 

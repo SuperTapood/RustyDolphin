@@ -4,10 +4,12 @@
 
 class UDPV4 : public IPV4 {
 public:
-	int m_srcPort;
-	int m_destPort;
-	int m_length;
-	int m_UDPChecksum;
+	short m_srcPort;
+	short m_destPort;
+	short m_length;
+	short m_UDPChecksum;
+	int m_payloadLength;
+	std::string m_payload;
 
 	UDPV4(pcap_pkthdr* header, const u_char* pkt_data);
 	std::string toString() override;

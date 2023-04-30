@@ -9,6 +9,7 @@ public:
 	int m_type;
 	int m_code;
 	long m_ICMPChecksum;
+	long m_ICMPChecksum;
 	long m_restOfHeader;
 
 	ICMPV6(pcap_pkthdr* header, const u_char* pkt_data);

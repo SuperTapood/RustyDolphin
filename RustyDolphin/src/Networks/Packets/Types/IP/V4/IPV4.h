@@ -6,15 +6,16 @@
 
 class IPV4 : public Packet {
 public:
-	int m_headerLength;
-	int m_differServ;
-	int m_totalLength;
-	int m_identification;
-	int m_flags;
+	char version = 4;
+	char m_headerLength;
+	char m_differServ;
+	short m_totalLength;
+	short m_identification;
+	char m_flags;
 	int m_fragmentationOffset;
-	int m_ttl;
-	int m_proto;
-	int m_headerChecksum;
+	char m_ttl;
+	char m_proto;
+	short m_headerChecksum;
 	std::string m_srcAddr;
 	std::string m_destAddr;
 	int m_IPoptionsCount;

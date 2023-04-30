@@ -7,7 +7,7 @@
 
 class IGMPV4 : public IPV4 {
 public:
-	int m_groupType;
+	char m_groupType;
 	float m_maxResp;
 	int m_checksum;
 	std::string m_multicastAddr;
