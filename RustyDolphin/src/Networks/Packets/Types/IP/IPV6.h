@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../../Eth/Packet.h"
+#include "../Eth/Packet.h"
 
 #include <pcap.h>
 
 class IPV6 : public Packet {
 public:
-	int m_version;
-	int m_trafficCls;
+	char m_version = 6;
+	short m_trafficCls;
 	long m_flowLabel;
-	long m_payloadLength;
-	int m_proto;
-	int m_hopLimit;
+	int m_payloadLength;
+	char m_nextHeader;
+	char m_hopLimit;
 	std::string m_srcAddr;
 	std::string m_destAddr;
 	int m_headerLength = 40;

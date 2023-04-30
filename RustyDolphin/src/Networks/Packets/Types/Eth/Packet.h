@@ -10,6 +10,7 @@ using json = nlohmann::ordered_json;
 
 class Packet {
 public:
+	unsigned int pos = 0;
 	// header stuff
 	std::string m_time;
 	time_t m_epoch;
@@ -27,7 +28,7 @@ public:
 	virtual json jsonify();
 
 protected:
-	unsigned int pos = 0;
+	
 
 	/*std::string parseMAC(unsigned int* start, unsigned int end);
 	std::string parseIPV4(unsigned int* start, unsigned int end);
@@ -36,7 +37,7 @@ protected:
 
 	std::string parseMAC(unsigned int size = 6);
 	std::string parseIPV4(unsigned int size = 4);
-	std::string parseIPV6(unsigned int size = 6);
+	std::string parseIPV6(unsigned int size = 16);
 	std::string parse(unsigned long long size);
 	long long parseLongLong();
 	long parseLong();

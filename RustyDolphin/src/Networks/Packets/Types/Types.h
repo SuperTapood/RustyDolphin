@@ -2,15 +2,21 @@
 
 #include "Eth/Eth.h"
 #include "IP/IP.h"
-
+#include "Data/ICMP/ICMP.h"
+#include "Data/IGMP/IGMP.h"
+#include "Data/TCP/TCP.h"
+#include "Data/UDP/UDP.h"
 #include <memory>
 
 #define PKT             Packet*
 #define ARP_PKT         ARP*
 #define IPV4_PKT        IPV4*
-#define TCPV4_PKT       TCPV4*
-#define UDPV4_PKT       UDPV4*
-#define IGMPV4_PKT      IGMPV4*
+#define TCPV4_PKT       TCP<IPV4>*
+#define UDPV4_PKT       UDP<IPV4>*
+#define IGMPV4_PKT      IGMP<IPV4>*
+#define ICMPV4_PKT      ICMP<IPV4>*
 #define IPV6_PKT        IPV6*
-#define TCPV6_PKT       TCPV6*
-#define UDPV6_PKT       UDPV6*
+#define TCPV6_PKT       TCP<IPV6>*
+#define UDPV6_PKT       UDP<IPV6>*
+#define IGMPV6_PKT      IGMP<IPV6>*
+#define ICMPV6_PKT      ICMP<IPV6>*

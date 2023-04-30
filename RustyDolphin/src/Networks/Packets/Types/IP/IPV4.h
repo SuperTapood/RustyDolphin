@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../../Eth/Packet.h"
-#include "../../TCPOptions/TCPOption.h"
+#include "../Eth/Packet.h"
 #include "IPV4Options/IPV4Options.h"
 
 class IPV4 : public Packet {
