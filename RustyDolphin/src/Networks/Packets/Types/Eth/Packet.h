@@ -28,12 +28,6 @@ public:
 	virtual json jsonify();
 
 protected:
-	
-
-	/*std::string parseMAC(unsigned int* start, unsigned int end);
-	std::string parseIPV4(unsigned int* start, unsigned int end);
-	std::string parseIPV6(unsigned int* start, unsigned int end);
-	long long parseLong(unsigned int* start, unsigned int end);*/
 
 	std::string parseMAC(unsigned int size = 6);
 	std::string parseIPV4(unsigned int size = 4);
