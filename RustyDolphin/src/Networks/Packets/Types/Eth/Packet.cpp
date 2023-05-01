@@ -156,7 +156,7 @@ long long Packet::parseLongLong() {
 }
 
 long Packet::parseLong() {
-	short out;
+	long out;
 
 	constexpr auto len = 4;
 

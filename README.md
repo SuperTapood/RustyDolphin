@@ -8,9 +8,10 @@ time spent making this nonsense in the best language ever made:
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
-- [ ] start putting release in releases on github and explore release optimizations
+- [ ] use ifdef _DEBUG
 - [ ] udp and tcp v6s to properly get the process name (also make process name fetching faster (don't check both compare ip))
-- [ ] winsdk free lol
+- [ ] curl with tracert
+- [ ] start putting release in releases on github and explore release optimizations
 - [ ] to strings should really return constant values lol
 - [ ] switch to unique pointers for packets?
 - [ ] exapand IPV4 Options
@@ -18,8 +19,6 @@ time spent making this nonsense in the best language ever made:
 - [ ] wrap experimental stuff with try catch to prevent crashing later
 - [ ] add a function to detect eth padding for packets?
 - [ ] add dns, mdns, quic, ssdp, BROWSER?, nbns, tls
-- [ ] use ifdef _DEBUG
-- [ ] curl with tracert
 - [ ] GUI
 
 Filtering:

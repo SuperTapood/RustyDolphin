@@ -5,7 +5,7 @@
 
 class IPV4 : public Packet {
 public:
-	char version = 4;
+	char m_version = 4;
 	char m_headerLength;
 	char m_differServ;
 	short m_totalLength;

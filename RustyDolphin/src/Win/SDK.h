@@ -11,6 +11,8 @@ public:
 
 	static std::string exec(const char* cmd);
 	static void init();
+	static void release();
+	static void findIP(char* adName);
 	static DWORD getPIDFromPort(DWORD port);
 	static std::string getProcFromPID(DWORD PID);
 	static std::string getProcFromPort(DWORD port);

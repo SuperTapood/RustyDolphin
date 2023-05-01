@@ -13,6 +13,6 @@ void Logger::log(std::string str) {
 	m_file << str << std::endl;
 }
 
-void Logger::free() {
+void Logger::release() {
 	m_file.close();
 }

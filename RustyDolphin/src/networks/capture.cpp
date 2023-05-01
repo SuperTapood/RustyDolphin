@@ -84,7 +84,7 @@ void Capture::init() {
 	SDK::ipAddress = ss.str();
 }
 
-void Capture::free() {
+void Capture::release() {
 	pcap_freealldevs(m_alldevs);
 	if (m_dumpfile != NULL) {
 		pcap_dump_close(m_dumpfile);
@@ -244,6 +244,8 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 		fprintf(stderr, "\nError setting the filter.\n");
 		exit(-1);
 	}
+
+	SDK::findIP(d->name);
 
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {

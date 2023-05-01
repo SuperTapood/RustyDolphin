@@ -12,7 +12,7 @@ public:
 	// no
 	Capture() = delete;
 	static void init();
-	static void free();
+	static void release();
 	static pcap_if_t* getDev(int index);
 	static std::vector<std::string>* getDeviceNames(bool verbose = false);
 	static pcap_t* createAdapter(int devIndex, bool promiscuous = false);

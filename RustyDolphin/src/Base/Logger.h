@@ -22,7 +22,7 @@ public:
 	/// <summary>
 	/// free the deugger and release the log file
 	/// </summary>
-	static void free();
+	static void release();
 private:
 	/// <summary>
 	///

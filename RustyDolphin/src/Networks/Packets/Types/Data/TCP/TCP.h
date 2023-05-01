@@ -6,20 +6,22 @@
 #include "../../../src/Networks/capture.h"
 #include "../../../src/Win/SDK.h"
 
+#include <iostream>
+
 template <typename IPVersion>
 class TCP : public IPVersion {
 	static_assert(std::is_base_of_v<Packet, IPVersion>,
 		"IPVersion must inherit from Packet");
 public:
-	int m_srcPort;
-	int m_destPort;
-	long m_seqNum;
-	long m_ackNum;
+	unsigned short m_srcPort;
+	unsigned short m_destPort;
+	int m_seqNum;
+	int m_ackNum;
 	char m_TCPLength;
-	int m_TCPflags;
-	int m_window;
-	int m_TCPchecksum;
-	int m_urgentPtr;
+	short m_TCPflags;
+	short m_window;
+	short m_TCPchecksum;
+	short m_urgentPtr;
 
 	int m_optionCount;
 	TCPOption** m_options;
@@ -27,14 +29,17 @@ public:
 	long m_payloadLength;
 	std::string m_payload;
 
+	std::string m_process;
+
 	TCP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
-		m_srcPort = Packet::parseInt();
+		
+		m_srcPort = Packet::parseShort();
 
-		m_destPort = Packet::parseInt();
+		m_destPort = Packet::parseShort();
 
-		m_seqNum = Packet::parseLong();
+		m_seqNum = Packet::parseInt();
 
-		m_ackNum = Packet::parseLong();
+		m_ackNum = Packet::parseInt();
 
 		m_TCPLength = (pkt_data[Packet::pos] >> 4) * 4;
 
@@ -42,11 +47,11 @@ public:
 
 		Packet::pos += 2;
 
-		m_window = Packet::parseInt();
+		m_window = Packet::parseShort();
 
-		m_TCPchecksum = Packet::parseInt();
+		m_TCPchecksum = Packet::parseShort();
 
-		m_urgentPtr = Packet::parseInt();
+		m_urgentPtr = Packet::parseShort();
 
 		constexpr auto ETHLEN = 14;
 		constexpr auto NOP = 1;
@@ -60,7 +65,11 @@ public:
 		m_optionCount = 0;
 		std::vector<TCPOption*> vec;
 
-		while (total - Packet::pos > 0) {
+		/*std::cout << Packet::pos << std::endl;
+		std::cout << total << std::endl;
+		std::cout << (total - (signed int)IPVersion::pos) << std::endl;*/
+
+		while (total - (signed int)IPVersion::pos > 0) {
 			int code = pkt_data[Packet::pos++];
 			m_optionCount++;
 
@@ -94,6 +103,21 @@ public:
 			m_payloadLength = Packet::m_len - IPVersion::pos;
 			m_payload = IPVersion::parse(m_payloadLength);
 		}
+
+		if constexpr (std::is_same_v<IPVersion, IPV4>) {
+			if (IPVersion::m_srcAddr == SDK::ipAddress) {
+				m_process = SDK::getProcFromPort(m_srcPort);
+			}
+			else {
+				m_process = SDK::getProcFromPort(m_destPort);
+			}
+		}
+		else if constexpr (std::is_same_v<IPVersion, IPV4>) {
+			m_process = SDK::getProcFromPort(m_srcPort);
+			if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
+				m_process = SDK::getProcFromPort(m_destPort);
+			}
+		}
 	}
 
 	std::string toString() override {
@@ -110,15 +134,7 @@ public:
 			ss << ")";
 		}
 
-		ss << ". Proccess = ";
-
-		auto proc = SDK::getProcFromPort(m_srcPort);
-
-		if (proc == "<UNKNOWN>") {
-			proc = SDK::getProcFromPort(m_destPort);
-		}
-
-		ss << proc << "\n";
+		ss << ". Proccess = " << m_process << ".\n";
 
 		return ss.str();
 	}

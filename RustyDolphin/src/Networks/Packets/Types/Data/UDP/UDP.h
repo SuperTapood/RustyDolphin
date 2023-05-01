@@ -15,6 +15,7 @@ public:
 	short m_UDPChecksum;
 	int m_payloadLength;
 	std::string m_payload;
+	std::string m_process;
 
 	UDP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
 		m_srcPort = IPVersion::parseShort();
@@ -28,6 +29,21 @@ public:
 		m_payloadLength = m_length - 8;
 
 		m_payload = IPVersion::parse(m_payloadLength);
+
+		if constexpr (std::is_same_v<IPVersion, IPV4>) {
+			if (IPVersion::m_srcAddr == SDK::ipAddress) {
+				m_process = SDK::getProcFromPort(m_srcPort);
+			}
+			else {
+				m_process = SDK::getProcFromPort(m_destPort);
+			}
+		}
+		else if constexpr (std::is_same_v<IPVersion, IPV4>) {
+			m_process = SDK::getProcFromPort(m_srcPort);
+			if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
+				m_process = SDK::getProcFromPort(m_destPort);
+			}
+		}
 	}
 
 	std::string toString() override {
@@ -35,15 +51,7 @@ public:
 
 		ss << "UDPV4 Packet at " << IPVersion::m_time << " from " << IPVersion::m_srcAddr << " at port " << m_srcPort << " to " << IPVersion::m_destAddr << " at port " << m_destPort;
 
-		ss << ". Proccess = ";
-
-		auto proc = SDK::getProcFromPort(m_srcPort);
-
-		if (proc == "<UNKNOWN>") {
-			proc = SDK::getProcFromPort(m_destPort);
-		}
-
-		ss << proc << "\n";
+		ss << ". Proccess = " << m_process << "\n";
 
 		return ss.str();
 	}

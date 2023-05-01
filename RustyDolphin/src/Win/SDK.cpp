@@ -9,6 +9,9 @@
 #include <vector>
 #include <tchar.h>
 #include <iostream>
+#include <memory>
+#include <string.h>
+#include <sstream>
 // #include "../base/Structs.h"
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
@@ -172,6 +175,55 @@ void SDK::refreshTables() {
 void SDK::init() {
 	initPIDCache();
 	refreshTables();
+}
+
+void SDK::findIP(char* adName) {
+	ULONG buffer_size = sizeof(IP_ADAPTER_INFO);
+	IP_ADAPTER_INFO* adapter_info = (IP_ADAPTER_INFO*)malloc(buffer_size);
+
+	// Get the adapter information
+	if (GetAdaptersInfo(adapter_info, &buffer_size) == ERROR_BUFFER_OVERFLOW) {
+		free(adapter_info);
+		adapter_info = (IP_ADAPTER_INFO*)malloc(buffer_size);
+		GetAdaptersInfo(adapter_info, &buffer_size);
+	}
+
+	std::stringstream ss;
+
+	std::string ad = adName;
+	int i = 0;
+
+	for (; i < ad.size(); i++) {
+		if (ad.at(i) == '_') {
+			i++;
+			break;
+		}
+	}
+
+	for (; i < ad.size(); i++) {
+		ss << ad.at(i);
+	}
+
+	ad = ss.str();
+
+	// Print the IP addresses
+	for (IP_ADAPTER_INFO* adapter = adapter_info; adapter != nullptr; adapter = adapter->Next) {
+		/*std::cout << "Adapter name: " << adapter->AdapterName << std::endl;
+		std::cout << "IP address: " << adapter->IpAddressList.IpAddress.String << std::endl;
+		std::cout << "Subnet mask: " << adapter->IpAddressList.IpMask.String << std::endl;
+		std::cout << std::endl;*/
+		if ((adapter->AdapterName) == ad) {
+			ipAddress = adapter->IpAddressList.IpAddress.String;
+			break;
+		}
+	}
+
+	free(adapter_info);
+}
+
+void SDK::release() {
+	// i don't need this lol
+	// keeping for later i guess
 }
 
 DWORD SDK::getPIDFromPort(DWORD port) {

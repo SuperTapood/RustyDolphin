@@ -22,14 +22,15 @@
 
 static std::atomic<bool> done(false);
 
-void free() {
+void release() {
 	done = true;
-	Logger::free();
-	Capture::free();
+	Logger::release();
+	Capture::release();
+	SDK::release();
 }
 
 void init() {
-	atexit(free);
+	atexit(release);
 	Logger::init();
 	Capture::init();
 	SDK::init();
@@ -220,7 +221,7 @@ int main(int argc, char* argv[])
 
 	//int constexpr seconds = 1;
 
-	//auto names = Capture::getDeviceNames();
+	//auto names = Capture::getDeviceNames(true);
 
 	//auto counts = std::vector<int>(names->size(), 0);
 
@@ -239,6 +240,10 @@ int main(int argc, char* argv[])
 
 	/*for (int i = 0; i < names->size(); i++) {
 		std::cout << i + 1 << ". " << names->at(i) << "(packets rate: " << ((float)counts.at(i) / (float)seconds) << " per second)\n";
+	}*/
+
+	/*for (int i = 0; i < names->size(); i++) {
+		std::cout << i + 1 << ". " << names->at(i) << "\n";
 	}*/
 
 	//int adapterIdx = 0;
@@ -286,7 +291,7 @@ int main(int argc, char* argv[])
 
 	//Capture::sample(adapterIdx, sampleCallback, promiscuous, maxPackets, filter);
 
-	Capture::sample(3, sampleCallback, true, 1, "icmp");
+	Capture::sample(3, sampleCallback, true, 1, "udp");
 
 	return 0;
 }
