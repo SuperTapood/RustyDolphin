@@ -8,8 +8,6 @@ time spent making this nonsense in the best language ever made:
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
-- [ ] use ifdef _DEBUG
-- [ ] udp and tcp v6s to properly get the process name (also make process name fetching faster (don't check both compare ip))
 - [ ] curl with tracert
 - [ ] start putting release in releases on github and explore release optimizations
 - [ ] to strings should really return constant values lol

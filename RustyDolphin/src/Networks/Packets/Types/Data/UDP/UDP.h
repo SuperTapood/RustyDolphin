@@ -18,17 +18,17 @@ public:
 	std::string m_process;
 
 	UDP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
-		m_srcPort = IPVersion::parseShort();
+		m_srcPort = Packet::parseShort();
 
-		m_destPort = IPVersion::parseShort();
+		m_destPort = Packet::parseShort();
 
-		m_length = IPVersion::parseShort();
+		m_length = Packet::parseShort();
 
-		m_UDPChecksum = IPVersion::parseShort();
+		m_UDPChecksum = Packet::parseShort();
 
 		m_payloadLength = m_length - 8;
 
-		m_payload = IPVersion::parse(m_payloadLength);
+		m_payload = Packet::parse(m_payloadLength);
 
 		if constexpr (std::is_same_v<IPVersion, IPV4>) {
 			if (IPVersion::m_srcAddr == SDK::ipAddress) {

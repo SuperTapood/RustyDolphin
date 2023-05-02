@@ -39,9 +39,9 @@ void Capture::init() {
 		exit(1);
 	}
 
-	std::stringstream ss;
-
 	char errbuf[PCAP_ERRBUF_SIZE];
+
+	std::stringstream ss;
 
 	// get the stupid devices and put  them into the stupid variable
 	if (pcap_findalldevs(&m_alldevs, errbuf) == -1)
@@ -65,23 +65,6 @@ void Capture::init() {
 		Logger::log("Error initializing Winsock");
 		exit(1);
 	}
-
-	struct in_addr ipAddress;
-	for (pcap_addr_t* address = m_alldevs->addresses; address != nullptr; address = address->next) {
-		if (address->addr->sa_family == AF_INET) {
-			ipAddress = ((struct sockaddr_in*)address->addr)->sin_addr;
-			break;
-		}
-	}
-
-	char ipString[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &ipAddress, ipString, sizeof(ipString));
-
-	ss.clear();
-
-	ss << ipString;
-
-	SDK::ipAddress = ss.str();
 }
 
 void Capture::release() {
