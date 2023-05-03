@@ -9,11 +9,11 @@ class UDP : public IPVersion {
 	static_assert(std::is_base_of_v<Packet, IPVersion>,
 		"IPVersion must inherit from Packet");
 public:
-	short m_srcPort;
-	short m_destPort;
-	short m_length;
+	unsigned short m_srcPort;
+	unsigned short m_destPort;
+	unsigned short m_length;
 	short m_UDPChecksum;
-	int m_payloadLength;
+	unsigned int m_payloadLength;
 	std::string m_payload;
 	std::string m_process;
 

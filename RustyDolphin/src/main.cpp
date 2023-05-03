@@ -22,6 +22,8 @@
 #include <fstream>
 #include <string>
 #include <IcmpAPI.h>
+#include <GLFW/glfw3native.h>
+#include "GUI/GUI.h"
 
 static std::atomic<bool> done(false);
 
@@ -30,6 +32,7 @@ void release() {
 	Logger::release();
 	Capture::release();
 	SDK::release();
+	GUI::release();
 }
 
 void init() {
@@ -37,69 +40,7 @@ void init() {
 	Logger::init();
 	Capture::init();
 	SDK::init();
-}
-
-//void callback(pcap_pkthdr* header, const u_char* pkt_data) {
-//	auto p = fromRaw(header, pkt_data);
-//
-//	// std::cout << p->toString();
-//}
-
-//struct baseP {
-//	u_char phyDst[6];
-//	u_char phySrc[6];
-//	short type;
-//};
-//
-//struct caseP : public baseP{
-//	long l;
-//	u_char chars[6];
-//};
-//
-//class Renderer {
-//public:
-//	static void render(baseP v) {
-//		std::cout << "rendering A packet" << std::endl;
-//	}
-//	static void render(caseP v) {
-//		std::cout << "rendering B packet" << std::endl;
-//	}
-//};
-//
-//template <typename T>
-//class P {
-//public:
-//	T data;
-//
-//	P(const u_char* pkt_data) {
-//		std::memcpy(&data, pkt_data, sizeof(T));
-//	}
-//
-//	void render() {
-//		Renderer::render(data);
-//	}
-//};
-
-void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename) {
-	auto p = fromRaw(header, pkt_data);
-
-	std::size_t pos = filename.find('.');
-	if (pos != std::string::npos) {
-		filename.erase(pos);
-	}
-
-	std::ofstream file(filename + ".txt", std::ios_base::app);
-
-	if (!file) {
-		std::cerr << "Error opening file: " << filename + ".txt" << '\n';
-		exit(69);
-	}
-
-	file << p->jsonify().dump(4) << "\n";
-
-	// std::cout << p->jsonify().dump(4) << std::endl;
-
-	std::cout << p->toString() << std::endl;
+	GUI::init();
 }
 
 void countPackets(std::vector<int>* counts, int adapterIdx) {
@@ -123,101 +64,29 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 	pcap_close(adhandle);
 }
 
-int itsDearingTime() {
-	GLFWwindow* window;
+void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename) {
+	auto p = fromRaw(header, pkt_data);
 
-	if (!glfwInit())
-		return -1;
-
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		return -1;
+	std::size_t pos = filename.find('.');
+	if (pos != std::string::npos) {
+		filename.erase(pos);
 	}
 
-	glfwMakeContextCurrent(window);
+	std::ofstream file(filename + ".txt", std::ios_base::app);
 
-	// Initialize Dear ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	// Set Dear ImGui style
-	ImGui::StyleColorsDark();
-
-	// Initialize Dear ImGui backends
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 150");
-
-	while (!glfwWindowShouldClose(window))
-	{
-		// Poll and handle events
-		glfwPollEvents();
-
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		// Create a simple user interface
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Hello, world!");
-
-			ImGui::Text("This is some useful text.");
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-			if (ImGui::Button("Button"))
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::End();
-		}
-
-		// Rendering
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwSwapBuffers(window);
+	if (!file) {
+		std::cerr << "Error opening file: " << filename + ".txt" << '\n';
+		exit(69);
 	}
 
-	// Cleanup
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+	file << p->jsonify().dump(4) << "\n";
 
-	glfwTerminate();
-	return 0;
+	// std::cout << p->jsonify().dump(4) << std::endl;
+
+	std::cout << p->toString() << std::endl;
 }
 
-int main(int argc, char* argv[])
-{
-	init();
-
-	if (argc > 1) {
-		std::string arg = argv[1];
-
-		if (arg == "curl") {
-			std::string addr;
-			std::cout << "enter the address to geo locate: ";
-			std::cin >> addr;
-			auto j = SDK::geoLocate(addr);
-			std::cout << j.dump(4);
-			return 0;
-		}
-		else if (arg == "gui") {
-			return itsDearingTime();
-		}
-
-		return 0;
-	}
-
-	remove("captures/output.pcap");
-	remove("captures/output.txt");
-
+int sample() {
 	std::cout << "hold on. rates are being captured.\n";
 
 	int constexpr seconds = 1;
@@ -291,8 +160,138 @@ int main(int argc, char* argv[])
 	}
 
 	Capture::sample(adapterIdx, sampleCallback, promiscuous, maxPackets, filter);
+}
+
+int main(int argc, char* argv[])
+{
+	init();
+
+	if (argc > 1) {
+		std::string arg = argv[1];
+
+		if (arg == "curl") {
+			std::string addr;
+			std::cout << "enter the address to geo locate: ";
+			std::cin >> addr;
+			auto j = SDK::geoLocate(addr);
+			std::cout << j.dump(4);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	// return sample();
 
 	// Capture::sample(3, sampleCallback, true, 1, "udp");
+
+	return 0;
+
+	remove("captures/output.pcap");
+	remove("captures/output.txt");
+	remove("imgui.ini");
+
+	glfwSwapInterval(1);
+
+	int counter = 0;
+	float f = 0.0f;
+
+	while (!glfwWindowShouldClose(GUI::window))
+	{
+		// Poll and handle events
+		glfwPollEvents();
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		// Create a simple user interface
+		{
+			if (ImGui::BeginMainMenuBar())
+			{
+				if (ImGui::BeginMenu("File"))
+				{
+					if (ImGui::MenuItem("Open", "Ctrl+O")) { /* Do stuff */ }
+					if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+					if (ImGui::MenuItem("Close", "Ctrl+W")) { /* Do stuff */ }
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Edit"))
+				{
+					if (ImGui::MenuItem("Undo", "Ctrl+Z")) { /* Do stuff */ }
+					if (ImGui::MenuItem("Redo", "Ctrl+Y")) { /* Do stuff */ }
+					ImGui::EndMenu();
+				}
+				ImGui::EndMainMenuBar();
+			}
+			ImGui::SetNextWindowSize(ImVec2(1280, 720));
+			ImGui::SetNextWindowPos(ImVec2(0, 20));
+			ImGui::Begin("Table with Selectable Rows", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+			if (ImGui::Button("Open Popup"))
+				ImGui::OpenPopup("MyPopup");
+
+			ImGui::SetNextWindowSize(ImVec2(300, 200));
+			ImGui::SetNextWindowPos(ImVec2(640 - 150, 360 - 100));
+			if (ImGui::BeginPopupModal("MyPopup", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
+			{
+				ImGui::Text("Hello, world!");
+				if (ImGui::Button("Close"))
+					ImGui::CloseCurrentPopup();
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::BeginTable("table1", 3))
+			{
+				ImGui::TableSetupColumn("Column 1");
+				ImGui::TableSetupColumn("Column 2");
+				ImGui::TableSetupColumn("Column 3");
+				ImGui::TableHeadersRow();
+
+				static bool selected[5] = { false, false, false, false, false };
+				for (int row = 0; row < 5; row++)
+				{
+					ImGui::TableNextRow();
+					for (int column = 0; column < 3; column++)
+					{
+						ImGui::TableSetColumnIndex(column);
+						if (column == 0)
+						{
+							/*char label[32];
+							sprintf(label, "Row %d", row);*/
+							std::stringstream ss;
+							ss << "label" << row << std::endl;
+							if (ImGui::Selectable(ss.str().c_str(), &selected[row], ImGuiSelectableFlags_SpanAllColumns))
+							{
+								std::cout << "row " << row << " column " << column << " clickedy\n";
+							}
+						}
+						else
+						{
+							ImGui::Text("Cell %d,%d", row, column);
+						}
+					}
+				}
+				ImGui::EndTable();
+				ImGui::Text("This is some useful text.");
+				ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+				if (ImGui::Button("Button"))
+					counter++;
+				ImGui::SameLine();
+				ImGui::Text("counter = %d", counter);
+			}
+
+			ImGui::End();
+		}
+
+		// ImGuiIO& io = ImGui::GetIO();
+
+		// Rendering
+		glClear(GL_COLOR_BUFFER_BIT);
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		glfwSwapBuffers(GUI::window);
+	}
 
 	return 0;
 }
