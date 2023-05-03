@@ -24,3 +24,5 @@ RustyDolphin/.vs/RustyDolphin/v17/.suo
 *.bin
 *.iobj
 *.ipdb
+RustyDolphin/x64/Release/RustyDolphin.iobj
+RustyDolphin/x64/Release/RustyDolphin.ipdb
