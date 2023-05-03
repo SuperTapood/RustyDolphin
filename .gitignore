@@ -22,3 +22,5 @@ RustyDolphin/.vs/RustyDolphin/v17/.suo
 *.sln
 *.pcap
 *.bin
+*.iobj
+*.ipdb

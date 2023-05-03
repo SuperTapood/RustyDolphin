@@ -196,10 +196,6 @@ int itsDearingTime() {
 int main(int argc, char* argv[])
 {
 	init();
-	for (const auto& v : SDK::geoTrace("172.217.22.110")) {
-		std::cout << "jump: " << v << std::endl;
-	}
-	return 0;
 
 	if (argc > 1) {
 		std::string arg = argv[1];
@@ -210,6 +206,7 @@ int main(int argc, char* argv[])
 			std::cin >> addr;
 			auto j = SDK::geoLocate(addr);
 			std::cout << j.dump(4);
+			return 0;
 		}
 		else if (arg == "gui") {
 			return itsDearingTime();
@@ -221,81 +218,81 @@ int main(int argc, char* argv[])
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
 
-	//std::cout << "hold on. rates are being captured.\n";
+	std::cout << "hold on. rates are being captured.\n";
 
-	//int constexpr seconds = 1;
+	int constexpr seconds = 1;
 
-	//auto names = Capture::getDeviceNames(true);
+	auto names = Capture::getDeviceNames(true);
 
-	//auto counts = std::vector<int>(names->size(), 0);
+	auto counts = std::vector<int>(names->size(), 0);
 
-	//auto threads = std::vector<std::thread*>();
+	auto threads = std::vector<std::thread*>();
 
-	//for (int i = 0; i < names->size(); i++) {
-	//	threads.push_back(new std::thread(countPackets, &counts, i));
-	//}
+	for (int i = 0; i < names->size(); i++) {
+		threads.push_back(new std::thread(countPackets, &counts, i));
+	}
 
-	//std::this_thread::sleep_for(std::chrono::seconds(seconds));
-	//done = true;
+	std::this_thread::sleep_for(std::chrono::seconds(seconds));
+	done = true;
 
-	//std::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
+	std::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
 
-	//std::cout << "the following adapters were detected:\n";
+	std::cout << "the following adapters were detected:\n";
 
-	/*for (int i = 0; i < names->size(); i++) {
+	for (int i = 0; i < names->size(); i++) {
 		std::cout << i + 1 << ". " << names->at(i) << "(packets rate: " << ((float)counts.at(i) / (float)seconds) << " per second)\n";
-	}*/
+	}
 
 	/*for (int i = 0; i < names->size(); i++) {
 		std::cout << i + 1 << ". " << names->at(i) << "\n";
 	}*/
 
-	//int adapterIdx = 0;
+	int adapterIdx = 0;
 
-	//std::cout << "Enter the number of the adapter you wish to use: ";
+	std::cout << "Enter the number of the adapter you wish to use: ";
 
-	//std::cin >> adapterIdx;
+	std::cin >> adapterIdx;
 
-	//if (adapterIdx <= 0 || adapterIdx > names->size()) {
-	//	std::cout << "\nnah man that's a bad adapter index\nbetter luck next time\n";
-	//	return 0;
-	//}
+	if (adapterIdx <= 0 || adapterIdx > names->size()) {
+		std::cout << "\nnah man that's a bad adapter index\nbetter luck next time\n";
+		return 0;
+	}
 
-	//// we need it zero indexed
-	//adapterIdx -= 1;
+	// we need it zero indexed
+	adapterIdx -= 1;
 
-	//std::cout << "\nDo you want to enable promiscuous mode? (Y/N): ";
+	std::cout << "\nDo you want to enable promiscuous mode? (Y/N): ";
 
-	//std::string temp;
+	std::string temp;
 
-	//std::cin >> temp;
+	std::cin >> temp;
 
-	//bool promiscuous = temp == "Y";
+	bool promiscuous = temp == "Y";
 
-	//std::cout << "\nHow Many packets do you want to capture: ";
+	std::cout << "\nHow Many packets do you want to capture: ";
 
-	//int maxPackets;
+	int maxPackets;
 
-	//std::cin >> maxPackets;
+	std::cin >> maxPackets;
 
-	//if (maxPackets <= 0) {
-	//	std::cout << "\nno\n";
-	//	return 0;
-	//}
+	if (maxPackets <= 0) {
+		std::cout << "\nno\n";
+		return 0;
+	}
 
-	//std::cout << "\nwould you like to apply a filter? if so enter it if not enter X: ";
+	std::cout << "\nwould you like to apply a filter? if so enter it if not enter X: ";
 
-	//std::string filter;
+	std::string filter;
 
-	//std::cin >> filter;
+	std::cin >> filter;
 
-	//if (filter == "X") {
-	//	filter = "";
-	//}
+	if (filter == "X") {
+		filter = "";
+	}
 
-	//Capture::sample(adapterIdx, sampleCallback, promiscuous, maxPackets, filter);
+	Capture::sample(adapterIdx, sampleCallback, promiscuous, maxPackets, filter);
 
-	Capture::sample(3, sampleCallback, true, 1, "udp");
+	// Capture::sample(3, sampleCallback, true, 1, "udp");
 
 	return 0;
 }
