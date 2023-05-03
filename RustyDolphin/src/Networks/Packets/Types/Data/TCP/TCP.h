@@ -32,7 +32,6 @@ public:
 	std::string m_process;
 
 	TCP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
-		
 		m_srcPort = Packet::parseShort();
 
 		m_destPort = Packet::parseShort();

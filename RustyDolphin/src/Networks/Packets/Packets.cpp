@@ -81,7 +81,5 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data) {
 		break;
 	}
 
-	
-
 	return new Packet(header, pkt_data);
 }

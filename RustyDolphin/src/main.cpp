@@ -185,8 +185,6 @@ int main(int argc, char* argv[])
 
 	// Capture::sample(3, sampleCallback, true, 1, "udp");
 
-	return 0;
-
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
 	remove("imgui.ini");

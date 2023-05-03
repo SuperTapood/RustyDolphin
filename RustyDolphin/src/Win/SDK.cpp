@@ -190,8 +190,6 @@ void SDK::refreshTables() {
 	refreshUDP();
 }
 
-
-
 void SDK::findIP(char* adName) {
 	ULONG buffer_size = sizeof(IP_ADAPTER_INFO);
 	IP_ADAPTER_INFO* adapter_info = (IP_ADAPTER_INFO*)malloc(buffer_size);
@@ -245,7 +243,7 @@ void SDK::initICMP() {
 	SendData[temp.size()] = '\0';
 	ReplyBuffer = nullptr;
 	ReplySize = 0;
-	ipOptions = { 0 };	
+	ipOptions = { 0 };
 
 	// Open ICMP handle
 	hIcmpFile = IcmpCreateFile();
