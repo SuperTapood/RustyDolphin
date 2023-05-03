@@ -1,3 +1,5 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <iostream>
 #include <cstdio>
 #include <stdio.h>
@@ -19,6 +21,7 @@
 #include "imgui_impl_opengl3.h"
 #include <fstream>
 #include <string>
+#include <IcmpAPI.h>
 
 static std::atomic<bool> done(false);
 
@@ -193,6 +196,10 @@ int itsDearingTime() {
 int main(int argc, char* argv[])
 {
 	init();
+	for (const auto& v : SDK::geoTrace("172.217.22.110")) {
+		std::cout << "jump: " << v << std::endl;
+	}
+	return 0;
 
 	if (argc > 1) {
 		std::string arg = argv[1];
@@ -201,10 +208,7 @@ int main(int argc, char* argv[])
 			std::string addr;
 			std::cout << "enter the address to geo locate: ";
 			std::cin >> addr;
-			std::string cmd = R"(curl -s -H "User-Agent: keycdn-tools:https://amalb.iscool.co.il/" "https://tools.keycdn.com/geo.json?host=")";
-			cmd += addr;
-			auto res = SDK::exec(cmd.c_str());
-			auto j = json::parse(res);
+			auto j = SDK::geoLocate(addr);
 			std::cout << j.dump(4);
 		}
 		else if (arg == "gui") {

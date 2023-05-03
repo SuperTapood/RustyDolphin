@@ -1,3 +1,5 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include "SDK.h"
 
 #include "../Base/Logger.h"
@@ -12,11 +14,18 @@
 #include <memory>
 #include <string.h>
 #include <sstream>
+#include <IcmpAPI.h>
 // #include "../base/Structs.h"
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
 std::map<DWORD, std::string> SDK::PID2PROC;
 std::string SDK::ipAddress;
+HANDLE SDK::hIcmpFile;
+DWORD SDK::dwRetVal;
+char* SDK::SendData;
+LPVOID SDK::ReplyBuffer;
+DWORD SDK::ReplySize;
+IP_OPTION_INFORMATION SDK::ipOptions;
 
 std::string SDK::exec(const char* cmd) {
 	std::array<char, 128> buffer{};
@@ -31,6 +40,15 @@ std::string SDK::exec(const char* cmd) {
 		result += buffer.data();
 	}
 	return result;
+}
+
+json SDK::geoLocate(std::string addr) {
+	std::string cmd = R"(curl -s -H "User-Agent: keycdn-tools:https://amalb.iscool.co.il/" "https://tools.keycdn.com/geo.json?host=")";
+	cmd += addr;
+	auto res = SDK::exec(cmd.c_str());
+	auto j = json::parse(res);
+
+	return j;
 }
 
 void SDK::initPIDCache() {
@@ -172,10 +190,7 @@ void SDK::refreshTables() {
 	refreshUDP();
 }
 
-void SDK::init() {
-	initPIDCache();
-	refreshTables();
-}
+
 
 void SDK::findIP(char* adName) {
 	ULONG buffer_size = sizeof(IP_ADAPTER_INFO);
@@ -221,9 +236,45 @@ void SDK::findIP(char* adName) {
 	free(adapter_info);
 }
 
+void SDK::initICMP() {
+	// Initialize variables
+	dwRetVal = 0;
+	std::string temp = "Data Buffer";
+	SendData = new char[temp.size() + 1];
+	std::ranges::copy(temp.begin(), temp.end(), SendData);
+	SendData[temp.size()] = '\0';
+	ReplyBuffer = nullptr;
+	ReplySize = 0;
+	ipOptions = { 0 };	
+
+	// Open ICMP handle
+	hIcmpFile = IcmpCreateFile();
+	if (hIcmpFile == INVALID_HANDLE_VALUE) {
+		printf("Unable to open ICMP handle\n");
+		exit(1);
+	}
+
+	// Set reply buffer size
+	ReplySize = sizeof(ICMP_ECHO_REPLY) + sizeof(SendData);
+	ReplyBuffer = (VOID*)malloc(ReplySize);
+	if (ReplyBuffer == NULL) {
+		printf("Unable to allocate memory for reply buffer\n");
+		exit(1);
+	}
+}
+
+void SDK::init() {
+	initPIDCache();
+	refreshTables();
+	initICMP();
+}
+
 void SDK::release() {
-	// i don't need this lol
-	// keeping for later i guess
+	// Cleanup
+	if (ReplyBuffer != NULL) {
+		free(ReplyBuffer);
+	}
+	IcmpCloseHandle(hIcmpFile);
 }
 
 DWORD SDK::getPIDFromPort(DWORD port) {
@@ -276,4 +327,70 @@ std::string SDK::getProcFromPID(DWORD PID) {
 
 std::string SDK::getProcFromPort(DWORD port) {
 	return getProcFromPID(getPIDFromPort(port));
+}
+
+std::vector<std::string> SDK::traceRoute(std::string addr) {
+	unsigned long ipaddr = INADDR_NONE;
+	// Convert IP address string to binary
+	ipaddr = inet_addr(addr.c_str());
+	if (ipaddr == INADDR_NONE) {
+		printf("Unable to parse IP address\n");
+		exit(1);
+	}
+
+	u_char ttl = 1;
+	std::vector<std::string> addrs;
+
+	while (true) {
+		ipOptions.Ttl = ttl++;
+		// Send ICMP echo request
+		dwRetVal = IcmpSendEcho(hIcmpFile, ipaddr, SendData, sizeof(SendData),
+			&ipOptions, ReplyBuffer, ReplySize, 100);
+		if (dwRetVal != 0) {
+			PICMP_ECHO_REPLY pEchoReply = (PICMP_ECHO_REPLY)ReplyBuffer;
+			struct in_addr ReplyAddr;
+			ReplyAddr.S_un.S_addr = pEchoReply->Address;
+			/*printf("Received %ld ICMP echo replies from %s\n", dwRetVal, inet_ntoa(ReplyAddr));
+			printf("Status: %ld\n", pEchoReply->Status);
+			printf("Round trip time: %ld milliseconds\n", pEchoReply->RoundTripTime);*/
+			addrs.emplace_back(inet_ntoa(ReplyAddr));
+
+			if (pEchoReply->Status == 0) {
+				break;
+			}
+		}
+		else {
+			DWORD errorMessageID = GetLastError();
+
+			LPSTR messageBuffer = NULL;
+			size_t size = FormatMessageA(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				errorMessageID,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPSTR)&messageBuffer,
+				0,
+				NULL
+			);
+			std::stringstream ss;
+			ss << "error: " << messageBuffer;
+			addrs.push_back(ss.str());
+			LocalFree(messageBuffer);
+		}
+	}
+
+	return addrs;
+}
+
+std::vector<json> SDK::geoTrace(std::string addr) {
+	auto vec = traceRoute(addr);
+
+	std::vector<json> locs;
+
+	for (const auto& add : vec) {
+		auto j = geoLocate(add);
+		locs.emplace_back(j);
+	}
+
+	return locs;
 }
