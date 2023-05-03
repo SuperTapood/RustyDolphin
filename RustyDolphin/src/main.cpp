@@ -24,6 +24,7 @@
 #include <IcmpAPI.h>
 #include <GLFW/glfw3native.h>
 #include "GUI/GUI.h"
+#include "ImGuiFileDialog.h"
 
 static std::atomic<bool> done(false);
 
@@ -277,6 +278,23 @@ int main(int argc, char* argv[])
 					counter++;
 				ImGui::SameLine();
 				ImGui::Text("counter = %d", counter);
+				if (ImGui::Button("Open File Dialog"))
+					ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
+
+				// display
+				if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+				{
+					// action if OK
+					if (ImGuiFileDialog::Instance()->IsOk())
+					{
+						std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+						std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+						// action
+					}
+
+					// close
+					ImGuiFileDialog::Instance()->Close();
+				}
 			}
 
 			ImGui::End();
