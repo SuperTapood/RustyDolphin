@@ -135,7 +135,7 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 	return adhandle;
 }
 
-void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool promiscuous = false) {
+void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, unsigned int), bool promiscuous = false) {
 	auto d = getDev(devIndex);
 	auto adhandle = createAdapter(devIndex, promiscuous);
 	struct pcap_pkthdr* header;
@@ -174,17 +174,19 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*), bool
 		exit(-1);
 	}
 
+	unsigned int idx = 0;
+
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
 		if (r == 0) {
 			continue;
 		}
-		func(header, pkt_data);
+		func(header, pkt_data, idx++);
 	}
 
 	pcap_close(adhandle);
 }
 
-void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string), bool promiscuous, int maxPackets, std::string filter) {
+void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string, unsigned int), bool promiscuous, int maxPackets, std::string filter) {
 	auto d = getDev(devIndex);
 	auto adhandle = createAdapter(devIndex, promiscuous);
 	struct pcap_pkthdr* header;
@@ -230,6 +232,8 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 	SDK::findIP(d->name);
 
+	unsigned int idx = 0;
+
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {
 			continue;
@@ -238,7 +242,7 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 		pcap_dump((u_char*)m_dumpfile, header, pkt_data);
 
-		func(header, pkt_data, ss.str());
+		func(header, pkt_data, ss.str(), idx++);
 	}
 
 	pcap_close(adhandle);

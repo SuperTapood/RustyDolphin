@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
+ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	m_hardType = parseShort();
 
 	m_protoType = parseShort();
@@ -20,6 +20,8 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data)
 	m_targetMAC = parseMAC(m_hardSize);
 
 	m_targetAddr = parseIPV4(m_protoSize);
+
+	Packet::m_strType = "ARP";
 }
 
 std::string ARP::toString() {

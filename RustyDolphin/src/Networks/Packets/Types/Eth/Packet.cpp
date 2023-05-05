@@ -11,7 +11,10 @@
 #include <ctime>
 #include <WinSock2.h>
 
-Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data) {
+#include "../../../../GUI/Renderer.h"
+
+Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
+	this->idx = idx;
 	this->m_pktData = pkt_data;
 	struct tm timeinfo;
 	m_epoch = header->ts.tv_sec;
@@ -55,6 +58,10 @@ json Packet::jsonify() {
 	};
 
 	return j;
+}
+
+void Packet::render() {
+	Renderer::render(this);
 }
 
 std::string Packet::padDate(int t) {

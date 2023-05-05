@@ -65,29 +65,31 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 	pcap_close(adhandle);
 }
 
-void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename) {
-	auto p = fromRaw(header, pkt_data);
+void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename, unsigned int idx) {
+	auto p = fromRaw(header, pkt_data, idx);
 
-	std::size_t pos = filename.find('.');
+	/*std::size_t pos = filename.find('.');
 	if (pos != std::string::npos) {
 		filename.erase(pos);
-	}
+	}*/
 
-	std::ofstream file(filename + ".txt", std::ios_base::app);
+	// std::ofstream file(filename + ".txt", std::ios_base::app);
 
-	if (!file) {
-		std::cerr << "Error opening file: " << filename + ".txt" << '\n';
-		exit(69);
-	}
+	//if (!file) {
+	//	std::cerr << "Error opening file: " << filename + ".txt" << '\n';
+	//	exit(69);
+	//}
 
-	file << p->jsonify().dump(4) << "\n";
+	//file << p->jsonify().dump(4) << "\n";
 
 	// std::cout << p->jsonify().dump(4) << std::endl;
 
-	std::cout << p->toString() << std::endl;
+	// std::cout << p->toString() << std::endl;
+
+	Data::addPacket(p);
 }
 
-int sample() {
+int sample(unsigned int _) {
 	std::cout << "hold on. rates are being captured.\n";
 
 	int constexpr seconds = 1;
@@ -184,16 +186,18 @@ int main(int argc, char* argv[])
 
 	// return sample();
 
-	// Capture::sample(3, sampleCallback, true, 1, "udp");
+	constexpr auto packets = 15;
+	constexpr auto columns = 7;
+
+	Capture::sample(3, sampleCallback, true, packets, "");
 
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
-	int counter = 0;
-	float f = 0.0f;
+	int selected = -1;
 
 	while (!glfwWindowShouldClose(GUI::window))
 	{
@@ -205,100 +209,68 @@ int main(int argc, char* argv[])
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// Create a simple user interface
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(1280, 720));
+		ImGui::Begin("Table with Selectable Rows", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+		/*if (ImGui::Button("Open Popup"))
+			ImGui::OpenPopup("MyPopup");
+
+		ImGui::SetNextWindowSize(ImVec2(300, 200));
+		ImGui::SetNextWindowPos(ImVec2(640 - 150, 360 - 100));
+		if (ImGui::BeginPopupModal("MyPopup", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
 		{
-			if (ImGui::BeginMainMenuBar())
+			ImGui::Text("Hello, world!");
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}*/
+
+		if (ImGui::BeginTable("table1", columns))
+		{
+			ImGui::TableSetupColumn("No.");
+			ImGui::TableSetupColumn("Time");
+			ImGui::TableSetupColumn("Source");
+			ImGui::TableSetupColumn("Destination");
+			ImGui::TableSetupColumn("Protocol");
+			ImGui::TableSetupColumn("Length");
+			ImGui::TableSetupColumn("Info");
+			ImGui::TableHeadersRow();
+
+			for (int row = 0; row < packets; row++)
 			{
-				if (ImGui::BeginMenu("File"))
-				{
-					if (ImGui::MenuItem("Open", "Ctrl+O")) { /* Do stuff */ }
-					if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-					if (ImGui::MenuItem("Close", "Ctrl+W")) { /* Do stuff */ }
-					ImGui::EndMenu();
-				}
-				if (ImGui::BeginMenu("Edit"))
-				{
-					if (ImGui::MenuItem("Undo", "Ctrl+Z")) { /* Do stuff */ }
-					if (ImGui::MenuItem("Redo", "Ctrl+Y")) { /* Do stuff */ }
-					ImGui::EndMenu();
-				}
-				ImGui::EndMainMenuBar();
+				ImGui::TableNextRow();
+				Data::captured.at(row)->render();
 			}
-			ImGui::SetNextWindowSize(ImVec2(1280, 720));
-			ImGui::SetNextWindowPos(ImVec2(0, 20));
-			ImGui::Begin("Table with Selectable Rows", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-			if (ImGui::Button("Open Popup"))
-				ImGui::OpenPopup("MyPopup");
-
-			ImGui::SetNextWindowSize(ImVec2(300, 200));
-			ImGui::SetNextWindowPos(ImVec2(640 - 150, 360 - 100));
-			if (ImGui::BeginPopupModal("MyPopup", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
-			{
-				ImGui::Text("Hello, world!");
-				if (ImGui::Button("Close"))
-					ImGui::CloseCurrentPopup();
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginTable("table1", 3))
-			{
-				ImGui::TableSetupColumn("Column 1");
-				ImGui::TableSetupColumn("Column 2");
-				ImGui::TableSetupColumn("Column 3");
-				ImGui::TableHeadersRow();
-
-				static bool selected[5] = { false, false, false, false, false };
-				for (int row = 0; row < 5; row++)
-				{
-					ImGui::TableNextRow();
-					for (int column = 0; column < 3; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						if (column == 0)
-						{
-							/*char label[32];
-							sprintf(label, "Row %d", row);*/
-							std::stringstream ss;
-							ss << "label" << row << std::endl;
-							if (ImGui::Selectable(ss.str().c_str(), &selected[row], ImGuiSelectableFlags_SpanAllColumns))
-							{
-								std::cout << "row " << row << " column " << column << " clickedy\n";
-							}
-						}
-						else
-						{
-							ImGui::Text("Cell %d,%d", row, column);
-						}
-					}
-				}
-				ImGui::EndTable();
-				ImGui::Text("This is some useful text.");
-				ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-				if (ImGui::Button("Button"))
-					counter++;
-				ImGui::SameLine();
-				ImGui::Text("counter = %d", counter);
-				if (ImGui::Button("Open File Dialog"))
-					ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
-
-				// display
-				if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-				{
-					// action if OK
-					if (ImGuiFileDialog::Instance()->IsOk())
-					{
-						std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-						std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-						// action
-					}
-
-					// close
-					ImGuiFileDialog::Instance()->Close();
-				}
-			}
-
-			ImGui::End();
+			ImGui::EndTable();
 		}
+
+		// std::cout << Data::selected << std::endl;
+
+		//ImGui::Text("This is some useful text.");
+		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+		//if (ImGui::Button("Button"))
+		//	counter++;
+		//ImGui::SameLine();
+		//ImGui::Text("counter = %d", counter);
+		//if (ImGui::Button("Open File Dialog"))
+		//	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
+
+		//// display
+		//if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+		//{
+		//	// action if OK
+		//	if (ImGuiFileDialog::Instance()->IsOk())
+		//	{
+		//		std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+		//		std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+		//		// action
+		//	}
+
+		//	// close
+		//	ImGuiFileDialog::Instance()->Close();
+		//}
+
+		ImGui::End();
 
 		// ImGuiIO& io = ImGui::GetIO();
 
@@ -308,6 +280,123 @@ int main(int argc, char* argv[])
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(GUI::window);
 	}
+
+	//int counter = 0;
+	//float f = 0.0f;
+
+	//while (!glfwWindowShouldClose(GUI::window))
+	//{
+	//	// Poll and handle events
+	//	glfwPollEvents();
+
+	//	// Start the Dear ImGui frame
+	//	ImGui_ImplOpenGL3_NewFrame();
+	//	ImGui_ImplGlfw_NewFrame();
+	//	ImGui::NewFrame();
+
+	//	// Create a simple user interface
+	//	{
+	//		if (ImGui::BeginMainMenuBar())
+	//		{
+	//			if (ImGui::BeginMenu("File"))
+	//			{
+	//				if (ImGui::MenuItem("Open", "Ctrl+O")) { /* Do stuff */ }
+	//				if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+	//				if (ImGui::MenuItem("Close", "Ctrl+W")) { /* Do stuff */ }
+	//				ImGui::EndMenu();
+	//			}
+	//			if (ImGui::BeginMenu("Edit"))
+	//			{
+	//				if (ImGui::MenuItem("Undo", "Ctrl+Z")) { /* Do stuff */ }
+	//				if (ImGui::MenuItem("Redo", "Ctrl+Y")) { /* Do stuff */ }
+	//				ImGui::EndMenu();
+	//			}
+	//			ImGui::EndMainMenuBar();
+	//		}
+	//		ImGui::SetNextWindowSize(ImVec2(1280, 720));
+	//		ImGui::SetNextWindowPos(ImVec2(0, 20));
+	//		ImGui::Begin("Table with Selectable Rows", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+	//		if (ImGui::Button("Open Popup"))
+	//			ImGui::OpenPopup("MyPopup");
+
+	//		ImGui::SetNextWindowSize(ImVec2(300, 200));
+	//		ImGui::SetNextWindowPos(ImVec2(640 - 150, 360 - 100));
+	//		if (ImGui::BeginPopupModal("MyPopup", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
+	//		{
+	//			ImGui::Text("Hello, world!");
+	//			if (ImGui::Button("Close"))
+	//				ImGui::CloseCurrentPopup();
+	//			ImGui::EndPopup();
+	//		}
+
+	//		if (ImGui::BeginTable("table1", 3))
+	//		{
+	//			ImGui::TableSetupColumn("Column 1");
+	//			ImGui::TableSetupColumn("Column 2");
+	//			ImGui::TableSetupColumn("Column 3");
+	//			ImGui::TableHeadersRow();
+
+	//			static bool selected[5] = { false, false, false, false, false };
+	//			for (int row = 0; row < 5; row++)
+	//			{
+	//				ImGui::TableNextRow();
+	//				for (int column = 0; column < 3; column++)
+	//				{
+	//					ImGui::TableSetColumnIndex(column);
+	//					if (column == 0)
+	//					{
+	//						/*char label[32];
+	//						sprintf(label, "Row %d", row);*/
+	//						std::stringstream ss;
+	//						ss << "label" << row << std::endl;
+	//						if (ImGui::Selectable(ss.str().c_str(), &selected[row], ImGuiSelectableFlags_SpanAllColumns))
+	//						{
+	//							std::cout << "row " << row << " column " << column << " clickedy\n";
+	//						}
+	//					}
+	//					else
+	//					{
+	//						ImGui::Text("Cell %d,%d", row, column);
+	//					}
+	//				}
+	//			}
+	//			ImGui::EndTable();
+	//			ImGui::Text("This is some useful text.");
+	//			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+	//			if (ImGui::Button("Button"))
+	//				counter++;
+	//			ImGui::SameLine();
+	//			ImGui::Text("counter = %d", counter);
+	//			if (ImGui::Button("Open File Dialog"))
+	//				ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
+
+	//			// display
+	//			if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+	//			{
+	//				// action if OK
+	//				if (ImGuiFileDialog::Instance()->IsOk())
+	//				{
+	//					std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+	//					std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+	//					// action
+	//				}
+
+	//				// close
+	//				ImGuiFileDialog::Instance()->Close();
+	//			}
+	//		}
+
+	//		ImGui::End();
+	//	}
+
+	//	// ImGuiIO& io = ImGui::GetIO();
+
+	//	// Rendering
+	//	glClear(GL_COLOR_BUFFER_BIT);
+	//	ImGui::Render();
+	//	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	//	glfwSwapBuffers(GUI::window);
+	//}
 
 	return 0;
 }

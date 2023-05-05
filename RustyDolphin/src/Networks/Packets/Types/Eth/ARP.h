@@ -14,7 +14,7 @@ public:
 	std::string m_targetMAC;
 	std::string m_targetAddr;
 
-	ARP(pcap_pkthdr* header, const u_char* pkt_data);
+	ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 
 	std::string toString() override;
 	json jsonify() override;

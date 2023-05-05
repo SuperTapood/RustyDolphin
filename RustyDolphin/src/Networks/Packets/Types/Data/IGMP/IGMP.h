@@ -13,11 +13,13 @@ public:
 	int m_checksum;
 	std::string m_multicastAddr;
 
-	IGMP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
+	IGMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_groupType = pkt_data[Packet::pos++];
 		m_maxResp = pkt_data[Packet::pos++] / 10;
 		m_checksum = Packet::parseInt();
 		m_multicastAddr = Packet::parseIPV4();
+
+		Packet::m_strType = "IGMP (" + Packet::m_strType + ")";
 	}
 
 	std::string toString() override {

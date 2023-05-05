@@ -10,6 +10,8 @@ using json = nlohmann::ordered_json;
 
 class Packet {
 public:
+	unsigned int idx;
+
 	unsigned int pos = 0;
 	// header stuff
 	std::string m_time;
@@ -20,10 +22,12 @@ public:
 	std::string m_phyDst;
 	std::string m_phySrc;
 	unsigned short m_type;
+	std::string m_strType;
 	const u_char* m_pktData;
 
-	Packet(pcap_pkthdr* header, const u_char* pkt_data);
+	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	virtual ~Packet() = default;
+	virtual void render();
 	virtual std::string toString();
 	virtual json jsonify();
 

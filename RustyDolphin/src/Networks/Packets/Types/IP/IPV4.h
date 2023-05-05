@@ -20,7 +20,7 @@ public:
 	int m_IPoptionsCount;
 	IPV4Option* m_opts;
 
-	IPV4(pcap_pkthdr* header, const u_char* pkt_data);
+	IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	~IPV4() override = default;
 
 	std::string toString() override;

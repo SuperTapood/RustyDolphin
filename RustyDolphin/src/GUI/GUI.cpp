@@ -8,6 +8,7 @@ void GUI::init() {
 		exit(-1);
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_REFRESH_RATE, 1000);
 
 	window = glfwCreateWindow(1280, 720, "RustyDolphin", NULL, NULL);
 	if (!window)

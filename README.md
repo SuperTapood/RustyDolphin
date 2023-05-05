@@ -8,8 +8,6 @@ time spent making this nonsense in the best language ever made:
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
-- [ ] curl with tracert
-- [ ] start putting release in releases on github and explore release optimizations
 - [ ] to strings should really return constant values lol
 - [ ] switch to unique pointers for packets?
 - [ ] exapand IPV4 Options

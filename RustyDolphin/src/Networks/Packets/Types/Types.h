@@ -6,7 +6,6 @@
 #include "Data/IGMP/IGMP.h"
 #include "Data/TCP/TCP.h"
 #include "Data/UDP/UDP.h"
-#include <memory>
 
 #define PKT             Packet*
 #define ARP_PKT         ARP*

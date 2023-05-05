@@ -17,7 +17,7 @@ public:
 	std::string m_payload;
 	std::string m_process;
 
-	UDP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
+	UDP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_srcPort = Packet::parseShort();
 
 		m_destPort = Packet::parseShort();
@@ -44,6 +44,8 @@ public:
 				m_process = SDK::getProcFromPort(m_destPort);
 			}
 		}
+
+		Packet::m_strType = "UDP (" + Packet::m_strType + ")";
 	}
 
 	std::string toString() override {

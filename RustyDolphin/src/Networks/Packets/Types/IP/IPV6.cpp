@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
+IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto thingy = parseLong();
 	m_trafficCls = thingy & 4080;
 
@@ -17,6 +17,8 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 	m_srcAddr = parseIPV6();
 
 	m_destAddr = parseIPV6();
+
+	Packet::m_strType = "IPV4";
 }
 
 std::string IPV6::toString() {

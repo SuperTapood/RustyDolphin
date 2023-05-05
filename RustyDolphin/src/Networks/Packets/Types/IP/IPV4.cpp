@@ -6,7 +6,7 @@
 #include "../../../Capture.h"
 #include <iostream>
 
-IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_data) {
+IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto start = pos;
 	m_headerLength = (pkt_data[pos++] & 0x0000FFFF) * 4;
 	m_differServ = pkt_data[pos++];
@@ -67,6 +67,8 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data) : Packet(header, pkt_dat
 
 		std::ranges::copy(vec.begin(), vec.end(), m_opts);
 	}
+
+	Packet::m_strType = "IPV4";
 }
 
 std::string IPV4::toString() {

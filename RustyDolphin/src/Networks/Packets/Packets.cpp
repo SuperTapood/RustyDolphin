@@ -11,18 +11,18 @@ constexpr auto ETHERTYPE_IPV6 = 0x86DD;
 constexpr auto IPV4_PROTO_POS = 23;
 constexpr auto IPV6_PROTO_POS = 23;
 
-IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data) {
+IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	int proto = pkt_data[IPV4_PROTO_POS];
 
 	switch (proto) {
 	case IPPROTO_TCP:
-		return new TCP<IPV4>(header, pkt_data);
+		return new TCP<IPV4>(header, pkt_data, idx);
 	case IPPROTO_UDP:
-		return new UDP<IPV4>(header, pkt_data);
+		return new UDP<IPV4>(header, pkt_data, idx);
 	case IPPROTO_IGMP:
-		return new IGMP<IPV4>(header, pkt_data);
+		return new IGMP<IPV4>(header, pkt_data, idx);
 	case IPPROTO_ICMP:
-		return new ICMP<IPV4>(header, pkt_data);
+		return new ICMP<IPV4>(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
 		std::stringstream ss;
@@ -35,19 +35,19 @@ IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data) {
 	Logger::log("unknown v4 protocol: ");
 	std::cout << "bad proto " << proto << std::endl;
 
-	return new IPV4(header, pkt_data);
+	return new IPV4(header, pkt_data, idx);
 }
 
-IPV6_PKT fromIPV6(pcap_pkthdr* header, const u_char* pkt_data) {
+IPV6_PKT fromIPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	int proto = pkt_data[IPV6_PROTO_POS];
 
 	switch (proto) {
 	case IPPROTO_TCP:
-		return new TCP<IPV6>(header, pkt_data);
+		return new TCP<IPV6>(header, pkt_data, idx);
 	case IPPROTO_UDP:
-		return new UDP<IPV6>(header, pkt_data);
+		return new UDP<IPV6>(header, pkt_data, idx);
 	case IPPROTO_ICMPV6:
-		return new ICMP<IPV6>(header, pkt_data);
+		return new ICMP<IPV6>(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
 		std::stringstream ss;
@@ -57,21 +57,21 @@ IPV6_PKT fromIPV6(pcap_pkthdr* header, const u_char* pkt_data) {
 		break;
 	}
 
-	return new IPV6(header, pkt_data);
+	return new IPV6(header, pkt_data, idx);
 }
 
-PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data) {
+PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	u_char t1 = pkt_data[12];
 	u_char t2 = pkt_data[13];
 	int type = (t1 << 8) | t2;
 
 	switch (type) {
 	case ETHERTYPE_IPV4:
-		return fromIPV4(header, pkt_data);
+		return fromIPV4(header, pkt_data, idx);
 	case ETHERTYPE_IPV6:
-		return fromIPV6(header, pkt_data);
+		return fromIPV6(header, pkt_data, idx);
 	case ETHERTYPE_ARP:
-		return new ARP(header, pkt_data);
+		return new ARP(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
 		std::stringstream ss;
@@ -81,5 +81,5 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data) {
 		break;
 	}
 
-	return new Packet(header, pkt_data);
+	return new Packet(header, pkt_data, idx);
 }

@@ -31,7 +31,7 @@ public:
 
 	std::string m_process;
 
-	TCP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
+	TCP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_srcPort = Packet::parseShort();
 
 		m_destPort = Packet::parseShort();
@@ -84,7 +84,7 @@ public:
 				std::stringstream ss;
 				ss << "bad option of packet data: " << code;
 				Logger::log(ss.str());
-				Capture::dump(header, pkt_data);
+				// Capture::dump(header, pkt_data);
 				m_optionCount--;
 				exit(code);
 #endif
@@ -117,6 +117,8 @@ public:
 				m_process = SDK::getProcFromPort(m_destPort);
 			}
 		}
+
+		Packet::m_strType = "TCP (" + Packet::m_strType + ")";
 	}
 
 	std::string toString() override {

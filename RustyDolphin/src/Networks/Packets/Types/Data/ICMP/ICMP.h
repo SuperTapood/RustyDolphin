@@ -18,7 +18,7 @@ public:
 	unsigned long long m_ROHLength;
 	std::string m_restOfHeader;
 
-	ICMP(pcap_pkthdr* header, const u_char* pkt_data) : IPVersion(header, pkt_data) {
+	ICMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_ICMPtype = pkt_data[Packet::pos++];
 		m_code = pkt_data[Packet::pos++];
 		m_ICMPChecksum = Packet::parseShort();
@@ -28,6 +28,8 @@ public:
 		m_seqNumberBE = htons(m_seqNumberLE);
 		m_ROHLength = Packet::m_len - Packet::pos;
 		m_restOfHeader = Packet::parse(m_ROHLength);
+
+		Packet::m_strType = "ICMP (" + Packet::m_strType + ")";
 	}
 
 	std::string toString() override {
