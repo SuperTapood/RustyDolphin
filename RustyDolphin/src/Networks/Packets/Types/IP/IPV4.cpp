@@ -110,3 +110,7 @@ json IPV4::jsonify() {
 
 	return j;
 }
+
+void IPV4::render() {
+	Renderer::render(this);
+}

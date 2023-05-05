@@ -1,6 +1,7 @@
 #include "IPV6.h"
 
 #include <sstream>
+#include "../../../../GUI/Renderer.h"
 
 IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto thingy = parseLong();
@@ -44,4 +45,8 @@ json IPV6::jsonify() {
 	j["Header Length"] = m_headerLength;
 
 	return j;
+}
+
+void IPV6::render() {
+	Renderer::render(this);
 }

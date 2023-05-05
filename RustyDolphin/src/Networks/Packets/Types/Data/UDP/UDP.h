@@ -3,6 +3,7 @@
 #include "../../Eth/Packet.h"
 #include "../../IP/IP.h"
 #include "../../src/Win/SDK.h"
+#include "../../../../../GUI/Renderer.h"
 
 template <typename IPVersion>
 class UDP : public IPVersion {
@@ -73,5 +74,9 @@ public:
 		j["Payload"] = m_payload;
 
 		return j;
+	}
+
+	void render() override {
+		Renderer::render(this);
 	}
 };

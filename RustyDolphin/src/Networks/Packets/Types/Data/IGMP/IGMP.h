@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../IP/IP.h"
+#include "../../../../../GUI/Renderer.h"
 
 #include <string>
 #include <pcap.h>
@@ -40,5 +41,9 @@ public:
 		j["Multicast Address"] = m_multicastAddr;
 
 		return j;
+	}
+
+	void render() override {
+		Renderer::render(this);
 	}
 };

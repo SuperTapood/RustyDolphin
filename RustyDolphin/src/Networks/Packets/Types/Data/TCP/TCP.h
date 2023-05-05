@@ -5,6 +5,7 @@
 #include "../../IP/IP.h"
 #include "../../../src/Networks/capture.h"
 #include "../../../src/Win/SDK.h"
+#include "../../../../../GUI/Renderer.h"
 
 #include <iostream>
 
@@ -169,5 +170,9 @@ public:
 		j["Payload"] = m_payload;
 
 		return j;
+	}
+
+	void render() override {
+		Renderer::render(this);
 	}
 };

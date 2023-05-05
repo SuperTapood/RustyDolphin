@@ -4,6 +4,7 @@
 #include "../../IP/IP.h"
 #include <pcap.h>
 #include <uchar.h>
+#include "../../../../../GUI/Renderer.h"
 
 template <typename IPVersion>
 class ICMP : public IPVersion {
@@ -55,5 +56,9 @@ public:
 		j["The Rest of the Header"] = m_restOfHeader;
 
 		return j;
+	}
+
+	void render() override {
+		Renderer::render(this);
 	}
 };

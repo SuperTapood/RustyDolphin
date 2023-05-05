@@ -12,7 +12,7 @@ time spent making this nonsense in the best language ever made:
 - [ ] pass refrences to strings?
 - [ ] improve parsing like the general parser
 - [ ] use c strings instead of std strings
-- [ ] 
+- [ ] add broadcast instead of all "f"s (maybe also loopback and stuff)
 - [ ] switch to unique pointers for packets?
 - [ ] exapand IPV4 Options
 - [ ] expand TCPOptions
