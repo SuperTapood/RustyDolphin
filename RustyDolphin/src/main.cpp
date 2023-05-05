@@ -1,4 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define _CRT_SECURE_NO_WARNINGS
+
 
 #include <iostream>
 #include <cstdio>
@@ -25,6 +28,7 @@
 #include <GLFW/glfw3native.h>
 #include "GUI/GUI.h"
 #include "ImGuiFileDialog.h"
+#include <stb_image_write.h>
 
 static std::atomic<bool> done(false);
 
@@ -165,11 +169,14 @@ int sample(unsigned int _) {
 	Capture::sample(adapterIdx, sampleCallback, promiscuous, maxPackets, filter);
 }
 
-int main(int argc, char* argv[])
+#define GL_CLAMP_TO_EDGE 0x812F
+
+
+int main()
 {
 	init();
 
-	if (argc > 1) {
+	/*if (argc > 1) {
 		std::string arg = argv[1];
 
 		if (arg == "curl") {
@@ -182,11 +189,11 @@ int main(int argc, char* argv[])
 		}
 
 		return 0;
-	}
+	}*/
 
 	// return sample();
 
-	constexpr auto packets = 15;
+	constexpr auto packets = 200;
 	constexpr auto columns = 7;
 
 	Capture::sample(3, sampleCallback, true, packets, "");
@@ -227,13 +234,13 @@ int main(int argc, char* argv[])
 
 		if (ImGui::BeginTable("table1", columns))
 		{
-			ImGui::TableSetupColumn("No.");
-			ImGui::TableSetupColumn("Time");
-			ImGui::TableSetupColumn("Source");
-			ImGui::TableSetupColumn("Destination");
-			ImGui::TableSetupColumn("Protocol");
-			ImGui::TableSetupColumn("Length");
-			ImGui::TableSetupColumn("Info");
+			ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+			ImGui::TableSetupColumn("Protocol", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+			ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 660.0f);
 			ImGui::TableHeadersRow();
 
 			for (int row = 0; row < packets; row++)
@@ -243,6 +250,35 @@ int main(int argc, char* argv[])
 			}
 			ImGui::EndTable();
 		}
+
+		/*ImGui::BeginChild("Scrolling", ImVec2(0, 200), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
+		ImGui::Columns(3);
+
+		for (int i = 0; i < 5000; ++i)
+		{
+			ImGui::Text("Row %d Column 1", i);
+			ImGui::NextColumn();
+			ImGui::Text("Row %d Column 2", i);
+			ImGui::NextColumn();
+			ImGui::Text("Row %d Column 3", i);
+			ImGui::NextColumn();
+		}
+
+		ImGui::Columns(1);
+		ImGui::EndChild();*/
+
+		//if (Data::selected != -1) {
+		//	ImGui::End();
+
+		//	// ImGuiIO& io = ImGui::GetIO();
+
+		//	// Rendering
+		//	glClear(GL_COLOR_BUFFER_BIT);
+		//	ImGui::Render();
+		//	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		//	glfwSwapBuffers(GUI::window);
+		//	break;
+		//}
 
 		// std::cout << Data::selected << std::endl;
 
@@ -400,3 +436,15 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+
+
+#ifdef NDEBUG
+
+#include <windows.h>
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	return main();
+}
+
+#endif

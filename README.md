@@ -9,6 +9,10 @@ time spent making this nonsense in the best language ever made:
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
 - [ ] to strings should really return constant values lol
+- [ ] pass refrences to strings?
+- [ ] improve parsing like the general parser
+- [ ] use c strings instead of std strings
+- [ ] 
 - [ ] switch to unique pointers for packets?
 - [ ] exapand IPV4 Options
 - [ ] expand TCPOptions

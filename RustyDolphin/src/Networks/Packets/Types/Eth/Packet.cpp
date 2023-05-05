@@ -35,6 +35,8 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	m_len = header->len;
 
 	m_type = parseShort();
+
+	m_description = "base packet";
 }
 
 std::string Packet::toString() {
@@ -119,13 +121,16 @@ std::string Packet::parseIPV6(unsigned int size) {
 }
 
 std::string Packet::parse(unsigned long long size) {
-	std::stringstream ss;
+	std::string result;
+	result.reserve(size * 2); // Each byte will be represented by 2 hexadecimal characters
 
 	for (int end = pos + size; pos < end; pos++) {
-		ss << std::hex << (int)m_pktData[pos];
+		char buf[3];
+		sprintf_s(buf, "%02x", (int)m_pktData[pos]);
+		result.append(buf);
 	}
 
-	return ss.str();
+	return result;
 }
 
 uint64_t Packet::htonll(uint64_t x) {

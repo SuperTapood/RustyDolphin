@@ -34,6 +34,21 @@ void GUI::init() {
 	// Initialize Dear ImGui backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 150");
+
+	//// Get the font atlas
+	//ImGuiIO& io = ImGui::GetIO();
+	//ImFontAtlas* atlas = io.Fonts;
+
+	//// Clear the current fonts
+	//atlas->Clear();
+
+	//// Add a single font
+	//atlas->AddFontDefault();
+
+	//atlas->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
+
+	//// Build the font atlas
+	//atlas->Build();
 }
 
 void GUI::release() {

@@ -18,4 +18,5 @@ public:
 
 	std::string toString() override;
 	json jsonify() override;
+	void render() override;
 };

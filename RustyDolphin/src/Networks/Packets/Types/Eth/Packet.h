@@ -5,12 +5,15 @@
 #include <pcap.h>
 #include <string>
 #include <json.hpp>
+#include <imgui.h>
+#include <GLFW/glfw3.h>
 
 using json = nlohmann::ordered_json;
 
 class Packet {
 public:
 	unsigned int idx;
+	std::string m_description;
 
 	unsigned int pos = 0;
 	// header stuff
@@ -41,8 +44,6 @@ protected:
 	long parseLong();
 	int parseInt();
 	short parseShort();
-	/*double parseDouble();
-	float parseFloat();*/
 
 private:
 	std::string padDate(int t);

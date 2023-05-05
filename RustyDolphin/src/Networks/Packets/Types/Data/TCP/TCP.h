@@ -86,7 +86,7 @@ public:
 				Logger::log(ss.str());
 				// Capture::dump(header, pkt_data);
 				m_optionCount--;
-				exit(code);
+				// exit(code);
 #endif
 				break;
 			}

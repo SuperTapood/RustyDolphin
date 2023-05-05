@@ -1,6 +1,7 @@
 #include "ARP.h"
 
 #include <sstream>
+#include "../../../../GUI/Renderer.h"
 
 ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	m_hardType = parseShort();
@@ -22,6 +23,22 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet
 	m_targetAddr = parseIPV4(m_protoSize);
 
 	Packet::m_strType = "ARP";
+
+	std::stringstream ss;
+
+	if (m_opcode == 1) {
+		ss << "who is " << m_targetAddr << "? Tell " << m_sendAddr;
+	}
+	else if (m_opcode == 2) {
+		ss << m_sendAddr << " is at physical address " << m_sendMAC;
+	}
+	else {
+		ss << "unknown opcode " << m_opcode;
+	}
+
+	ss << "\n";
+
+	m_description = ss.str();
 }
 
 std::string ARP::toString() {
@@ -59,4 +76,8 @@ json ARP::jsonify() {
 	j["target IP Address"] = m_targetAddr;
 
 	return j;
+}
+
+void ARP::render() {
+	Renderer::render(this);
 }

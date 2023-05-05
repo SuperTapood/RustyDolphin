@@ -7,5 +7,6 @@
 
 class Renderer {
 public:
-	static void render(Packet* p);
+	static void render(PKT p);
+	static void render(ARP_PKT p);
 };
