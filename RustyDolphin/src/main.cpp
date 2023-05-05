@@ -176,6 +176,10 @@ int main()
 {
 	init();
 
+	remove("captures/output.pcap");
+	remove("captures/output.txt");
+	remove("imgui.ini");
+
 	/*if (argc > 1) {
 		std::string arg = argv[1];
 
@@ -193,14 +197,10 @@ int main()
 
 	// return sample();
 
-	constexpr auto packets = 200;
+	constexpr auto packets = 1100;
 	constexpr auto columns = 7;
 
 	Capture::sample(3, sampleCallback, true, packets, "");
-
-	remove("captures/output.pcap");
-	remove("captures/output.txt");
-	remove("imgui.ini");
 
 	glfwSwapInterval(0);
 

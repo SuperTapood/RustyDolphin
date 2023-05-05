@@ -38,7 +38,7 @@ public:
 				m_process = SDK::getProcFromPort(m_destPort);
 			}
 		}
-		else if constexpr (std::is_same_v<IPVersion, IPV4>) {
+		else if constexpr (std::is_same_v<IPVersion, IPV6>) {
 			m_process = SDK::getProcFromPort(m_srcPort);
 			if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
 				m_process = SDK::getProcFromPort(m_destPort);
@@ -46,6 +46,9 @@ public:
 		}
 
 		Packet::m_strType = "UDP (" + Packet::m_strType + ")";
+		std::stringstream ss;
+		ss << "(" << m_process << ") " << m_srcPort << " -> " << m_destPort << " payload length = " << m_payloadLength;
+		Packet::m_description = ss.str();
 	}
 
 	std::string toString() override {

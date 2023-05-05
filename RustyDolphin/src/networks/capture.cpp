@@ -128,7 +128,7 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 	if (adhandle == nullptr) {
 		std::stringstream ss;
 		ss << "Unable to open the adapter. " << dev->name << " is not supported by Npcap";
-		Logger::log("adapter handle is nullptr. ");
+		Logger::log("adapter handle is nullptr. " + ss.str());
 		exit(1);
 	}
 
@@ -188,7 +188,8 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, unsig
 
 void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string, unsigned int), bool promiscuous, int maxPackets, std::string filter) {
 	auto d = getDev(devIndex);
-	auto adhandle = createAdapter(devIndex, promiscuous);
+	// auto adhandle = createAdapter(devIndex, promiscuous);
+	auto adhandle = load("samples.pcapng");
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
@@ -251,4 +252,17 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 void Capture::dump(struct pcap_pkthdr* h, const u_char* pkt) {
 	pcap_dump((u_char*)m_dumpfile, h, pkt);
+}
+
+pcap_t* Capture::load(std::string name) {
+	char errbuf[PCAP_ERRBUF_SIZE];
+
+	auto handle = pcap_open_offline(name.c_str(), errbuf);
+
+	if (handle == nullptr) {
+		Logger::log("Unable to open the file.");
+		exit(1);
+	}
+
+	return handle;
 }

@@ -141,9 +141,7 @@ void SDK::refreshTCP() {
 		auto const& row = table->table[i];
 		u_short port = ntohs((u_short)row.dwLocalPort);
 		DWORD pid = row.dwOwningPid;
-		if (!PORT2PID.contains(port)) {
-			PORT2PID.insert({ port, pid });
-		}
+		PORT2PID.insert({ port, pid });
 	}
 }
 
