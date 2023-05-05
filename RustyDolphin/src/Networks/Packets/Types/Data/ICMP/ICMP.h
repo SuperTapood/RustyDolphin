@@ -5,6 +5,7 @@
 #include <pcap.h>
 #include <uchar.h>
 #include "../../../../../GUI/Renderer.h"
+#include <type_traits>
 
 template <typename IPVersion>
 class ICMP : public IPVersion {
@@ -31,6 +32,30 @@ public:
 		m_restOfHeader = Packet::parse(m_ROHLength);
 
 		Packet::m_strType = "ICMP (" + Packet::m_strType + ")";
+		std::stringstream ss;
+
+		switch (m_code) {
+		case 0:
+			ss << "Echo (ping) reply ";
+			break;
+		case 8:
+			ss << "Echo (ping) request ";
+			break;
+		default:
+			ss << "Unknown code " << m_code;
+			break;
+		}
+
+		ss << " len = " << m_ROHLength;
+
+		if constexpr (std::is_same_v<IPVersion, IPV4>) {
+			ss << " ttl = " << (int)IPVersion::m_ttl;
+		}
+		else if constexpr (std::is_same_v<IPVersion, IPV6>) {
+			ss << " hop limit = " << (int)IPVersion::m_hopLimit;
+		}
+		
+		Packet::m_description = ss.str();
 	}
 
 	std::string toString() override {

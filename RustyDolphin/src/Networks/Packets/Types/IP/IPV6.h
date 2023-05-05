@@ -6,12 +6,12 @@
 
 class IPV6 : public Packet {
 public:
-	char m_version = 6;
-	short m_trafficCls;
-	long m_flowLabel;
-	int m_payloadLength;
-	char m_nextHeader;
-	char m_hopLimit;
+	unsigned char m_version = 6;
+	unsigned short m_trafficCls;
+	unsigned long m_flowLabel;
+	unsigned int m_payloadLength;
+	unsigned char m_nextHeader;
+	unsigned char m_hopLimit;
 	std::string m_srcAddr;
 	std::string m_destAddr;
 	int m_headerLength = 40;

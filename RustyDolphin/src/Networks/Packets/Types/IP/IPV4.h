@@ -5,19 +5,19 @@
 
 class IPV4 : public Packet {
 public:
-	char m_version = 4;
-	char m_headerLength;
-	char m_differServ;
-	short m_totalLength;
-	short m_identification;
-	char m_flags;
-	int m_fragmentationOffset;
-	char m_ttl;
-	char m_proto;
-	short m_headerChecksum;
+	unsigned char m_version = 4;
+	unsigned char m_headerLength;
+	unsigned char m_differServ;
+	unsigned short m_totalLength;
+	unsigned short m_identification;
+	unsigned char m_flags;
+	unsigned int m_fragmentationOffset;
+	unsigned char m_ttl;
+	unsigned char m_proto;
+	unsigned short m_headerChecksum;
 	std::string m_srcAddr;
 	std::string m_destAddr;
-	int m_IPoptionsCount;
+	unsigned int m_IPoptionsCount;
 	IPV4Option* m_opts;
 
 	IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);

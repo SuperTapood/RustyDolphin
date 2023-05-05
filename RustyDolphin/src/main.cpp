@@ -197,10 +197,10 @@ int main()
 
 	// return sample();
 
-	constexpr auto packets = 1100;
+	constexpr auto packets = 4;
 	constexpr auto columns = 7;
 
-	Capture::sample(3, sampleCallback, true, packets, "");
+	Capture::sample(3, sampleCallback, true, packets, "icmp");
 
 	glfwSwapInterval(0);
 
