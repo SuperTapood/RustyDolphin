@@ -14,12 +14,13 @@ time spent making this nonsense in the best language ever made:
 - [ ] use c strings instead of std strings
 - [ ] add broadcast instead of all "f"s (maybe also loopback and stuff)
 - [ ] switch to unique pointers for packets?
-- [ ] exapand IPV4 Options
+- [ ] expand IPV4 Options
 - [ ] expand TCPOptions
 - [ ] wrap experimental stuff with try catch to prevent crashing later
 - [ ] add a function to detect eth padding for packets?
 - [ ] add dns, mdns, quic, ssdp, BROWSER?, nbns, tls
-- [ ] GUI
+- [ ] add icmpv6
+- [ ] check tcp and udp v6
 
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.
@@ -29,19 +30,6 @@ Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag 
 - If the flag isn't 0 and filter flag isn't on, render according to flag,
 - If filter flag is on, assume flag is 0 and filter it and mark it
 - Mark filter flag as unchanged (off)
-
-The packer table:
-- [ ] Button one under each other
-- [ ] First n packets are rendered
-- [ ] Can offset the n packets with scroll arrows
-- [ ] Scroll bar is maybe dearimgui element?
-- [ ] If not, button with changing size and position
-- [ ] Size is percent of n from total (until threshold)
-- [ ] Position is percent of offset from total
-- [ ] Drag changes offset
-- [ ] Pressing a button sets a variable to the packet's index (button idx + offset)
-- [ ] Packet is presented according to that var
-- [ ] Clicking again opens it in another window
 
 General flow:
 
