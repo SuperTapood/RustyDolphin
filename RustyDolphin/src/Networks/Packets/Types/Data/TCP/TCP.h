@@ -55,27 +55,33 @@ public:
 
 		constexpr auto ETHLEN = 14;
 		constexpr auto NOP = 1;
-		//constexpr auto MSS = 2;
-		//constexpr auto WSCALE = 3;
-		//constexpr auto SACKPERM = 4;
+		constexpr auto MSS = 2;
+		constexpr auto WSCALE = 3;
+		constexpr auto SACKPERM = 4;
 		constexpr auto SACK = 5;
-		//constexpr auto TIMESTAMPS = 8;
+		constexpr auto TIMESTAMPS = 8;
 
 		int total = m_TCPLength + ETHLEN + IPVersion::m_headerLength;
 		m_optionCount = 0;
 		std::vector<TCPOption*> vec;
-
-		/*std::cout << Packet::pos << std::endl;
-		std::cout << total << std::endl;
-		std::cout << (total - (signed int)IPVersion::pos) << std::endl;*/
 
 		while (total - (signed int)IPVersion::pos > 0) {
 			int code = pkt_data[Packet::pos++];
 			m_optionCount++;
 
 			switch (code) {
+				
 			case NOP:
 				vec.push_back(new TCPNOP());
+				break;
+			case MSS:
+				vec.push_back(new TCPMSS(header, pkt_data, &(IPVersion::pos)));
+				break;
+			case WSCALE:
+				vec.push_back(new TCPWScale(header, pkt_data, &(IPVersion::pos)));
+				break;
+			case SACKPERM:
+				vec.push_back(new TCPSACKPerm(header, pkt_data, &(IPVersion::pos)));
 				break;
 			case SACK:
 				vec.push_back(new TCPSACK(header, pkt_data, &(IPVersion::pos)));
@@ -83,7 +89,7 @@ public:
 			default:
 #ifdef _DEBUG
 				std::stringstream ss;
-				ss << "bad option of packet data: " << code;
+				ss << "bad tcp option of code " << code << " at packet index " << idx;
 				Logger::log(ss.str());
 				// Capture::dump(header, pkt_data);
 				m_optionCount--;

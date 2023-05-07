@@ -74,30 +74,30 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename, unsigned int idx) {
 	auto p = fromRaw(header, pkt_data, idx);
 
-	if (idx == 982) {
-		p = fromRaw(header, pkt_data, idx);
-		std::size_t pos = filename.find('.');
-		if (pos != std::string::npos) {
-			filename.erase(pos);
-		}
+	//if (idx == 982) {
+	//	p = fromRaw(header, pkt_data, idx);
+	//	std::size_t pos = filename.find('.');
+	//	if (pos != std::string::npos) {
+	//		filename.erase(pos);
+	//	}
 
-		std::ofstream file(filename + ".txt", std::ios_base::app);
+	//	std::ofstream file(filename + ".txt", std::ios_base::app);
 
-		if (!file) {
-			std::cerr << "Error opening file: " << filename + ".txt" << '\n';
-			exit(69);
-		}
+	//	if (!file) {
+	//		std::cerr << "Error opening file: " << filename + ".txt" << '\n';
+	//		exit(69);
+	//	}
 
-		file << p->jsonify().dump(4) << "\n";
+	//	file << p->jsonify().dump(4) << "\n";
 
-		 std::cout << p->jsonify().dump(4) << std::endl;
+	//	 std::cout << p->jsonify().dump(4) << std::endl;
 
-		 std::cout << p->toString() << std::endl;
-		/*std::cout << "hey:" << std::endl;
-		for (int i = 0; i < p->m_len; i++) {
-			std::cout << std::hex << (int)p->m_pktData[i];
-		}*/
-	}
+	//	 std::cout << p->toString() << std::endl;
+	//	/*std::cout << "hey:" << std::endl;
+	//	for (int i = 0; i < p->m_len; i++) {
+	//		std::cout << std::hex << (int)p->m_pktData[i];
+	//	}*/
+	//}
 
 	Data::addPacket(p);
 }
@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	/*if (argc > 1) {
+	if (argc > 1) {
 		std::string arg = argv[1];
 
 		if (arg == "curl") {
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
 		}
 
 		return 0;
-	}*/
+	}
 
 	// return sample();
 
@@ -210,8 +210,6 @@ int main(int argc, char* argv[])
 	constexpr auto columns = 7;
 
 	Capture::sample(3, sampleCallback, true, packets, "");
-
-	std::cout << Data::captured.size() << std::endl;
 
 	glfwSwapInterval(0);
 

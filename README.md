@@ -8,7 +8,8 @@ time spent making this nonsense in the best language ever made:
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
-- [ ] to strings should really return constant values lol
+- [ ] maybe make a base class for all type of parsers to make stuff simple
+- [ ] ifdef debug tostrings and jsonifys and make them const?
 - [ ] pass refrences to strings?
 - [ ] improve parsing like the general parser
 - [ ] use c strings instead of std strings

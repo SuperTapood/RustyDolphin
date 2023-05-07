@@ -35,7 +35,6 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 	std::vector<IPV4Option> vec;
 
 	while (diff > 0) {
-		std::cout << "send help " << std::endl;
 		m_IPoptionsCount++;
 		auto temp = pos;
 
