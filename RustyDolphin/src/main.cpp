@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 
 	// return sample();
 
-	constexpr auto packets = 30000;
+	constexpr auto packets = 50;
 	constexpr auto columns = 7;
 
 	Capture::sample(3, sampleCallback, true, packets, "");
