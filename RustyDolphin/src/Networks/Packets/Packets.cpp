@@ -9,7 +9,7 @@ constexpr auto ETHERTYPE_ARP = 0x0806;
 constexpr auto ETHERTYPE_IPV6 = 0x86DD;
 
 constexpr auto IPV4_PROTO_POS = 23;
-constexpr auto IPV6_PROTO_POS = 23;
+constexpr auto IPV6_PROTO_POS = 20;
 
 IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	int proto = pkt_data[IPV4_PROTO_POS];
@@ -22,7 +22,7 @@ IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx)
 	case IPPROTO_IGMP:
 		return new IGMP<IPV4>(header, pkt_data, idx);
 	case IPPROTO_ICMP:
-		return new ICMP<IPV4>(header, pkt_data, idx);
+		return new ICMP(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
 		std::stringstream ss;
@@ -38,16 +38,18 @@ IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx)
 	return new IPV4(header, pkt_data, idx);
 }
 
-IPV6_PKT fromIPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
-	int proto = pkt_data[IPV6_PROTO_POS];
+IPV6_PKT fromIPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx, int proto_pos = IPV6_PROTO_POS) {
+	int proto = pkt_data[proto_pos];
 
 	switch (proto) {
+	case IPPROTO_HOPOPTS:
+		return fromIPV6(header, pkt_data, idx, 54);
 	case IPPROTO_TCP:
 		return new TCP<IPV6>(header, pkt_data, idx);
 	case IPPROTO_UDP:
 		return new UDP<IPV6>(header, pkt_data, idx);
 	case IPPROTO_ICMPV6:
-		return new ICMP<IPV6>(header, pkt_data, idx);
+		return new ICMPV6(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
 		std::stringstream ss;

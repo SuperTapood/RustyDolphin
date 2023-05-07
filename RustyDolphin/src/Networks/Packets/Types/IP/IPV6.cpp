@@ -9,7 +9,7 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 
 	m_flowLabel = thingy & 1048575;
 
-	m_payloadLength = parseInt();
+	m_payloadLength = parseShort();
 
 	m_nextHeader = pkt_data[pos++];
 
@@ -19,7 +19,11 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 
 	m_destAddr = parseIPV6();
 
-	Packet::m_strType = "IPV4";
+	if (m_nextHeader == IPPROTO_HOPOPTS) {
+		m_options.push_back(new HopByHop(pkt_data, &pos));
+	}
+
+	Packet::m_strType = "IPV6";
 }
 
 std::string IPV6::toString() {
@@ -43,6 +47,10 @@ json IPV6::jsonify() {
 	j["Source Address"] = m_srcAddr;
 	j["Destination Address"] = m_destAddr;
 	j["Header Length"] = m_headerLength;
+
+	/*if (m_options.size() > 0) {
+		j["option"] = m_options.at(0).toString();
+	}*/
 
 	return j;
 }

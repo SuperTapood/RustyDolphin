@@ -19,8 +19,7 @@ time spent making this nonsense in the best language ever made:
 - [ ] wrap experimental stuff with try catch to prevent crashing later
 - [ ] add a function to detect eth padding for packets?
 - [ ] add dns, mdns, quic, ssdp, BROWSER?, nbns, tls
-- [ ] add icmpv6
-- [ ] check tcp and udp v6
+- [ ] add more icmpv6 message types and codes (https://en.wikipedia.org/wiki/ICMPv6#Message_processing)
 
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.

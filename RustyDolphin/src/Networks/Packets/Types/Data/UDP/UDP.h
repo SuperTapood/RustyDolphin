@@ -65,7 +65,7 @@ public:
 	json jsonify() override {
 		auto j = IPVersion::jsonify();
 
-		j["UDPV4"] = "start";
+		j["UDP"] = "start";
 		j["Source Port"] = m_srcPort;
 		j["Destination Port"] = m_destPort;
 		j["UDP Length"] = m_length;

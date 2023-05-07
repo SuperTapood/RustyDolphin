@@ -7,8 +7,7 @@
 #include "../../../../../GUI/Renderer.h"
 #include <type_traits>
 
-template <typename IPVersion>
-class ICMP : public IPVersion {
+class ICMP : public IPV4 {
 public:
 	unsigned short m_ICMPtype;
 	unsigned short m_code;
@@ -20,7 +19,7 @@ public:
 	unsigned long long m_ROHLength;
 	std::string m_restOfHeader;
 
-	ICMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
+	ICMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPV4(header, pkt_data, idx) {
 		m_ICMPtype = pkt_data[Packet::pos++];
 		m_code = pkt_data[Packet::pos++];
 		m_ICMPChecksum = Packet::parseShort();
@@ -46,30 +45,23 @@ public:
 			break;
 		}
 
-		ss << " len = " << m_ROHLength;
-
-		if constexpr (std::is_same_v<IPVersion, IPV4>) {
-			ss << " ttl = " << (int)IPVersion::m_ttl;
-		}
-		else if constexpr (std::is_same_v<IPVersion, IPV6>) {
-			ss << " hop limit = " << (int)IPVersion::m_hopLimit;
-		}
+		ss << " len = " << m_ROHLength << " ttl = " << (int)IPV4::m_ttl;
 		
-		Packet::m_description = ss.str();
+		m_description = ss.str();
 	}
 
 	std::string toString() override {
 		std::stringstream ss;
 
-		ss << "ICMPV4 packet at " << IPVersion::m_time << " of type " << m_ICMPtype << " of code " << m_code << " (with checksum " << m_ICMPChecksum << " and rest of header is " << m_restOfHeader << ")\n";
+		ss << "ICMPV4 packet at " << IPV4::m_time << " of type " << m_ICMPtype << " of code " << m_code << " (with checksum " << m_ICMPChecksum << " and rest of header is " << m_restOfHeader << ")\n";
 
 		return ss.str();
 	}
 
 	json jsonify() override {
-		auto j = IPVersion::jsonify();
+		auto j = jsonify();
 
-		j["ICMPV4"] = "start";
+		j["ICMP"] = "start";
 		j["Type"] = m_ICMPtype;
 		j["Code"] = m_code;
 		j["ICMP Checksum"] = m_ICMPChecksum;

@@ -147,7 +147,7 @@ public:
 	json jsonify() override {
 		auto j = IPVersion::jsonify();
 
-		j["TCPV4"] = "start";
+		j["TCP"] = "start";
 		j["Source Port"] = m_srcPort;
 		j["Destination Port"] = m_destPort;
 		j["Sequence Number"] = m_seqNum;

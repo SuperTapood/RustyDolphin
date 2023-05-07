@@ -72,23 +72,30 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename, unsigned int idx) {
 	auto p = fromRaw(header, pkt_data, idx);
 
-	/*std::size_t pos = filename.find('.');
-	if (pos != std::string::npos) {
-		filename.erase(pos);
-	}*/
+	if (idx == 981) {
+		p = fromRaw(header, pkt_data, idx);
+		std::size_t pos = filename.find('.');
+		if (pos != std::string::npos) {
+			filename.erase(pos);
+		}
 
-	// std::ofstream file(filename + ".txt", std::ios_base::app);
+		std::ofstream file(filename + ".txt", std::ios_base::app);
 
-	//if (!file) {
-	//	std::cerr << "Error opening file: " << filename + ".txt" << '\n';
-	//	exit(69);
-	//}
+		if (!file) {
+			std::cerr << "Error opening file: " << filename + ".txt" << '\n';
+			exit(69);
+		}
 
-	//file << p->jsonify().dump(4) << "\n";
+		file << p->jsonify().dump(4) << "\n";
 
-	// std::cout << p->jsonify().dump(4) << std::endl;
+		 std::cout << p->jsonify().dump(4) << std::endl;
 
-	// std::cout << p->toString() << std::endl;
+		 std::cout << p->toString() << std::endl;
+		/*std::cout << "hey:" << std::endl;
+		for (int i = 0; i < p->m_len; i++) {
+			std::cout << std::hex << (int)p->m_pktData[i];
+		}*/
+	}
 
 	Data::addPacket(p);
 }
@@ -197,10 +204,12 @@ int main()
 
 	// return sample();
 
-	constexpr auto packets = 4;
+	constexpr auto packets = 1030;
 	constexpr auto columns = 7;
 
-	Capture::sample(3, sampleCallback, true, packets, "icmp");
+	Capture::sample(3, sampleCallback, true, packets, "");
+
+	std::cout << Data::captured.size() << std::endl;
 
 	glfwSwapInterval(0);
 
@@ -236,11 +245,11 @@ int main()
 		{
 			ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
-			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 150.0f);
-			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 170.0f);
+			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 170.0f);
 			ImGui::TableSetupColumn("Protocol", ImGuiTableColumnFlags_WidthFixed, 100.0f);
 			ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 660.0f);
+			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 620.0f);
 			ImGui::TableHeadersRow();
 
 			for (int row = 0; row < packets; row++)

@@ -117,7 +117,7 @@ void Renderer::render(UDP<IPV6>* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
-void Renderer::render(ICMP<IPV4>* p) {
+void Renderer::render(ICMP* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
 		Data::selected = p->idx;
@@ -136,7 +136,7 @@ void Renderer::render(ICMP<IPV4>* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
-void Renderer::render(ICMP<IPV6>* p) {
+void Renderer::render(ICMPV6* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
 		Data::selected = p->idx;

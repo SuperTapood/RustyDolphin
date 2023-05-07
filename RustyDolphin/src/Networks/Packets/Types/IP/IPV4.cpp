@@ -102,11 +102,13 @@ json IPV4::jsonify() {
 	j["Destination Address"] = m_destAddr;
 	j["IP Options Count"] = m_IPoptionsCount;
 
-	std::stringstream ss;
-	for (int i = 0; i < m_IPoptionsCount; i++) {
-		ss << m_opts[i].toString() << ", ";
+	if (m_IPoptionsCount > 0) {
+		std::stringstream ss;
+		for (int i = 0; i < m_IPoptionsCount; i++) {
+			ss << m_opts[i].toString() << ", ";
+		}
+		j["IP Options"] = ss.str();
 	}
-	j["IP Options"] = ss.str();
 
 	return j;
 }
