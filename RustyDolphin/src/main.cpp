@@ -181,7 +181,7 @@ int sample(unsigned int _) {
 #define GL_CLAMP_TO_EDGE 0x812F
 
 
-int main(char* argv[], int argc)
+int main(int argc, char* argv[])
 {
 	init();
 
