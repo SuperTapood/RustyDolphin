@@ -29,6 +29,8 @@
 #include "GUI/GUI.h"
 #include "ImGuiFileDialog.h"
 #include <stb_image_write.h>
+#include <windows.h>
+#include <shellapi.h>
 
 static std::atomic<bool> done(false);
 
@@ -72,7 +74,7 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 void sampleCallback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename, unsigned int idx) {
 	auto p = fromRaw(header, pkt_data, idx);
 
-	if (idx == 981) {
+	if (idx == 982) {
 		p = fromRaw(header, pkt_data, idx);
 		std::size_t pos = filename.find('.');
 		if (pos != std::string::npos) {
@@ -179,7 +181,7 @@ int sample(unsigned int _) {
 #define GL_CLAMP_TO_EDGE 0x812F
 
 
-int main()
+int main(char* argv[], int argc)
 {
 	init();
 
@@ -449,11 +451,28 @@ int main()
 
 #ifdef NDEBUG
 
-#include <windows.h>
-
+// because nothing can ever be simple in this fcking operating system
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	return main();
+	int argc;
+	LPWSTR* argvW = CommandLineToArgvW(GetCommandLineW(), &argc);
+	char** argv = new char* [argc];
+	for (int i = 0; i < argc; ++i) {
+		int wlen = lstrlenW(argvW[i]);
+		int size = WideCharToMultiByte(CP_ACP, 0, argvW[i], wlen, NULL, 0, NULL, NULL);
+		argv[i] = new char[size + 1];
+		WideCharToMultiByte(CP_ACP, 0, argvW[i], wlen, argv[i], size + 1, NULL, NULL);
+	}
+	LocalFree(argvW);
+
+	int result = main(argc, argv);
+
+	for (int i = 0; i < argc; ++i) {
+		delete[] argv[i];
+	}
+	delete[] argv;
+
+	return result;
 }
 
 #endif

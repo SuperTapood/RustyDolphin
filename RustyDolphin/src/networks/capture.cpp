@@ -233,7 +233,7 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 	SDK::findIP(d->name);
 
-	unsigned int idx = 0;
+	unsigned int idx = 1;
 
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {
@@ -244,7 +244,7 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 		pcap_dump((u_char*)m_dumpfile, header, pkt_data);
 
 		func(header, pkt_data, ss.str(), idx++);
-		//std::cout << idx << "\n";
+		std::cout << idx << "\n";
 	}
 
 	pcap_close(adhandle);

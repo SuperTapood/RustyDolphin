@@ -19,6 +19,7 @@ time spent making this nonsense in the best language ever made:
 - [ ] wrap experimental stuff with try catch to prevent crashing later
 - [ ] make parseipv4 and parseipv6 use parse
 - [ ] better format ipv6 addresses
+- [ ] more tcp options
 - [ ] add a function to detect eth padding for packets?
 - [ ] add dns, mdns, quic, ssdp, BROWSER?, nbns, tls
 - [ ] add more icmpv6 message types and codes (https://en.wikipedia.org/wiki/ICMPv6#Message_processing)
