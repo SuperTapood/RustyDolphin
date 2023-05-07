@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 
 	// return sample();
 
-	constexpr auto packets = 1030;
+	constexpr auto packets = 30000;
 	constexpr auto columns = 7;
 
 	Capture::sample(3, sampleCallback, true, packets, "");
@@ -214,6 +214,10 @@ int main(int argc, char* argv[])
 	glfwSwapInterval(0);
 
 	int selected = -1;
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.5f, 0.5f, 0.5f, 0.5f);
 
 	while (!glfwWindowShouldClose(GUI::window))
 	{
@@ -226,8 +230,8 @@ int main(int argc, char* argv[])
 		ImGui::NewFrame();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(1280, 720));
-		ImGui::Begin("Table with Selectable Rows", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+		ImGui::SetNextWindowSize(ImVec2(1280, 360));
+		ImGui::Begin("Packet Table Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 		/*if (ImGui::Button("Open Popup"))
 			ImGui::OpenPopup("MyPopup");
 
@@ -241,7 +245,7 @@ int main(int argc, char* argv[])
 			ImGui::EndPopup();
 		}*/
 
-		if (ImGui::BeginTable("table1", columns))
+		if (ImGui::BeginTable("Packet Table", columns))
 		{
 			ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
@@ -259,22 +263,18 @@ int main(int argc, char* argv[])
 			}
 			ImGui::EndTable();
 		}
+		ImGui::End();
 
-		/*ImGui::BeginChild("Scrolling", ImVec2(0, 200), true, ImGuiWindowFlags_AlwaysUseWindowPadding);
-		ImGui::Columns(3);
+		if (Data::selected != -1) {
+			ImGui::SetNextWindowPos(ImVec2(0, 360));
+			ImGui::SetNextWindowSize(ImVec2(1280, 360));
+			ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
-		for (int i = 0; i < 5000; ++i)
-		{
-			ImGui::Text("Row %d Column 1", i);
-			ImGui::NextColumn();
-			ImGui::Text("Row %d Column 2", i);
-			ImGui::NextColumn();
-			ImGui::Text("Row %d Column 3", i);
-			ImGui::NextColumn();
+			Data::captured.at(Data::selected)->renderExpanded();
+
+			ImGui::End();
 		}
 
-		ImGui::Columns(1);
-		ImGui::EndChild();*/
 
 		//if (Data::selected != -1) {
 		//	ImGui::End();
@@ -314,9 +314,6 @@ int main(int argc, char* argv[])
 		//	// close
 		//	ImGuiFileDialog::Instance()->Close();
 		//}
-
-		ImGui::End();
-
 		// ImGuiIO& io = ImGui::GetIO();
 
 		// Rendering

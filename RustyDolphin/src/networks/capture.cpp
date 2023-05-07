@@ -188,8 +188,8 @@ void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, unsig
 
 void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string, unsigned int), bool promiscuous, int maxPackets, std::string filter) {
 	auto d = getDev(devIndex);
-	// auto adhandle = createAdapter(devIndex, promiscuous);
-	auto adhandle = load("samples.pcapng");
+	auto adhandle = createAdapter(devIndex, promiscuous);
+	// auto adhandle = load("samples.pcapng");
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
@@ -233,7 +233,7 @@ void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std
 
 	SDK::findIP(d->name);
 
-	unsigned int idx = 1;
+	unsigned int idx = 0;
 
 	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {

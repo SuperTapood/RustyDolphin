@@ -37,6 +37,14 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	m_type = parseShort();
 
 	m_description = "base packet";
+
+	m_expands.push_back(false);
+
+	ss.str("");
+
+	ss << "Frame " << idx << ": " << m_len << " bytes on wire (" << (m_len * 8) << " bits)";
+	
+	m_title = ss.str();
 }
 
 std::string Packet::toString() {
@@ -64,6 +72,10 @@ json Packet::jsonify() {
 
 void Packet::render() {
 	Renderer::render(this);
+}
+
+void Packet::renderExpanded() {
+	Renderer::renderExpanded(this);
 }
 
 std::string Packet::padDate(int t) {

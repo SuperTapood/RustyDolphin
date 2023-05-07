@@ -18,6 +18,7 @@ class ICMPV6;
 class Renderer {
 public:
 	static void render(Packet* p);
+	static void renderExpanded(Packet* p);
 	static void render(ARP* p);
 	static void render(TCP<IPV4>* p);
 	static void render(TCP<IPV6>* p);
