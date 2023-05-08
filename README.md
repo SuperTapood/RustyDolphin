@@ -10,6 +10,7 @@ time spent making this nonsense in the best language ever made:
 
 - [ ] use c strings instead of std strings
 - [ ] figure out stuff for MAC Addresses (manufacturers and stuff)
+- [ ] remove the define warnings and deal with the consequences
 - [ ] maybe make a base class for all type of parsers to make stuff simple
 - [ ] ifdef debug tostrings and jsonifys and make them const?
 - [ ] pass refrences to strings?
@@ -26,6 +27,8 @@ time spent making this nonsense in the best language ever made:
 - [ ] add dns, mdns, quic, ssdp, BROWSER?, nbns, tls
 - [ ] add more icmpv6 message types and codes (https://en.wikipedia.org/wiki/ICMPv6#Message_processing)
 - [ ] take care of loopback packets?
+
+file dialog: https://github.com/aiekick/ImGuiFileDialog
 
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.
