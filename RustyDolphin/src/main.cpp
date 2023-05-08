@@ -342,12 +342,12 @@ int main(int argc, char* argv[])
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	constexpr auto packets = 50;
+	constexpr auto packets = 200;
 	constexpr auto columns = 7;
 
 	// Capture::sample(3, sampleCallback, true, packets, "");
 
-	Capture::capturePackets(adapter, callback, prom);
+	Capture::capturePackets(adapter, callback, prom, packets);
 	
 	int selected = -1;
 

@@ -12,19 +12,22 @@
 #include <WinSock2.h>
 
 #include "../../../../GUI/Renderer.h"
+#include "../../../../Base/Base.h"
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	this->idx = idx;
 	this->m_pktData = pkt_data;
 	struct tm timeinfo;
-	m_epoch = header->ts.tv_sec;
-	localtime_s(&timeinfo, &m_epoch);
+	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
+	time_t epoch_t = static_cast<time_t>(m_epoch);
+	localtime_s(&timeinfo, &epoch_t);
 	std::stringstream ss;
 	int year = 1900 + timeinfo.tm_year;
 	int month = 1 + timeinfo.tm_mon;
 
 	ss << year << "/" << padDate(month) << "/" << padDate(timeinfo.tm_mday) << " " << padDate(timeinfo.tm_hour) << ":" << padDate(timeinfo.tm_min) << ":" << padDate(timeinfo.tm_sec);
 
+	m_epoch -= Data::epochStart;
 	pos = 0;
 	m_time = ss.str();
 

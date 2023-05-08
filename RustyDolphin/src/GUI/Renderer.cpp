@@ -8,7 +8,7 @@ void Renderer::render(Packet* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_phySrc.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -73,7 +73,7 @@ void Renderer::render(ARP* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_phySrc.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -92,7 +92,7 @@ void Renderer::render(TCP<IPV4>* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -111,7 +111,7 @@ void Renderer::render(TCP<IPV6>* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -130,7 +130,7 @@ void Renderer::render(UDP<IPV4>* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -149,7 +149,7 @@ void Renderer::render(UDP<IPV6>* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -168,7 +168,7 @@ void Renderer::render(ICMP* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -187,7 +187,7 @@ void Renderer::render(ICMPV6* p) {
 		Data::selected = p->idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%d", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);

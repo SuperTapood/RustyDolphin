@@ -9,7 +9,8 @@ public:
 	static std::vector<Packet*>              captured;
 	static int                               selected;
 	static bool                              doneCounting;
-	static std::array<const char*, 30>        quotes;
+	static std::array<const char*, 30>       quotes;
+	static long double                       epochStart;
 
 	static void addPacket(Packet* p);
 };

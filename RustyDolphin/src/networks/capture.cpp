@@ -164,6 +164,19 @@ void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u
 
 	unsigned int idx = 0;
 
+	while (r = pcap_next_ex(adapter, &header, &pkt_data) <= 0) {
+		r = pcap_next_ex(adapter, &header, &pkt_data);
+	}
+
+	maxPackets--;
+
+	pcap_dump((u_char*)m_dumpfile, header, pkt_data);
+
+	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;;
+
+	func(header, pkt_data, ss.str(), idx++);
+
+
 	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {
 			continue;

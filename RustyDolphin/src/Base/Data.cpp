@@ -35,6 +35,7 @@ std::array<const char*, 30> Data::quotes = {
     "Panem et Circenses",
     "this quote has been left as an exercise for the reader"
 };
+long double Data::epochStart;
 
 void Data::addPacket(Packet* p) {
 	captured.push_back(p);

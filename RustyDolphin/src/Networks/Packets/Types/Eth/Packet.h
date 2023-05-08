@@ -21,7 +21,7 @@ public:
 	unsigned int pos = 0;
 	// header stuff
 	std::string m_time;
-	time_t m_epoch;
+	long double m_epoch;
 	unsigned int m_len;
 
 	// ether stuff
