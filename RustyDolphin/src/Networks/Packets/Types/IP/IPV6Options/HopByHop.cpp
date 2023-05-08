@@ -7,5 +7,4 @@ HopByHop::HopByHop(const u_char* pkt_data, unsigned int* pos) : IPV6Option(pkt_d
 	for (; *pos < end;) {
 		m_options.emplace_back(pkt_data, pos);
 	}
-
 }

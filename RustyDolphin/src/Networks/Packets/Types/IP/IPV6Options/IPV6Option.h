@@ -1,7 +1,6 @@
 #pragma once
 #include <pcap.h>
 
-
 class IPV6Option {
 public:
 	unsigned short m_nextHeader;

@@ -2,6 +2,7 @@
 #include "ImageLoader.h"
 
 GLFWwindow* GUI::window;
+std::map<std::string, ImFont*> GUI::fonts;
 
 void GUI::init() {
 	if (!glfwInit())
@@ -49,6 +50,21 @@ void GUI::init() {
 
 	//// Build the font atlas
 	//atlas->Build();
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	fonts.insert({ "title", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 60) });
+	fonts.insert({ "quote", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 25) });
+	fonts.insert({ "adapters", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 30) });
+	fonts.insert({ "regular", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 16) });
+	io.Fonts->Build();
+	
+	
+	glfwSwapInterval(1);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.5f, 0.5f, 0.5f, 0.5f);
 }
 
 void GUI::release() {
@@ -58,4 +74,26 @@ void GUI::release() {
 	ImGui::DestroyContext();
 
 	glfwTerminate();
+}
+
+void GUI::pushFont(std::string name) {
+	ImGui::PushFont(fonts.at(name));
+}
+
+void GUI::popFont() {
+	ImGui::PopFont();
+}
+
+void GUI::centerText(const char* text) {
+	auto windowWidth = ImGui::GetWindowSize().x;
+	auto textWidth = ImGui::CalcTextSize(text).x;
+	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+	ImGui::Text(text);
+}
+
+bool GUI::centerButton(const char* text) {
+	auto windowWidth = ImGui::GetWindowSize().x;
+	auto textWidth = ImGui::CalcTextSize(text).x;
+	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+	return ImGui::Button(text);
 }

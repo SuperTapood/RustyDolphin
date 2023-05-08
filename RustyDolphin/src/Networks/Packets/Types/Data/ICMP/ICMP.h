@@ -46,7 +46,7 @@ public:
 		}
 
 		ss << " len = " << m_ROHLength << " ttl = " << (int)IPV4::m_ttl;
-		
+
 		m_description = ss.str();
 	}
 

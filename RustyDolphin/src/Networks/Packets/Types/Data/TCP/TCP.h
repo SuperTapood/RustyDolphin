@@ -70,7 +70,6 @@ public:
 			m_optionCount++;
 
 			switch (code) {
-				
 			case NOP:
 				vec.push_back(new TCPNOP());
 				break;

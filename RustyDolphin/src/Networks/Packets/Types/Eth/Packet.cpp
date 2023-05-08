@@ -43,7 +43,7 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	ss.str("");
 
 	ss << "Frame " << idx << ": " << m_len << " bytes on wire (" << (m_len * 8) << " bits)";
-	
+
 	m_title = ss.str();
 }
 

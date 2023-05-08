@@ -45,45 +45,45 @@ SOFTWARE.
 
 // this option need c++17
 #ifdef USE_STD_FILESYSTEM
-	#include <filesystem>
-	#include <exception>
+#include <filesystem>
+#include <exception>
 #endif // USE_STD_FILESYSTEM
 
 #ifdef __EMSCRIPTEN__
-	#include <emscripten.h>
+#include <emscripten.h>
 #endif // __EMSCRIPTEN__
 
 #if defined(__WIN32__) || defined(WIN32) || defined(_WIN32) || \
 	defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(_MSC_VER)
-	#define _IGFD_WIN_
-	#define stat _stat
-	#define stricmp _stricmp
-	#include <cctype>
-	// this option need c++17
-	#ifdef USE_STD_FILESYSTEM
-		#include <windows.h>
-	#else
-		#include "dirent/dirent.h" // directly open the dirent file attached to this lib
-	#endif // USE_STD_FILESYSTEM
-	#define PATH_SEP '\\'
-	#ifndef PATH_MAX
-		#define PATH_MAX 260
-	#endif // PATH_MAX
+#define _IGFD_WIN_
+#define stat _stat
+#define stricmp _stricmp
+#include <cctype>
+// this option need c++17
+#ifdef USE_STD_FILESYSTEM
+#include <windows.h>
+#else
+#include "dirent/dirent.h" // directly open the dirent file attached to this lib
+#endif // USE_STD_FILESYSTEM
+#define PATH_SEP '\\'
+#ifndef PATH_MAX
+#define PATH_MAX 260
+#endif // PATH_MAX
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__DragonFly__) || \
 	defined(__NetBSD__) || defined(__APPLE__) || defined (__EMSCRIPTEN__)
-	#define _IGFD_UNIX_
-	#define stricmp strcasecmp
-	#include <sys/types.h>
-	// this option need c++17
-	#ifndef USE_STD_FILESYSTEM
-		#include <dirent.h>
-	#endif // USE_STD_FILESYSTEM
-	#define PATH_SEP '/'
+#define _IGFD_UNIX_
+#define stricmp strcasecmp
+#include <sys/types.h>
+// this option need c++17
+#ifndef USE_STD_FILESYSTEM
+#include <dirent.h>
+#endif // USE_STD_FILESYSTEM
+#define PATH_SEP '/'
 #endif // _IGFD_UNIX_
 
 #include "imgui.h"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
-	#define IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
 #endif // IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui_internal.h"
 
@@ -108,7 +108,7 @@ SOFTWARE.
 
 namespace IGFD
 {
-// float comparisons
+	// float comparisons
 #ifndef IS_FLOAT_DIFFERENT
 #define IS_FLOAT_DIFFERENT(a,b) (fabs((a) - (b)) > FLT_EPSILON)
 #endif // IS_FLOAT_DIFFERENT
@@ -361,7 +361,6 @@ namespace IGFD
 	IGFD::FileStyle::FileStyle()
 		: color(0, 0, 0, 0)
 	{
-
 	}
 
 	IGFD::FileStyle::FileStyle(const FileStyle& vStyle)
@@ -375,7 +374,6 @@ namespace IGFD
 	IGFD::FileStyle::FileStyle(const ImVec4& vColor, const std::string& vIcon, ImFont* vFont)
 		: color(vColor), icon(vIcon), font(vFont)
 	{
-
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -445,18 +443,18 @@ namespace IGFD
 	}
 
 	// Convert a wide Unicode string to an UTF8 string
-	std::string IGFD::Utils::utf8_encode(const std::wstring &wstr)
+	std::string IGFD::Utils::utf8_encode(const std::wstring& wstr)
 	{
 		std::string res;
 #ifdef _IGFD_WIN_
-		if(!wstr.empty())
+		if (!wstr.empty())
 		{
 			int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0],
-			(int)wstr.size(), NULL, 0, NULL, NULL);
+				(int)wstr.size(), NULL, 0, NULL, NULL);
 			if (size_needed)
 			{
 				res = std::string(size_needed, 0);
-				WideCharToMultiByte (CP_UTF8, 0, &wstr[0],
+				WideCharToMultiByte(CP_UTF8, 0, &wstr[0],
 					(int)wstr.size(), &res[0], size_needed, NULL, NULL);
 			}
 		}
@@ -468,11 +466,11 @@ namespace IGFD
 	}
 
 	// Convert an UTF8 string to a wide Unicode String
-	std::wstring IGFD::Utils::utf8_decode(const std::string &str)
+	std::wstring IGFD::Utils::utf8_decode(const std::string& str)
 	{
 		std::wstring res;
 #ifdef _IGFD_WIN_
-		if( !str.empty())
+		if (!str.empty())
 		{
 			int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0],
 				(int)str.size(), NULL, 0);
@@ -570,7 +568,7 @@ namespace IGFD
 				const auto dir_iter = std::filesystem::directory_iterator(pathName);
 				(void)dir_iter; // for avoid unused warnings
 			}
-			catch (const std::exception & /*ex*/)
+			catch (const std::exception& /*ex*/)
 			{
 				// fail so this dir cant be opened
 				bExists = false;
@@ -641,18 +639,18 @@ namespace IGFD
 			if (!IsDirectoryExist(name))
 			{
 #ifdef _IGFD_WIN_
-	#ifdef USE_STD_FILESYSTEM
-					namespace fs = std::filesystem;
-					std::wstring wname = IGFD::Utils::utf8_decode(name.c_str());
-					fs::path pathName = fs::path(wname);
-					res = fs::create_directory(pathName);
-	#else // USE_STD_FILESYSTEM
-					std::wstring wname = IGFD::Utils::utf8_decode(name);
-					if (CreateDirectoryW(wname.c_str(), nullptr))
-					{
-						res = true;
-					}
-	#endif // USE_STD_FILESYSTEM
+#ifdef USE_STD_FILESYSTEM
+				namespace fs = std::filesystem;
+				std::wstring wname = IGFD::Utils::utf8_decode(name.c_str());
+				fs::path pathName = fs::path(wname);
+				res = fs::create_directory(pathName);
+#else // USE_STD_FILESYSTEM
+				std::wstring wname = IGFD::Utils::utf8_decode(name);
+				if (CreateDirectoryW(wname.c_str(), nullptr))
+				{
+					res = true;
+				}
+#endif // USE_STD_FILESYSTEM
 #elif defined(__EMSCRIPTEN__) // _IGFD_WIN_
 				std::string str = std::string("FS.mkdir('") + name + "');";
 				emscripten_run_script(str.c_str());
@@ -690,8 +688,8 @@ namespace IGFD
 			res.name = "";
 			res.path = fsPath.string();
 			res.isOk = true;
-
-		} else if (fs::is_regular_file(fsPath)) {
+		}
+		else if (fs::is_regular_file(fsPath)) {
 			res.name = fsPath.filename().string();
 			res.path = fsPath.parent_path().string();
 			res.isOk = true;
@@ -894,7 +892,6 @@ namespace IGFD
 
 		return false;
 	}
-
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//// FILTER MANAGER /////////////////////////////////////////////////////////////////
@@ -1123,7 +1120,7 @@ namespace IGFD
 	}
 
 	// todo : to refactor this fucking function
-	bool IGFD::FilterManager::GetFileStyle(const IGFD_FileStyleFlags& vFlags, const std::string& vCriteria, ImVec4* vOutColor, std::string* vOutIcon, ImFont **vOutFont)
+	bool IGFD::FilterManager::GetFileStyle(const IGFD_FileStyleFlags& vFlags, const std::string& vCriteria, ImVec4* vOutColor, std::string* vOutIcon, ImFont** vOutFont)
 	{
 		if (vOutColor)
 		{
@@ -1733,11 +1730,11 @@ namespace IGFD
 #endif
 					case DT_UNKNOWN: {
 						struct stat sb = {};
-						#ifdef _IGFD_WIN_
+#ifdef _IGFD_WIN_
 						auto filePath = path + ent->d_name;
-						#else
+#else
 						auto filePath = path + std::string(1u, PATH_SEP) + ent->d_name;
-						#endif
+#endif
 
 						int result = stat(filePath.c_str(), &sb);
 						if (result == 0) {
@@ -1747,7 +1744,8 @@ namespace IGFD
 							}
 							if (sb.st_mode & S_IFREG) {
 								fileType.SetContent(FileType::ContentType::File); break;
-							} else if (sb.st_mode & S_IFDIR) {
+							}
+							else if (sb.st_mode & S_IFDIR) {
 								fileType.SetContent(FileType::ContentType::Directory); break;
 							}
 						}
@@ -1829,11 +1827,11 @@ namespace IGFD
 					struct stat sb = {};
 					int result;
 					if (ent->d_type == DT_UNKNOWN) {
-						#ifdef _IGFD_WIN_
+#ifdef _IGFD_WIN_
 						auto filePath = path + ent->d_name;
-						#else
+#else
 						auto filePath = path + std::string(1u, PATH_SEP) + ent->d_name;
-						#endif
+#endif
 
 						result = stat(filePath.c_str(), &sb);
 					}
@@ -2243,7 +2241,7 @@ namespace IGFD
 			--vIter;
 		}
 
-		 return res;
+		return res;
 	}
 
 	bool IGFD::FileManager::SetPathOnParentDirectoryIfAny()
@@ -2319,7 +2317,6 @@ namespace IGFD
 
 			if (IGFD::Utils::IsDirectoryCanBeOpened(newPath))
 			{
-
 				if (puShowDrives)
 				{
 					prCurrentPath = vInfos->fileNameExt;
@@ -2578,11 +2575,11 @@ namespace IGFD
 
 							if (click)
 							{
-								OpenPathPopup(vFileDialogInternal, itPathDecomp-1);
+								OpenPathPopup(vFileDialogInternal, itPathDecomp - 1);
 							}
 							else if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 							{
-								SetCurrentPath(itPathDecomp-1);
+								SetCurrentPath(itPathDecomp - 1);
 								break;
 							}
 						}
@@ -2749,7 +2746,6 @@ namespace IGFD
 
 	void IGFD::FileDialogInternal::ResetForNewDialog()
 	{
-
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -2763,7 +2759,7 @@ namespace IGFD
 #endif
 	}
 
-	IGFD::ThumbnailFeature::~ThumbnailFeature()	= default;
+	IGFD::ThumbnailFeature::~ThumbnailFeature() = default;
 
 	void IGFD::ThumbnailFeature::NewThumbnailFrame(FileDialogInternal& /*vFileDialogInternal*/)
 	{
@@ -2827,7 +2823,7 @@ namespace IGFD
 		prIsWorking = true;
 
 		// infinite loop while is thread working
-		while(prIsWorking)
+		while (prIsWorking)
 		{
 			if (!prThumbnailFileDatasToGet.empty())
 			{
@@ -2858,7 +2854,7 @@ namespace IGFD
 							int w = 0;
 							int h = 0;
 							int chans = 0;
-							uint8_t *datas = stbi_load(fpn.c_str(), &w, &h, &chans, STBI_rgb_alpha);
+							uint8_t* datas = stbi_load(fpn.c_str(), &w, &h, &chans, STBI_rgb_alpha);
 							if (datas)
 							{
 								if (w && h)
@@ -3083,7 +3079,7 @@ namespace IGFD
 		}
 		else
 		{
-		printf("No Callback found for destroy texture\nYou need to define the callback with a call to SetCreateThumbnailCallback\n");
+			printf("No Callback found for destroy texture\nYou need to define the callback with a call to SetCreateThumbnailCallback\n");
 		}
 	}
 
@@ -3164,7 +3160,7 @@ namespace IGFD
 					if (i < 0) continue;
 					const BookmarkStruct& bookmark = prBookmarks[(size_t)i];
 					ImGui::PushID(i);
-					if (ImGui::Selectable(bookmark.name.c_str(), selectedBookmarkForEdition == i,ImGuiSelectableFlags_AllowDoubleClick) ||
+					if (ImGui::Selectable(bookmark.name.c_str(), selectedBookmarkForEdition == i, ImGuiSelectableFlags_AllowDoubleClick) ||
 						(selectedBookmarkForEdition == -1 && bookmark.path == vFileDialogInternal.puFileManager.GetCurrentPath())) // select if path is current
 					{
 						selectedBookmarkForEdition = i;
@@ -3377,7 +3373,7 @@ namespace IGFD
 				}
 			}
 
-			if (vListViewID == g.LastActiveId-1) // if listview id is the last acticated nav id (ImGui::ActivateItem(vListViewID);)
+			if (vListViewID == g.LastActiveId - 1) // if listview id is the last acticated nav id (ImGui::ActivateItem(vListViewID);)
 				canWeExplore = true;
 
 			if (canWeExplore && ImGui::IsWindowFocused())
@@ -3620,7 +3616,7 @@ namespace IGFD
 			g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_ToggledSelection;
 
 		//////////////////////////////////////////////////////////////////
-		// this function copy ImGui::Selectable just for this line.... 
+		// this function copy ImGui::Selectable just for this line....
 		hovered |= vFlashing;
 		//////////////////////////////////////////////////////////////////
 
@@ -4002,8 +3998,6 @@ namespace IGFD
 					res = prDrawFooter(); // file field, filter combobox, ok/cancel buttons
 
 					EndFrame();
-
-
 				}
 				ImGui::EndChild();
 
@@ -4020,7 +4014,6 @@ namespace IGFD
 
 			if (prFileDialogInternal.puDLGflags & ImGuiFileDialogFlags_NoDialog) // disable our own dialog system (standard or modal)
 			{
-
 			}
 			else
 			{
@@ -4049,7 +4042,6 @@ namespace IGFD
 	{
 		EndThumbnailFrame(prFileDialogInternal);
 		prFileDialogInternal.EndFrame();
-
 	}
 	void IGFD::FileDialog::QuitFrame()
 	{
@@ -4243,7 +4235,6 @@ namespace IGFD
 #if !invertOkAndCancelButtons
 			ImGui::SameLine();
 #endif
-
 		}
 
 		return false;
@@ -4989,7 +4980,7 @@ namespace IGFD
 		prFileDialogInternal.puFilterManager.SetFileStyle(vFlags, vCriteria, vColor, vIcon, vFont);
 	}
 
-	bool IGFD::FileDialog::GetFileStyle(const IGFD_FileStyleFlags& vFlags, const std::string& vCriteria, ImVec4* vOutColor, std::string* vOutIcon, ImFont **vOutFont)
+	bool IGFD::FileDialog::GetFileStyle(const IGFD_FileStyleFlags& vFlags, const std::string& vCriteria, ImVec4* vOutColor, std::string* vOutIcon, ImFont** vOutFont)
 	{
 		return prFileDialogInternal.puFilterManager.GetFileStyle(vFlags, vCriteria, vOutColor, vOutIcon, vOutFont);
 	}

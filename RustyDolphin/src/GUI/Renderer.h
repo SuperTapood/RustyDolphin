@@ -13,8 +13,6 @@ class UDP;
 class ICMP;
 class ICMPV6;
 
-
-
 class Renderer {
 public:
 	static void render(Packet* p);

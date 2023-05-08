@@ -2,7 +2,6 @@
 
 #include "../Base/Data.h"
 
-
 void Renderer::render(Packet* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
@@ -37,7 +36,6 @@ void Renderer::renderExpanded(Packet* p) {
 		ImGui::Text(("\tSource: " + p->m_phySrc).c_str());
 		ImGui::Text(("\tType: " + p->m_strType).c_str());
 	}
-
 
 	//// Create a new text box and a button.
 	//ImGui::Text("This is a text box.");

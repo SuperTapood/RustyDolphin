@@ -2,7 +2,6 @@
 #include <string>
 #include <pcap.h>
 
-
 class HopOption {
 public:
 	unsigned short m_type;

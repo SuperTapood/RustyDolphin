@@ -9,7 +9,7 @@
 
 pcap_if_t* Capture::m_alldevs;
 int Capture::m_devs;
-std::vector<std::string>* Capture::m_devNames;
+std::vector<std::string> Capture::m_devNames;
 pcap_dumper_t* Capture::m_dumpfile;
 
 bool Capture::LoadNpcapDlls() {
@@ -89,11 +89,10 @@ pcap_if_t* Capture::getDev(int index) {
 	return d;
 }
 
-std::vector<std::string>* Capture::getDeviceNames(bool verbose) {
-	if (m_devNames != nullptr) {
+std::vector<std::string> Capture::getDeviceNames(bool verbose) {
+	if (m_devNames.size() != 0) {
 		return m_devNames;
 	}
-	m_devNames = new std::vector<std::string>;
 	auto d = m_alldevs;
 	for (int i = 0; i < m_devs; i++) {
 		std::stringstream ss;
@@ -107,7 +106,7 @@ std::vector<std::string>* Capture::getDeviceNames(bool verbose) {
 		if (verbose) {
 			ss << "(" << d->name << ")";
 		}
-		m_devNames->push_back(ss.str());
+		m_devNames.push_back(ss.str());
 		d = d->next;
 	}
 
@@ -135,121 +134,6 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 	return adhandle;
 }
 
-void Capture::loop(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, unsigned int), bool promiscuous = false) {
-	auto d = getDev(devIndex);
-	auto adhandle = createAdapter(devIndex, promiscuous);
-	struct pcap_pkthdr* header;
-	const u_char* pkt_data;
-	int r;
-
-	std::stringstream ss;
-
-	ss << "captures/output.pcap";
-
-	m_dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
-
-	struct bpf_program fcode;
-
-	int netmask;
-	if (d->addresses != NULL)
-		/* Retrieve the mask of the first address of the interface */
-		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-	else
-		/* If the interface is without an address
-		 * we suppose to be in a C class network */
-		netmask = 0xffffff;
-
-	//compile the filter
-	if (pcap_compile(adhandle, &fcode, "igmp", 1, netmask) < 0)
-	{
-		fprintf(stderr,
-			"\nUnable to compile the packet filter. Check the syntax.\n");
-		exit(-1);
-	}
-
-	//set the filter
-	if (pcap_setfilter(adhandle, &fcode) < 0)
-	{
-		fprintf(stderr, "\nError setting the filter.\n");
-		exit(-1);
-	}
-
-	unsigned int idx = 0;
-
-	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
-		if (r == 0) {
-			continue;
-		}
-		func(header, pkt_data, idx++);
-	}
-
-	pcap_close(adhandle);
-}
-
-void Capture::sample(int devIndex, void (*func)(pcap_pkthdr*, const u_char*, std::string, unsigned int), bool promiscuous, int maxPackets, std::string filter) {
-	auto d = getDev(devIndex);
-	auto adhandle = createAdapter(devIndex, promiscuous);
-	// auto adhandle = load("samples.pcapng");
-	struct pcap_pkthdr* header;
-	const u_char* pkt_data;
-	int r;
-
-	std::stringstream ss;
-
-	ss << "captures/output.pcap";
-
-	m_dumpfile = pcap_dump_open(adhandle, ss.str().c_str());
-
-	if (m_dumpfile == NULL) {
-		fprintf(stderr, "Couldn't open output file: %s\n", pcap_geterr(adhandle));
-		exit(-2);
-	}
-
-	struct bpf_program fcode;
-
-	int netmask;
-	if (d->addresses != NULL)
-		/* Retrieve the mask of the first address of the interface */
-		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-	else
-		/* If the interface is without an address
-		 * we suppose to be in a C class network */
-		netmask = 0xffffff;
-
-	//compile the filter
-	if (pcap_compile(adhandle, &fcode, filter.c_str(), 1, netmask) < 0)
-	{
-		fprintf(stderr,
-			"\nUnable to compile the packet filter. Check the syntax.\n");
-		exit(-1);
-	}
-
-	//set the filter
-	if (pcap_setfilter(adhandle, &fcode) < 0)
-	{
-		fprintf(stderr, "\nError setting the filter.\n");
-		exit(-1);
-	}
-
-	SDK::findIP(d->name);
-
-	unsigned int idx = 0;
-
-	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0 && maxPackets > 0) {
-		if (r == 0) {
-			continue;
-		}
-		maxPackets--;
-
-		pcap_dump((u_char*)m_dumpfile, header, pkt_data);
-
-		func(header, pkt_data, ss.str(), idx++);
-		//std::cout << idx << "\n";
-	}
-
-	pcap_close(adhandle);
-}
-
 void Capture::dump(struct pcap_pkthdr* h, const u_char* pkt) {
 	pcap_dump((u_char*)m_dumpfile, h, pkt);
 }
@@ -265,4 +149,32 @@ pcap_t* Capture::load(std::string name) {
 	}
 
 	return handle;
+}
+
+void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u_char*, std::string, unsigned int), bool promiscuous, int maxPackets) {
+	struct pcap_pkthdr* header;
+	const u_char* pkt_data;
+	int r;
+
+	std::stringstream ss;
+
+	ss << "captures/output.pcap";
+
+	m_dumpfile = pcap_dump_open(adapter, ss.str().c_str());
+
+	unsigned int idx = 0;
+
+	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && maxPackets > 0) {
+		if (r == 0) {
+			continue;
+		}
+		maxPackets--;
+
+		pcap_dump((u_char*)m_dumpfile, header, pkt_data);
+
+		func(header, pkt_data, ss.str(), idx++);
+		//std::cout << idx << "\n";
+	}
+
+	pcap_close(adapter);
 }
