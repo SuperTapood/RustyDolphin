@@ -101,6 +101,10 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename,
 }
 
 std::pair<pcap_t*, bool> getAdapter() {
+
+#ifdef _DEBUG
+	return { Capture::createAdapter(3), true };
+#endif 
 	using std::chrono::high_resolution_clock;
 	using std::chrono::duration_cast;
 	using std::chrono::duration;
@@ -262,7 +266,7 @@ int main(int argc, char* argv[])
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	constexpr auto packets = 200;
+	constexpr auto packets = 5;
 	constexpr auto columns = 7;
 
 	Capture::capturePackets(adapter, callback, prom, packets);

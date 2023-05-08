@@ -11,7 +11,7 @@
 #include <ctime>
 #include <WinSock2.h>
 
-#include "../../../../GUI/Renderer.h"
+
 #include "../../../../Base/Base.h"
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
@@ -71,14 +71,6 @@ json Packet::jsonify() {
 	};
 
 	return j;
-}
-
-void Packet::render() {
-	Renderer::render(this);
-}
-
-void Packet::renderExpanded() {
-	Renderer::renderExpanded(this);
 }
 
 std::string Packet::padDate(int t) {

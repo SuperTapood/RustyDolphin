@@ -3,6 +3,9 @@
 #include <sstream>
 #include "../../../../GUI/Renderer.h"
 
+constexpr auto ETHERTYPE_IPV4 = 0x0800;
+constexpr auto ETHERTYPE_IPV6 = 0x86DD;
+
 ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	m_hardType = parseShort();
 
@@ -28,17 +31,50 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet
 
 	if (m_opcode == 1) {
 		ss << "who is " << m_targetAddr << "? Tell " << m_sendAddr;
+		m_codeStr = "request";
 	}
 	else if (m_opcode == 2) {
 		ss << m_sendAddr << " is at physical address " << m_sendMAC;
+		m_codeStr = "reply";
 	}
 	else {
 		ss << "unknown opcode " << m_opcode;
+		m_codeStr = "unknown";
 	}
 
 	ss << "\n";
 
 	m_description = ss.str();
+
+	m_expands.push_back(false);
+
+	ss.str("");
+
+	ss << "Address Resolution Protocol (" << m_codeStr << ")";
+
+	m_ARPTitle = ss.str();
+
+	// DO NOT LEAVE THIS IN YOU SILLY GOOSE
+	// todo: actually figure out the type of the hardware
+	m_hardStr = "Ethernet (" + std::to_string(m_hardType) + ")";
+
+	switch (m_protoType) {
+	case (ETHERTYPE_IPV4):
+		m_protoStr = "IPV4 (0x0800)";
+		break;
+	case (ETHERTYPE_IPV6):
+		m_protoStr = "IPV6 (0x86DD)";
+		break;
+	default:
+		m_protoStr = "Unknown";
+		break;
+	}
+
+	ss.str("");
+
+	ss << m_codeStr << " (" << m_opcode << ")";
+
+	m_codeStr = ss.str();
 }
 
 std::string ARP::toString() {
@@ -76,8 +112,4 @@ json ARP::jsonify() {
 	j["target IP Address"] = m_targetAddr;
 
 	return j;
-}
-
-void ARP::render() {
-	Renderer::render(this);
 }

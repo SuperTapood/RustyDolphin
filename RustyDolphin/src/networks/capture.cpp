@@ -162,6 +162,36 @@ void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u
 
 	m_dumpfile = pcap_dump_open(adapter, ss.str().c_str());
 
+#ifdef _DEBUG
+	auto d = getDev(3);
+	auto filter = "arp";
+	struct bpf_program fcode;
+
+	int netmask;
+	if (d->addresses != NULL)
+		/* Retrieve the mask of the first address of the interface */
+		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
+	else
+		/* If the interface is without an address
+		 * we suppose to be in a C class network */
+		netmask = 0xffffff;
+
+	//compile the filter
+	if (pcap_compile(adapter, &fcode, filter, 1, netmask) < 0)
+	{
+		fprintf(stderr,
+			"\nUnable to compile the packet filter. Check the syntax.\n");
+		exit(-1);
+	}
+
+	//set the filter
+	if (pcap_setfilter(adapter, &fcode) < 0)
+	{
+		fprintf(stderr, "\nError setting the filter.\n");
+		exit(-1);
+	}
+#endif
+
 	unsigned int idx = 0;
 
 	while (r = pcap_next_ex(adapter, &header, &pkt_data) <= 0) {

@@ -30,6 +30,8 @@ time spent making this nonsense in the best language ever made:
 
 file dialog: https://github.com/aiekick/ImGuiFileDialog
 
+hardware types in arp: https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml
+
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.
 - For each packet:

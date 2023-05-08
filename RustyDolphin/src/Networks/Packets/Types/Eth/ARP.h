@@ -14,9 +14,22 @@ public:
 	std::string m_targetMAC;
 	std::string m_targetAddr;
 
+	std::string m_ARPTitle;
+	std::string m_hardStr;
+	std::string m_protoStr;
+	std::string m_codeStr;
+
+
 	ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 
 	std::string toString() override;
 	json jsonify() override;
-	void render() override;
+
+	void render() override {
+		Renderer::render(this);
+	}
+
+	void renderExpanded() override {
+		Renderer::renderExpanded(this);
+	}
 };

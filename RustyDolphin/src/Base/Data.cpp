@@ -5,7 +5,7 @@ int Data::selected = -1;
 bool Data::doneCounting = false;
 std::array<const char*, 30> Data::quotes = {
 	"Less Cheese = More Cheese",
-	"'Tis but a scratch!",
+	"A man chooses, a slave obeys",
     "*sigh* i guess you are my little pugchamp",
     "made with <3",
     "where are my pants?",

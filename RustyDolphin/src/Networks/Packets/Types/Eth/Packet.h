@@ -8,6 +8,8 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
+#include "../../../../GUI/Renderer.h"
+
 using json = nlohmann::ordered_json;
 
 // *slaps roof of class* this bad boy can fit so many fcking members in it
@@ -33,8 +35,15 @@ public:
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	virtual ~Packet() = default;
-	virtual void render();
-	virtual void renderExpanded();
+
+	virtual void render() {
+		Renderer::render(this);
+	}
+
+	virtual void renderExpanded() {
+		Renderer::renderExpanded(this);
+	}
+
 	virtual std::string toString();
 	virtual json jsonify();
 
