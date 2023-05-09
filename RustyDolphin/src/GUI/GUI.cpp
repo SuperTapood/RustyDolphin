@@ -60,7 +60,7 @@ void GUI::init() {
 	fonts.insert({ "hexView", io.Fonts->AddFontFromFileTTF("deps/fonts/consola.ttf", 20) });
 	io.Fonts->Build();
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
