@@ -7,6 +7,7 @@
 #include <json.hpp>
 #include <imgui.h>
 #include <GLFW/glfw3.h>
+#include <map>
 
 #include "../../../../GUI/Renderer.h"
 
@@ -17,7 +18,7 @@ class Packet {
 public:
 	unsigned int m_idx;
 	std::string m_description;
-	std::vector<bool> m_expands;
+	std::map<std::string, bool> m_expands;
 	std::string m_title;
 	std::string m_hexData;
 

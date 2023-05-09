@@ -11,6 +11,9 @@ public:
 	static bool                              doneCounting;
 	static std::array<const char*, 30>       quotes;
 	static long double                       epochStart;
+	static std::map<int, std::string> dscpMap;
+	static std::map<int, std::string> ecnMap;
 
 	static void addPacket(Packet* p);
+	static void init();
 };

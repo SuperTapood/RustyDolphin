@@ -13,8 +13,9 @@ long long IPV4Option::parseLong(unsigned int* start, int end, const u_char* pkt_
 	return out;
 }
 
-IPV4Option::IPV4Option(int code) {
+IPV4Option::IPV4Option(int code, std::string name) {
 	m_opCode = code;
+	m_name = name;
 }
 
 std::string IPV4Option::toString() {

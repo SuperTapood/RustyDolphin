@@ -5,6 +5,8 @@
 #include "../../../../Base/Logger.h"
 #include "../../../Capture.h"
 #include <iostream>
+#include <bitset>
+#include <ws2def.h>
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto start = pos;
@@ -32,7 +34,6 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 	int diff = (m_headerLength + start) - pos;
 
 	m_IPoptionsCount = 0;
-	std::vector<IPV4Option> vec;
 
 	while (diff > 0) {
 		m_IPoptionsCount++;
@@ -44,7 +45,8 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 
 		switch (code) {
 		case routerAlert:
-			vec.push_back(RouterAlert(header, pkt_data, &pos));
+			m_opts.push_back(new RouterAlert(header, pkt_data, &pos));
+			m_optSize += m_opts.at(m_opts.size() - 1)->m_length;
 			break;
 		default:
 #ifdef _DEBUG
@@ -59,15 +61,101 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 		}
 
 		diff -= (pos - temp);
-	}
-
-	if (diff > 0) {
-		m_opts = (IPV4Option*)malloc(sizeof(IPV4Option) * m_IPoptionsCount);
-
-		std::ranges::copy(vec.begin(), vec.end(), m_opts);
+		m_expands.insert({ std::format("option %d", m_IPoptionsCount - 1), false});
 	}
 
 	Packet::m_strType = "IPV4";
+
+	m_expands.insert({ "IPV4 Title", false });
+	m_expands.insert({ "DifferServ", false });
+	m_expands.insert({ "Flags", false });
+	m_expands.insert({ "Options General", false });
+
+	m_IPTitle = std::format("Internet Protocol Version 4, Src: {}, Dst: {}", m_srcAddr, m_destAddr);
+
+	m_headerLenStr = std::format("\t.... {} = Header Length: {} bytes ({})", std::bitset<4>(m_headerLength).to_string(), (int)m_headerLength, (m_headerLength / 4));
+
+	auto dscp = m_differServ & 0xFFFFFF00;
+
+	auto ecn = m_differServ & 0x000000FF;
+
+	m_differServStr = std::format("   Differentiated Services Field: {}, (DSCP: {}, ECN: {})", m_differServ, Data::dscpMap[dscp], Data::ecnMap[ecn]);
+
+	std::bitset<6> dscpBits;
+	for (int i = 0; i < 6; i++) {
+		dscpBits[i] = (m_differServ >> i) & 1;
+	}
+
+	std::bitset<2> ecnBits;
+	for (int i = 0; i < 2; i++) {
+		ecnBits[i] = (m_differServ >> (6 + i)) & 1;
+	}
+
+	m_differDSCP = std::format("\t\t{}.. = Differentiated Services Codepoint: {} ({})", dscpBits.to_string(), Data::dscpMap[dscp], dscp);
+
+	m_differECN = std::format("\t\t......{} = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecn], ecn);
+
+	m_idStr = std::format("\tIdentification: 0x{:x} ({})", m_identification, m_identification);
+
+	std::bitset<3> flagBits;
+	for (int i = 0; i < 3; i++) {
+		flagBits[i] = (m_flags >> i) & 1;
+	}
+
+	m_flagStr = std::format("   {}. .... = Flags: 0x{:x}", flagBits.to_string(), (int)m_flags);
+
+	m_rbitStr = std::format("\t\t\t{}... .... = Reserved bit: {}", (int)flagBits[0], (int)flagBits[0] ? "Set" : "Not Set");
+	m_dfbitStr = std::format("\t\t\t.{}.. .... = Don't Fragment: {}", (int)flagBits[1], (int)flagBits[1] ? "Set" : "Not Set");
+	m_mfbitStr = std::format("\t\t\t..{}. .... = More Fragments: {}", (int)flagBits[2], (int)flagBits[2] ? "Set" : "Not Set");
+
+	std::bitset<13> fragBits;
+	for (int i = 0; i < 13; i++) {
+		fragBits[i] = (m_fragmentationOffset >> i) & 1;
+	}
+
+	m_offsetStr = std::format("\t...{} = Fragmentation Offset: {}", fragBits.to_string(), m_fragmentationOffset);
+
+	std::string prot = "Unknown";
+
+	switch (m_proto) {
+	case IPPROTO_TCP:
+		prot = "TCP";
+		break;
+	case IPPROTO_UDP:
+		prot = "UDP";
+		break;
+	case IPPROTO_IGMP:
+		prot = "IGMP";
+		break;
+	case IPPROTO_ICMP:
+		prot = "ICMP";
+		break;
+	}
+
+	m_protocolStr = std::format("\tProtocol: {} ({})", prot, m_proto);
+
+	m_headerCheckStr = std::format("\tHeader Checksum: {:x}", m_headerChecksum);
+
+	m_srcStr = std::format("\tSource Address: {}", m_srcAddr);
+
+	m_dstStr = std::format("\tDestination Address: {}", m_destAddr);
+
+	if (m_IPoptionsCount > 0) {
+		std::stringstream ss;
+
+		ss << "   Options: (" << m_optSize << " bytes): ";
+
+		for (int i = 0; i < m_IPoptionsCount; i++) {
+			ss << m_opts.at(i)->m_name << ", ";
+		}
+
+		m_optsStr = ss.str();
+	}
+
+	for (int i = 0; i < m_IPoptionsCount; i++) {
+		auto o = m_opts.at(i);
+		m_optButtons.push_back(std::format("\t   IP Option - {} ({} bytes): {}", o->m_name, o->m_length, o->m_value));
+	}
 }
 
 std::string IPV4::toString() {
@@ -76,7 +164,7 @@ std::string IPV4::toString() {
 	ss << "IPV4 Packet at " << m_time << " of length " << m_totalLength << " from " << m_srcAddr << " to " << m_destAddr << " transfer protocol is " << m_proto << " with options: ";
 
 	for (int i = 0; i < m_IPoptionsCount; i++) {
-		ss << m_opts[i].toString() << ", ";
+		ss << m_opts.at(i)->toString() << ", ";
 	}
 
 	ss << "\n";
@@ -104,14 +192,10 @@ json IPV4::jsonify() {
 	if (m_IPoptionsCount > 0) {
 		std::stringstream ss;
 		for (int i = 0; i < m_IPoptionsCount; i++) {
-			ss << m_opts[i].toString() << ", ";
+			ss << m_opts.at(i)->toString() << ", ";
 		}
 		j["IP Options"] = ss.str();
 	}
 
 	return j;
-}
-
-void IPV4::render() {
-	Renderer::render(this);
 }

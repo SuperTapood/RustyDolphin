@@ -42,7 +42,7 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 
 	m_description = "base packet";
 
-	m_expands.push_back(false);
+	m_expands.insert({ "Packet Title", false });
 
 	ss.str("");
 

@@ -42,6 +42,7 @@ void release() {
 
 void init() {
 	atexit(release);
+	Data::init();
 	Logger::init();
 	Capture::init();
 	SDK::init();
@@ -263,7 +264,7 @@ int main(int argc, char* argv[])
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	constexpr auto packets = 1030;
+	constexpr auto packets = 1000;
 	constexpr auto columns = 7;
 
 	Capture::capturePackets(adapter, callback, prom, packets);

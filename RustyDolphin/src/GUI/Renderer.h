@@ -21,6 +21,9 @@ public:
 	static void renderExpanded(Packet* p);
 	static void render(ARP* p);
 	static void renderExpanded(ARP* p);
+	static void render(IPV4* p);
+	static void renderExpanded(IPV4* p);
+	static void render(IPV6* p);
 	static void render(TCP<IPV4>* p);
 	static void render(TCP<IPV6>* p);
 	static void render(UDP<IPV4>* p);
@@ -28,4 +31,5 @@ public:
 	static void render(ICMP* p);
 	static void render(ICMPV6* p);
 	static void render(IGMP<IPV4>* p);
+	static void renderExpanded(IGMP<IPV4>* p);
 };

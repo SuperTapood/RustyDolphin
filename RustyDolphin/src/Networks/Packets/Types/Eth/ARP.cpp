@@ -46,7 +46,7 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet
 
 	m_description = ss.str();
 
-	m_expands.push_back(false);
+	m_expands.insert({ "ARP Title", false });
 
 	ss.str("");
 

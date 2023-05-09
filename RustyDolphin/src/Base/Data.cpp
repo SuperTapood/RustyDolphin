@@ -36,6 +36,37 @@ std::array<const char*, 30> Data::quotes = {
 	"this quote has been left as an exercise for the reader"
 };
 long double Data::epochStart;
+std::map<int, std::string> Data::dscpMap;
+std::map<int, std::string> Data::ecnMap;
+
+void Data::init() {
+	dscpMap[0] = "Default";
+	dscpMap[10] = "AF11";
+	dscpMap[12] = "AF12";
+	dscpMap[14] = "AF13";
+	dscpMap[18] = "AF21";
+	dscpMap[20] = "AF22";
+	dscpMap[22] = "AF23";
+	dscpMap[26] = "AF31";
+	dscpMap[28] = "AF32";
+	dscpMap[30] = "AF33";
+	dscpMap[34] = "AF41";
+	dscpMap[36] = "AF42";
+	dscpMap[38] = "AF43";
+	dscpMap[8] = "CS1";
+	dscpMap[16] = "CS2";
+	dscpMap[24] = "CS3";
+	dscpMap[32] = "CS4";
+	dscpMap[40] = "CS5";
+	dscpMap[48] = "CS6";
+	dscpMap[56] = "CS7";
+	dscpMap[46] = "EF";
+
+	ecnMap[0] = "Not-ECT";
+	ecnMap[1] = "ECT(1)";
+	ecnMap[2] = "ECT(0)";
+	ecnMap[3] = "CE";
+}
 
 void Data::addPacket(Packet* p) {
 	captured.push_back(p);

@@ -9,7 +9,8 @@ time spent making this nonsense in the best language ever made:
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
 - [ ] figure out stuff for MAC Addresses (manufacturers and stuff)
-- [ ] add ipv4 options to expanded view
+- [ ] change everything to std format
+- [ ] add arp poisoning detection?
 - [ ] remove the define warnings and deal with the consequences
 - [ ] rename all vars (maybe make internal class to handle rendering)
 - [ ] add differ servies processing in IPV4
