@@ -12,6 +12,8 @@ template <typename T>
 class UDP;
 class ICMP;
 class ICMPV6;
+template <typename T>
+class IGMP;
 
 class Renderer {
 public:
@@ -25,4 +27,5 @@ public:
 	static void render(UDP<IPV6>* p);
 	static void render(ICMP* p);
 	static void render(ICMPV6* p);
+	static void render(IGMP<IPV4>* p);
 };

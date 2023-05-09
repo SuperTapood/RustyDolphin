@@ -164,7 +164,7 @@ void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u
 
 #ifdef _DEBUG
 	auto d = getDev(3);
-	auto filter = "";
+	auto filter = "igmp";
 	struct bpf_program fcode;
 
 	int netmask;

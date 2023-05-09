@@ -8,9 +8,11 @@ time spent making this nonsense in the best language ever made:
 
  https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
-- [ ] use c strings instead of std strings
 - [ ] figure out stuff for MAC Addresses (manufacturers and stuff)
+- [ ] add ipv4 options to expanded view
 - [ ] remove the define warnings and deal with the consequences
+- [ ] rename all vars (maybe make internal class to handle rendering)
+- [ ] add differ servies processing in IPV4
 - [ ] maybe make a base class for all type of parsers to make stuff simple
 - [ ] ifdef debug tostrings and jsonifys and make them const?
 - [ ] pass refrences to strings?

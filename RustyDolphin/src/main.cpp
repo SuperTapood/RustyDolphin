@@ -102,7 +102,8 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename,
 
 std::pair<pcap_t*, bool> getAdapter() {
 #ifdef _DEBUG
-	return { Capture::createAdapter(3), true };
+	return { Capture::load("samples.pcapng"), true};
+	//return { Capture::createAdapter(3), true };
 #endif
 	using std::chrono::high_resolution_clock;
 	using std::chrono::duration_cast;
@@ -262,7 +263,7 @@ int main(int argc, char* argv[])
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	constexpr auto packets = 5;
+	constexpr auto packets = 1030;
 	constexpr auto columns = 7;
 
 	Capture::capturePackets(adapter, callback, prom, packets);
@@ -289,14 +290,14 @@ int main(int argc, char* argv[])
 		{
 			ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
-			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 170.0f);
-			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 170.0f);
+			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 200.0f);
 			ImGui::TableSetupColumn("Protocol", ImGuiTableColumnFlags_WidthFixed, 100.0f);
 			ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 620.0f);
+			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 			ImGui::TableHeadersRow();
 
-			for (int row = 0; row < packets; row++)
+			for (int row = 0; row < Data::captured.size(); row++)
 			{
 				ImGui::TableNextRow();
 				Data::captured.at(row)->render();

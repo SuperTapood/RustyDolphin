@@ -120,9 +120,10 @@ std::string Packet::parseIPV6(unsigned int size) {
 
 	for (int i = pos + size; pos < i; pos += 2) {
 		if ((int)m_pktData[pos] == 0 && (int)m_pktData[pos + 1] == 0) {
+			ss << ":";
 			continue;
 		}
-		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos] << std::hex << (int)m_pktData[pos + 1] << ":";
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos] << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos + 1] << ":";
 	}
 
 	ip = ss.str();
