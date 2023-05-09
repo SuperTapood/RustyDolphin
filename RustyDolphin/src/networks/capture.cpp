@@ -164,7 +164,7 @@ void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u
 
 #ifdef _DEBUG
 	auto d = getDev(3);
-	auto filter = "arp";
+	auto filter = "";
 	struct bpf_program fcode;
 
 	int netmask;
@@ -205,7 +205,6 @@ void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u
 	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;;
 
 	func(header, pkt_data, ss.str(), idx++);
-
 
 	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && maxPackets > 0) {
 		if (r == 0) {

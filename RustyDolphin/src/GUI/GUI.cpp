@@ -57,9 +57,9 @@ void GUI::init() {
 	fonts.insert({ "quote", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 25) });
 	fonts.insert({ "adapters", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 30) });
 	fonts.insert({ "regular", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 16) });
+	fonts.insert({ "hexView", io.Fonts->AddFontFromFileTTF("deps/fonts/consola.ttf", 20) });
 	io.Fonts->Build();
-	
-	
+
 	glfwSwapInterval(1);
 
 	ImGuiStyle& style = ImGui::GetStyle();

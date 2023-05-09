@@ -101,10 +101,9 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename,
 }
 
 std::pair<pcap_t*, bool> getAdapter() {
-
 #ifdef _DEBUG
 	return { Capture::createAdapter(3), true };
-#endif 
+#endif
 	using std::chrono::high_resolution_clock;
 	using std::chrono::duration_cast;
 	using std::chrono::duration;
@@ -174,7 +173,6 @@ std::pair<pcap_t*, bool> getAdapter() {
 			}
 			last++;
 		}
-
 
 		std::stringstream ss;
 		for (int i = 0; i < names.size(); i++) {
@@ -254,13 +252,11 @@ std::pair<pcap_t*, bool> getAdapter() {
 	return { Capture::createAdapter(selected), promiscous };
 }
 
-
-
 int main(int argc, char* argv[])
 {
 	init();
 
-	auto[adapter, prom] = getAdapter();
+	auto [adapter, prom] = getAdapter();
 
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
@@ -270,7 +266,7 @@ int main(int argc, char* argv[])
 	constexpr auto columns = 7;
 
 	Capture::capturePackets(adapter, callback, prom, packets);
-	
+
 	int selected = -1;
 
 	while (!glfwWindowShouldClose(GUI::window))
@@ -311,10 +307,47 @@ int main(int argc, char* argv[])
 
 		if (Data::selected != -1) {
 			ImGui::SetNextWindowPos(ImVec2(0, 360));
-			ImGui::SetNextWindowSize(ImVec2(1280, 360));
+			ImGui::SetNextWindowSize(ImVec2(640, 360));
 			ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
 			Data::captured.at(Data::selected)->renderExpanded();
+
+			ImGui::End();
+
+			ImGui::SetNextWindowPos(ImVec2(640, 360));
+			ImGui::SetNextWindowSize(ImVec2(640, 360));
+			ImGui::Begin("Packet Data View", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+			std::string str;
+
+			GUI::pushFont("hexView");
+
+			auto p = Data::captured.at(Data::selected);
+
+			int inc = 0;
+
+			for (int i = 0; i < p->m_hexData.size(); i+=2) {
+				std::string byte = p->m_hexData.substr(i, 2);
+				if (i % 32 == 0 && i > 0) {
+					std::stringstream ss;
+					ss << std::hex << std::setw(4) << std::setfill('0') << inc;
+					ImGui::SetCursorPosX(10);
+					ImGui::Text((ss.str() + " " + str).c_str());
+					str = " " + byte;
+					inc += 16;
+				}
+				else {
+					str += " " + byte;
+				}
+			}
+			ImGui::SetCursorPosX(10);
+			std::stringstream ss;
+			ss << std::hex << std::setw(4) << std::setfill('0') << inc;
+			ImGui::Text((ss.str() + " " + str).c_str());
+			
+			GUI::popFont();
+
+			//ImGui::Text(Data::captured.at(Data::selected)->m_hexData.c_str());
 
 			ImGui::End();
 		}

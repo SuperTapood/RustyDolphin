@@ -4,8 +4,8 @@
 
 void Renderer::render(Packet* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -36,8 +36,8 @@ void Renderer::renderExpanded(Packet* p) {
 
 void Renderer::render(ARP* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -75,8 +75,8 @@ void Renderer::renderExpanded(ARP* p) {
 
 void Renderer::render(TCP<IPV4>* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -94,8 +94,8 @@ void Renderer::render(TCP<IPV4>* p) {
 
 void Renderer::render(TCP<IPV6>* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -113,8 +113,8 @@ void Renderer::render(TCP<IPV6>* p) {
 
 void Renderer::render(UDP<IPV4>* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -132,8 +132,8 @@ void Renderer::render(UDP<IPV4>* p) {
 
 void Renderer::render(UDP<IPV6>* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -151,8 +151,8 @@ void Renderer::render(UDP<IPV6>* p) {
 
 void Renderer::render(ICMP* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);
@@ -170,8 +170,8 @@ void Renderer::render(ICMP* p) {
 
 void Renderer::render(ICMPV6* p) {
 	ImGui::TableSetColumnIndex(0);
-	if (ImGui::Selectable(std::to_string(p->idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->idx;
+	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text("%f", p->m_epoch);

@@ -15,10 +15,11 @@ using json = nlohmann::ordered_json;
 // *slaps roof of class* this bad boy can fit so many fcking members in it
 class Packet {
 public:
-	unsigned int idx;
+	unsigned int m_idx;
 	std::string m_description;
 	std::vector<bool> m_expands;
 	std::string m_title;
+	std::string m_hexData;
 
 	unsigned int pos = 0;
 	// header stuff

@@ -19,7 +19,6 @@ public:
 	std::string m_protoStr;
 	std::string m_codeStr;
 
-
 	ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 
 	std::string toString() override;
