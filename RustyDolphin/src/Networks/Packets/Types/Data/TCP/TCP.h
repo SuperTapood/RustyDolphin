@@ -16,8 +16,8 @@ class TCP : public IPVersion {
 public:
 	unsigned short m_srcPort;
 	unsigned short m_destPort;
-	int m_seqNum;
-	int m_ackNum;
+	unsigned int m_seqNum;
+	unsigned int m_ackNum;
 	char m_TCPLength;
 	short m_TCPflags;
 	short m_window;
@@ -31,6 +31,8 @@ public:
 	std::string m_payload;
 
 	std::string m_process;
+
+	std::string m_TCPTitle;
 
 	TCP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_srcPort = Packet::parseShort();
@@ -137,6 +139,10 @@ public:
 		std::stringstream ss;
 		ss << "(" << m_process << ") " << m_srcPort << " -> " << m_destPort << " payload length = " << m_payloadLength;
 		Packet::m_description = ss.str();
+
+		Packet::m_expands.insert({ "TCP Title", false });
+
+		m_TCPTitle = std::format("Transmission Control Protocol, Src Port: {}, Dst Port: {}, Seq: {}, Len: {}", m_srcPort, m_destPort, m_seqNum, m_payloadLength);
 	}
 
 	std::string toString() override {
@@ -188,5 +194,9 @@ public:
 
 	void render() override {
 		Renderer::render(this);
+	}
+
+	void renderExpanded() override {
+		Renderer::renderExpanded(this);
 	}
 };

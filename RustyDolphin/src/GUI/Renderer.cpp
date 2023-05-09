@@ -189,6 +189,18 @@ void Renderer::render(TCP<IPV4>* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
+void Renderer::renderExpanded(TCP<IPV4>* p) {
+	renderExpanded((IPV4*)p);
+
+	/*if (ImGui::Button(p->m_TCPTitle.c_str())) {
+		p->m_expands.at("TCP Title") = !p->m_expands.at("TCP Title");
+	}
+
+	if (p->m_expands.at("TCP Title")) {
+
+	}*/
+}
+
 void Renderer::render(TCP<IPV6>* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(std::to_string(p->m_idx).c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {

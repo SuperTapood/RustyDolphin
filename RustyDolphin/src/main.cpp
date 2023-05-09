@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 	remove("captures/output.txt");
 	remove("imgui.ini");
 
-	constexpr auto packets = 1000;
+	constexpr auto packets = 200;
 	constexpr auto columns = 7;
 
 	Capture::capturePackets(adapter, callback, prom, packets);

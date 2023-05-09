@@ -31,7 +31,7 @@ public:
 
 		m_payload = Packet::parse(m_payloadLength);
 
-		if constexpr (std::is_same_v<IPVersion, IPV4>) {
+		/*if constexpr (std::is_same_v<IPVersion, IPV4>) {
 			if (IPVersion::m_srcAddr == SDK::ipAddress) {
 				m_process = SDK::getProcFromPort(m_srcPort);
 			}
@@ -44,6 +44,11 @@ public:
 			if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
 				m_process = SDK::getProcFromPort(m_destPort);
 			}
+		}*/
+
+		m_process = SDK::getProcFromPort(m_srcPort);
+		if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
+			m_process = SDK::getProcFromPort(m_destPort);
 		}
 
 		Packet::m_strType = "UDP (" + Packet::m_strType + ")";
