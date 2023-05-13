@@ -1,5 +1,7 @@
 #pragma once
 
+#define IMGUI_USE_STB_SPRINTF
+
 #include "GUI.h"
 
 class Packet;

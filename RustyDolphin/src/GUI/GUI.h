@@ -1,5 +1,7 @@
 #pragma once
 
+#define IMGUI_USE_STB_SPRINTF
+
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>

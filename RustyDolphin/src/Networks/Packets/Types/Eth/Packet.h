@@ -17,6 +17,7 @@ using json = nlohmann::ordered_json;
 class Packet {
 public:
 	unsigned int m_idx;
+	std::string m_idxStr;
 	std::string m_description;
 	std::map<std::string, bool> m_expands;
 	std::string m_title;

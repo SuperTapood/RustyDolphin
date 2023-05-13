@@ -22,6 +22,7 @@ time spent making this nonsense in the best language ever made:
 - [ ] switch to unique pointers for packets?
 - [ ] expand IPV4 Options
 - [ ] expand TCPOptions
+- [ ] get the class diagram working
 - [ ] wrap experimental stuff with try catch to prevent crashing later
 - [ ] make parseipv4 and parseipv6 use parse
 - [ ] better format ipv6 addresses

@@ -1,6 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define _CRT_SECURE_NO_WARNINGS
+#define IMGUI_USE_STB_SPRINTF
 
 #include <iostream>
 #include <cstdio>
@@ -31,9 +32,14 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <shellapi.h>
+#include <thread>
+#include <mutex>
+
+std::mutex myMutex;
 
 void release() {
 	Data::doneCounting = true;
+	Data::doneCapturing = true;
 	Logger::release();
 	Capture::release();
 	SDK::release();
@@ -254,11 +260,84 @@ std::pair<pcap_t*, bool> getAdapter() {
 	return { Capture::createAdapter(selected), promiscous };
 }
 
+void capThread(int idx) {
+	struct pcap_pkthdr* header;
+	const u_char* pkt_data;
+	int r;
+	auto adapter = Capture::createAdapter(idx);
+	//auto adapter = Capture::load("samples.pcapng");
+
+#ifdef _DEBUG
+	auto d = Capture::getDev(idx);
+	auto filter = "tcp";
+	struct bpf_program fcode;
+
+	int netmask;
+	if (d->addresses != NULL)
+		/* Retrieve the mask of the first address of the interface */
+		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
+	else
+		/* If the interface is without an address
+		 * we suppose to be in a C class network */
+		netmask = 0xffffff;
+
+	//compile the filter
+	if (pcap_compile(adapter, &fcode, filter, 1, netmask) < 0)
+	{
+		fprintf(stderr,
+			"\nUnable to compile the packet filter. Check the syntax.\n");
+		exit(-1);
+	}
+
+	//set the filter
+	if (pcap_setfilter(adapter, &fcode) < 0)
+	{
+		fprintf(stderr, "\nError setting the filter.\n");
+		exit(-1);
+	}
+#endif
+
+	idx = 0;
+
+	while (r = pcap_next_ex(adapter, &header, &pkt_data) <= 0) {
+		r = pcap_next_ex(adapter, &header, &pkt_data);
+	}
+
+	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;;
+
+	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
+		if (r == 0) {
+			continue;
+		}
+
+		auto p = fromRaw(header, pkt_data, idx++);
+		{
+			std::lock_guard<std::mutex> guard(myMutex);
+			Data::captured.push_back(p);
+			Data::capturedLength++;
+		}
+
+		//std::cout << idx  << " - " << Data::captured.size() << "\n";
+	}
+
+	pcap_close(adapter);
+}
+
 int main(int argc, char* argv[])
 {
 	init();
 
-	auto [adapter, prom] = getAdapter();
+	auto t = std::thread(capThread, 3);
+
+	/*while (true) {
+		auto size = 0;
+		for (auto p : Data::captured) {
+			size++;
+		}
+		std::cout << "size of list: " << size << "\n";
+	}*/
+
+	// auto [adapter, prom] = getAdapter();
 
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
@@ -267,7 +346,7 @@ int main(int argc, char* argv[])
 	constexpr auto packets = 200;
 	constexpr auto columns = 7;
 
-	Capture::capturePackets(adapter, callback, prom, packets);
+	// Capture::capturePackets(adapter, callback, prom, packets);
 
 	int selected = -1;
 
@@ -298,10 +377,17 @@ int main(int argc, char* argv[])
 			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 			ImGui::TableHeadersRow();
 
-			for (int row = 0; row < Data::captured.size(); row++)
+			for (int row = 0; row < Data::capturedLength; row++)
 			{
+				std::lock_guard<std::mutex> guard(myMutex);
 				ImGui::TableNextRow();
-				Data::captured.at(row)->render();
+
+				auto a = Data::captured.at(row);
+
+				if (a) {
+					a->render();
+				}
+
 			}
 			ImGui::EndTable();
 		}
@@ -361,6 +447,9 @@ int main(int argc, char* argv[])
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(GUI::window);
 	}
+
+	Data::doneCapturing = true;
+	t.join();
 
 	return 0;
 }

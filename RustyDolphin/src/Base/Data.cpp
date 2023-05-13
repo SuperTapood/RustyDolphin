@@ -38,6 +38,8 @@ std::array<const char*, 30> Data::quotes = {
 long double Data::epochStart;
 std::map<int, std::string> Data::dscpMap;
 std::map<int, std::string> Data::ecnMap;
+bool Data::doneCapturing = false;
+unsigned long Data::capturedLength = 0;
 
 void Data::init() {
 	dscpMap[0] = "Default";

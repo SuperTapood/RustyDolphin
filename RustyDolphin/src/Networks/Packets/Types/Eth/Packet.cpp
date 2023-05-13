@@ -15,6 +15,7 @@
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	this->m_idx = idx;
+	m_idxStr = std::to_string(idx);
 	m_pktData = pkt_data;
 	m_len = header->len;
 	pos = 0;
