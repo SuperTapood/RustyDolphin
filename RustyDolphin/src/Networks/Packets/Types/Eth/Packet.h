@@ -13,19 +13,16 @@
 
 using json = nlohmann::ordered_json;
 
-// *slaps roof of class* this bad boy can fit so many fcking members in it
+// *slaps roof of class* this bad boy can fit so many members in it
 class Packet {
 public:
 	unsigned int m_idx;
 	std::string m_idxStr;
 	std::string m_description;
 	std::map<std::string, bool> m_expands;
-	std::string m_title;
-	std::string m_hexData;
 
 	unsigned int pos = 0;
 	// header stuff
-	std::string m_time;
 	long double m_epoch;
 	unsigned int m_len;
 
@@ -50,7 +47,10 @@ public:
 	virtual std::string toString();
 	virtual json jsonify();
 
+	virtual std::map<std::string, std::string> getTexts();
+
 protected:
+	std::map<std::string, std::string> m_texts;
 
 	std::string parseMAC(unsigned int size = 6);
 	std::string parseIPV4(unsigned int size = 4);

@@ -45,7 +45,7 @@ public:
 	std::string toString() override {
 		std::stringstream ss;
 
-		ss << "ICMPV4 packet at " << IPV6::m_time << " of type " << m_ICMPV6type << " of code " << m_code << " (with checksum " << m_ICMPV6Checksum << ")\n";
+		ss << "ICMPV4 packet at " << Packet::m_texts["time"] << " of type " << m_ICMPV6type << " of code " << m_code << " (with checksum " << m_ICMPV6Checksum << ")\n";
 
 		return ss.str();
 	}

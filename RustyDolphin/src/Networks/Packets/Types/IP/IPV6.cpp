@@ -29,7 +29,7 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 std::string IPV6::toString() {
 	std::stringstream ss;
 
-	ss << "IPV6 Packet at " << m_time << " of length " << m_payloadLength << " from " << m_srcAddr << " to " << m_destAddr << "of payload length: " << m_payloadLength << " transfer protocol is " << m_nextHeader << "\n";
+	ss << "IPV6 Packet at " << m_texts["time"] << " of length " << m_payloadLength << " from " << m_srcAddr << " to " << m_destAddr << "of payload length: " << m_payloadLength << " transfer protocol is " << m_nextHeader << "\n";
 
 	return ss.str();
 }

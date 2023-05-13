@@ -18,22 +18,9 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	m_idxStr = std::to_string(idx);
 	m_pktData = pkt_data;
 	m_len = header->len;
-	pos = 0;
-	m_hexData = parse(m_len);
-	pos = 0;
-	struct tm timeinfo;
 	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
-	time_t epoch_t = static_cast<time_t>(m_epoch);
-	localtime_s(&timeinfo, &epoch_t);
-	std::stringstream ss;
-	int year = 1900 + timeinfo.tm_year;
-	int month = 1 + timeinfo.tm_mon;
-
-	ss << year << "/" << padDate(month) << "/" << padDate(timeinfo.tm_mday) << " " << padDate(timeinfo.tm_hour) << ":" << padDate(timeinfo.tm_min) << ":" << padDate(timeinfo.tm_sec);
 
 	m_epoch -= Data::epochStart;
-	
-	m_time = ss.str();
 
 	m_phyDst = parseMAC();
 
@@ -44,18 +31,12 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	m_description = "base packet";
 
 	m_expands.insert({ "Packet Title", false });
-
-	ss.str("");
-
-	ss << "Frame " << idx << ": " << m_len << " bytes on wire (" << (m_len * 8) << " bits)";
-
-	m_title = ss.str();
 }
 
 std::string Packet::toString() {
 	std::stringstream ss;
 
-	ss << "Base Packet at " << m_time << " of len " << m_len << " type: " << m_type << " from " << m_phySrc << " to " << m_phyDst << "\n";
+	ss << "Base Packet at " << m_texts["time"] << " of len " << m_len << " type: " << m_type << " from " << m_phySrc << " to " << m_phyDst << "\n";
 
 	return ss.str();
 }
@@ -63,7 +44,7 @@ std::string Packet::toString() {
 json Packet::jsonify() {
 	json j = {
 		{"header", "start"},
-		{"time", m_time},
+		{"time", m_texts["time"]},
 		{"epoch", m_epoch},
 		{"len", m_len},
 		{"base packet", "start"},
@@ -214,4 +195,36 @@ short Packet::parseShort() {
 	pos += len;
 
 	return htons(out);
+}
+
+std::map<std::string, std::string> Packet::getTexts() {
+	if (m_texts.empty()) {
+		struct tm timeinfo;
+		time_t epoch_t = static_cast<time_t>(m_epoch);
+		localtime_s(&timeinfo, &epoch_t);
+		std::stringstream ss;
+		int year = 1900 + timeinfo.tm_year;
+		auto month = padDate(1 + timeinfo.tm_mon);
+		auto day = padDate(timeinfo.tm_mday);
+		auto hour = padDate(timeinfo.tm_hour);
+		auto min = padDate(timeinfo.tm_min);
+		auto sec = padDate(timeinfo.tm_sec);
+
+		m_texts["time"] = std::format("{}/{}/{} {}:{}:{}", year, month, day, hour, min, sec);
+
+		m_texts["title"] = std::format("Frame {}: {} bytes on wire ({} bits)", m_idx, m_len, (m_len * 8));
+
+		std::string result;
+		result.reserve(m_len * 2); // Each byte will be represented by 2 hexadecimal characters
+
+		for (int i = 0; i < m_len; i++) {
+			char buf[3];
+			sprintf_s(buf, "%02x", (int)m_pktData[i]);
+			result.append(buf);
+		}
+
+		m_texts["hexData"] = result;
+	}
+
+	return m_texts;
 }

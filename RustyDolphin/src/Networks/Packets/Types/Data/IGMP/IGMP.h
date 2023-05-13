@@ -6,6 +6,11 @@
 #include <string>
 #include <pcap.h>
 
+
+constexpr auto report = 0x16;
+constexpr auto leave = 0x17;
+constexpr auto query = 0x11;
+
 template <typename IPVersion>
 class IGMP : public IPVersion {
 public:
@@ -13,13 +18,6 @@ public:
 	int m_maxResp;
 	int m_checksum;
 	std::string m_multicastAddr;
-
-	std::string m_igmpTitle;
-	std::string m_groupTypeStr;
-	std::string m_typeStr;
-	std::string m_timeStr;
-	std::string m_checkStr;
-	std::string m_multiStr;
 
 	IGMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_groupType = pkt_data[Packet::pos++];
@@ -29,43 +27,25 @@ public:
 
 		Packet::m_strType = "IGMP (" + Packet::m_strType + ")";
 
-		constexpr auto report = 0x16;
-		constexpr auto leave = 0x17;
-		constexpr auto query = 0x11;
-
 		std::stringstream ss;
 		switch (m_groupType) {
 		case (report):
 			ss << "Membership Report Group " << m_multicastAddr;
-			m_groupTypeStr = "Membership Report";
 			break;
 		case (leave):
 			ss << "Leave Group " << m_multicastAddr;
-			m_groupTypeStr = "Leave Group";
 			break;
 		case (query):
 			ss << "Membership Query, general";
-			m_groupTypeStr = "Membership Query";
 			break;
 		default:
 			ss << "IGMP Packet";
-			m_groupTypeStr = "Unknown";
 			break;
 		}
 
 		Packet::m_description = ss.str();
 
 		Packet::m_expands.insert({ "IGMP Title", false });
-
-		m_igmpTitle = "Internet Group Management Protocol";
-
-		m_typeStr = std::format("\tType: {} (0x{:x})", m_groupTypeStr, m_groupType);
-
-		m_timeStr = std::format("\tMax Resp Time: {} sec (0x{:x})", m_maxResp / 10, m_maxResp);
-
-		m_checkStr = std::format("\tChecksum: 0x{:x}", m_checksum);
-
-		m_multiStr = std::format("\tMulticast Address: {}", m_multicastAddr);
 	}
 
 	std::string toString() override {
@@ -94,5 +74,38 @@ public:
 
 	virtual void renderExpanded() override {
 		Renderer::renderExpanded(this);
+	}
+
+	std::map<std::string, std::string> getTexts() override {
+		if (Packet::m_texts.empty()) {
+			IPVersion::getTexts();
+
+			std::stringstream ss;
+			switch (m_groupType) {
+			case (report):
+				Packet::m_texts["groupType"] = "Membership Report";
+				break;
+			case (leave):
+				Packet::m_texts["groupType"] = "Leave Group";
+				break;
+			case (query):
+				Packet::m_texts["groupType"] = "Membership Query";
+				break;
+			default:
+				Packet::m_texts["groupType"] = "Unknown";
+				break;
+			}
+
+			Packet::m_texts["IGMPType"] = std::format("\tType: {} (0x{:x})", Packet::m_texts["groupType"], m_groupType);
+
+			Packet::m_texts["respTime"] = std::format("\tMax Resp Time: {} sec (0x{:x})", m_maxResp / 10, m_maxResp);
+
+			Packet::m_texts["IGMPChecksum"] = std::format("\tChecksum: 0x{:x}", m_checksum);
+
+			Packet::m_texts["multicastAddr"] = std::format("\tMulticast Address: {}", m_multicastAddr);
+
+		}
+
+		return Packet::m_texts;
 	}
 };

@@ -20,22 +20,6 @@ public:
 	unsigned int m_IPoptionsCount;
 	std::vector<IPV4Option*> m_opts;
 
-	std::string m_IPTitle;
-	std::string m_headerLenStr;
-	std::string m_differServStr;
-	std::string m_differDSCP;
-	std::string m_differECN;
-	std::string m_idStr;
-	std::string m_flagStr;
-	std::string m_rbitStr;
-	std::string m_dfbitStr;
-	std::string m_mfbitStr;
-	std::string m_offsetStr;
-	std::string m_protocolStr;
-	std::string m_headerCheckStr;
-	std::string m_srcStr;
-	std::string m_dstStr;
-	std::string m_optsStr;
 	std::vector<std::string> m_optButtons;
 	long m_optSize;
 
@@ -52,4 +36,6 @@ public:
 	virtual void renderExpanded() override {
 		Renderer::renderExpanded(this);
 	}
+
+	virtual std::map<std::string, std::string> getTexts() override;
 };

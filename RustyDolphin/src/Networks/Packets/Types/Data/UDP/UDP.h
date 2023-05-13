@@ -60,7 +60,7 @@ public:
 	std::string toString() override {
 		std::stringstream ss;
 
-		ss << "UDPV4 Packet at " << IPVersion::m_time << " from " << IPVersion::m_srcAddr << " at port " << m_srcPort << " to " << IPVersion::m_destAddr << " at port " << m_destPort;
+		ss << "UDPV4 Packet at " << Packet::m_texts["time"] << " from " << IPVersion::m_srcAddr << " at port " << m_srcPort << " to " << IPVersion::m_destAddr << " at port " << m_destPort;
 
 		ss << ". Proccess = " << m_process << "\n";
 

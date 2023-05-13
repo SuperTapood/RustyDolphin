@@ -148,7 +148,7 @@ public:
 	std::string toString() override {
 		std::stringstream ss;
 
-		ss << "TCPV4 Packet at " << IPVersion::m_time << " from " << IPVersion::m_srcAddr << " at port " << m_srcPort << " to " << IPVersion::m_destAddr << " at port " << m_destPort;
+		ss << "TCPV4 Packet at " << Packet::m_texts["time"] << " from " << IPVersion::m_srcAddr << " at port " << m_srcPort << " to " << IPVersion::m_destAddr << " at port " << m_destPort;
 
 		if (m_optionCount > 0) {
 			ss << " with options : (";

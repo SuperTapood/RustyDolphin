@@ -269,7 +269,7 @@ void capThread(int idx) {
 
 #ifdef _DEBUG
 	auto d = Capture::getDev(idx);
-	auto filter = "tcp";
+	auto filter = "";
 	struct bpf_program fcode;
 
 	int netmask;
@@ -317,7 +317,7 @@ void capThread(int idx) {
 			Data::capturedLength++;
 		}
 
-		//std::cout << idx  << " - " << Data::captured.size() << "\n";
+		std::cout << idx  << " - " << "\n";
 	}
 
 	pcap_close(adapter);
@@ -414,8 +414,10 @@ int main(int argc, char* argv[])
 
 			int inc = 0;
 
-			for (int i = 0; i < p->m_hexData.size(); i+=2) {
-				std::string byte = p->m_hexData.substr(i, 2);
+			auto hexData = p->getTexts().at("hexData");
+
+			for (int i = 0; i < hexData.size(); i+=2) {
+				std::string byte = hexData.substr(i, 2);
 				if (i % 32 == 0 && i > 0) {
 					std::stringstream ss;
 					ss << std::hex << std::setw(4) << std::setfill('0') << inc;
@@ -456,7 +458,7 @@ int main(int argc, char* argv[])
 
 #ifdef NDEBUG
 
-// because nothing can ever be simple in this fcking operating system
+// because nothing can ever be simple in this goddamn operating system
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	int argc;
