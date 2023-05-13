@@ -3,6 +3,8 @@
 #include "../Networks/Packets/Types/Types.h"
 #include <vector>
 #include <string>
+#include <thread>
+#include <mutex>
 
 class Data {
 public:
@@ -20,6 +22,7 @@ public:
 	static std::thread captureThread;
 	static pcap_t* chosenAdapter;
 	static int selectExpand;
+	static std::mutex guard;
 
 	static void addPacket(Packet* p);
 	static void init();

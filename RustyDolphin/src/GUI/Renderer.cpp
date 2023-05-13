@@ -282,6 +282,33 @@ void Renderer::render(ICMP* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
+void Renderer::renderExpanded(ICMP* p) {
+	renderExpanded((IPV4*)p);
+
+	auto m = p->getTexts();
+
+	if (ImGui::Button("Internet Control Message Control")) {
+		p->m_expands.at("ICMP Title") = !p->m_expands.at("ICMP Title");
+	}
+
+	if (p->m_expands.at("ICMP Title")) {
+		ImGui::Text(m.at("ICMPType").c_str());
+		ImGui::Text(m.at("ICMPCode").c_str());
+		ImGui::Text(m.at("ICMPChecksum").c_str());
+		ImGui::Text(m.at("IDBE").c_str());
+		ImGui::Text(m.at("IDLE").c_str());
+		ImGui::Text(m.at("SNBE").c_str());
+		ImGui::Text(m.at("SNLE").c_str());
+		if (ImGui::Button(m.at("ICMPDataHeader").c_str())) {
+			p->m_expands.at("ICMP Data") = !p->m_expands.at("ICMP Data");
+		}
+
+		if (p->m_expands.at("ICMP Data")) {
+			ImGui::Text(m.at("ICMPData").c_str());
+		}
+	}
+}
+
 void Renderer::render(ICMPV6* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {

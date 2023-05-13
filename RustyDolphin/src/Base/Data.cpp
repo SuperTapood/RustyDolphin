@@ -44,6 +44,7 @@ bool Data::showStop = false;
 bool Data::showStart = false;
 std::thread Data::captureThread;
 pcap_t* Data::chosenAdapter;
+std::mutex Data::guard;
 
 void Data::init() {
 	dscpMap[0] = "Default";

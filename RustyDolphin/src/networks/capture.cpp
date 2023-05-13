@@ -6,6 +6,7 @@
 #include <string>
 #include "../Win/SDK.h"
 #include <iostream>
+#include "Packets/Packets.h"
 
 pcap_if_t* Capture::m_alldevs;
 int Capture::m_devs;
@@ -151,20 +152,15 @@ pcap_t* Capture::load(std::string name) {
 	return handle;
 }
 
-void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u_char*, std::string, unsigned int), bool promiscuous, int maxPackets) {
+void Capture::capturePackets() {
+	auto adapter = Data::chosenAdapter;
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
 
-	std::stringstream ss;
-
-	ss << "captures/output.pcap";
-
-	m_dumpfile = pcap_dump_open(adapter, ss.str().c_str());
-
 #ifdef _DEBUG
-	auto d = getDev(3);
-	auto filter = "tcp";
+	auto d = Capture::getDev(3);
+	auto filter = "icmp";
 	struct bpf_program fcode;
 
 	int netmask;
@@ -192,31 +188,33 @@ void Capture::capturePackets(pcap_t* adapter, void (*func)(pcap_pkthdr*, const u
 	}
 #endif
 
-	unsigned int idx = 0;
+	auto idx = 0;
 
-	while (r = pcap_next_ex(adapter, &header, &pkt_data) <= 0) {
-		r = pcap_next_ex(adapter, &header, &pkt_data);
+	while (pcap_next_ex(adapter, &header, &pkt_data) <= 0) {}
+
+	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;
+
+	auto p = fromRaw(header, pkt_data, idx++);
+	{
+		std::lock_guard<std::mutex> guard(Data::guard);
+		Data::captured.push_back(p);
+		Data::capturedLength++;
 	}
 
-	maxPackets--;
+	std::cout << idx << " - " << "\n";
 
-	pcap_dump((u_char*)m_dumpfile, header, pkt_data);
-
-	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;;
-
-	func(header, pkt_data, ss.str(), idx++);
-
-	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && maxPackets > 0) {
+	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
 		if (r == 0) {
 			continue;
 		}
-		maxPackets--;
 
-		pcap_dump((u_char*)m_dumpfile, header, pkt_data);
+		auto p = fromRaw(header, pkt_data, idx++);
+		{
+			std::lock_guard<std::mutex> guard(Data::guard);
+			Data::captured.push_back(p);
+			Data::capturedLength++;
+		}
 
-		func(header, pkt_data, ss.str(), idx++);
-		std::cout << idx << "\n";
+		std::cout << idx << " - " << "\n";
 	}
-
-	pcap_close(adapter);
 }

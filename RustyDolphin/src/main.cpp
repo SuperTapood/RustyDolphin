@@ -30,8 +30,6 @@
 #include <thread>
 #include <mutex>
 
-std::mutex myMutex;
-
 void release() {
 	Data::doneCounting = true;
 	Data::doneCapturing = true;
@@ -237,65 +235,6 @@ pcap_t* getAdapter() {
 	return Capture::createAdapter(selected);
 }
 
-void capThread(pcap_t* adapter) {
-	struct pcap_pkthdr* header;
-	const u_char* pkt_data;
-	int r;
-
-#ifdef _DEBUG
-	auto d = Capture::getDev(3);
-	auto filter = "";
-	struct bpf_program fcode;
-
-	int netmask;
-	if (d->addresses != NULL)
-		/* Retrieve the mask of the first address of the interface */
-		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-	else
-		/* If the interface is without an address
-		 * we suppose to be in a C class network */
-		netmask = 0xffffff;
-
-	//compile the filter
-	if (pcap_compile(adapter, &fcode, filter, 1, netmask) < 0)
-	{
-		fprintf(stderr,
-			"\nUnable to compile the packet filter. Check the syntax.\n");
-		exit(-1);
-	}
-
-	//set the filter
-	if (pcap_setfilter(adapter, &fcode) < 0)
-	{
-		fprintf(stderr, "\nError setting the filter.\n");
-		exit(-1);
-	}
-#endif
-
-	auto idx = 0;
-
-	while (r = pcap_next_ex(adapter, &header, &pkt_data) <= 0) {
-		r = pcap_next_ex(adapter, &header, &pkt_data);
-	}
-
-	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;
-
-	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
-		if (r == 0) {
-			continue;
-		}
-
-		auto p = fromRaw(header, pkt_data, idx++);
-		{
-			std::lock_guard<std::mutex> guard(myMutex);
-			Data::captured.push_back(p);
-			Data::capturedLength++;
-		}
-
-		std::cout << idx  << " - " << "\n";
-	}
-}
-
 void handleStop() {
 	GUI::pushFont("adapters");
 	ImGui::OpenPopup("StopCapture");
@@ -339,7 +278,7 @@ void handleStart() {
 			Data::captured.clear();
 			Data::capturedLength = 0;
 			Data::doneCapturing = false;
-			Data::captureThread = std::thread(capThread, Data::chosenAdapter);
+			Data::captureThread = std::thread(Capture::capturePackets);
 		}
 		ImGui::SetCursorPosY(430);
 		if (GUI::centerButton("No")) {
@@ -354,19 +293,11 @@ int main(int argc, char* argv[])
 {
 	init();
 
-	/*while (true) {
-		auto size = 0;
-		for (auto p : Data::captured) {
-			size++;
-		}
-		std::cout << "size of list: " << size << "\n";
-	}*/
-
 	auto adapter = getAdapter();
 
-	Data::captureThread = std::thread(capThread, adapter);
-
 	Data::chosenAdapter = adapter;
+
+	Data::captureThread = std::thread(Capture::capturePackets);
 
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
@@ -374,8 +305,6 @@ int main(int argc, char* argv[])
 
 	constexpr auto packets = 200;
 	constexpr auto columns = 7;
-
-	// Capture::capturePackets(adapter, callback, prom, packets);
 
 	while (!glfwWindowShouldClose(GUI::window))
 	{
@@ -435,7 +364,7 @@ int main(int argc, char* argv[])
 
 			for (int row = 0; row < Data::capturedLength; row++)
 			{
-				std::lock_guard<std::mutex> guard(myMutex);
+				std::lock_guard<std::mutex> guard(Data::guard);
 				ImGui::TableNextRow();
 
 				auto a = Data::captured.at(row);
