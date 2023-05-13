@@ -40,6 +40,10 @@ std::map<int, std::string> Data::dscpMap;
 std::map<int, std::string> Data::ecnMap;
 bool Data::doneCapturing = false;
 unsigned long Data::capturedLength = 0;
+bool Data::showStop = false;
+bool Data::showStart = false;
+std::thread Data::captureThread;
+pcap_t* Data::chosenAdapter;
 
 void Data::init() {
 	dscpMap[0] = "Default";

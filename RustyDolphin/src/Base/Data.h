@@ -15,6 +15,11 @@ public:
 	static std::map<int, std::string> ecnMap;
 	static bool doneCapturing;
 	static unsigned long capturedLength;
+	static bool showStop;
+	static bool showStart;
+	static std::thread captureThread;
+	static pcap_t* chosenAdapter;
+	static int selectExpand;
 
 	static void addPacket(Packet* p);
 	static void init();
