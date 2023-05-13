@@ -14,8 +14,6 @@
 #include "Networks/Networks.h"
 #include "Win/Win.h"
 #include <cstdint>
-#include <thread>
-#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <GLFW/glfw3.h>
@@ -24,12 +22,9 @@
 #include "imgui_impl_opengl3.h"
 #include <fstream>
 #include <string>
-#include <IcmpAPI.h>
 #include <GLFW/glfw3native.h>
 #include "GUI/GUI.h"
 #include "ImGuiFileDialog.h"
-#include <stb_image_write.h>
-#include <windows.h>
 #include <stdlib.h>
 #include <shellapi.h>
 #include <thread>
@@ -107,10 +102,10 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename,
 	Data::addPacket(p);
 }
 
-std::pair<pcap_t*, bool> getAdapter() {
+pcap_t* getAdapter() {
 #ifdef _DEBUG
-	return { Capture::load("samples.pcapng"), true};
-	//return { Capture::createAdapter(3), true };
+	return Capture::load("samples.pcapng");
+	//return Capture::createAdapter(3);
 #endif
 	using std::chrono::high_resolution_clock;
 	using std::chrono::duration_cast;
@@ -139,7 +134,6 @@ std::pair<pcap_t*, bool> getAdapter() {
 
 	int last = 0;
 	int selected = -1;
-	bool promiscous = false;
 
 	while (!Data::doneCounting) {
 		// Poll and handle events
@@ -201,24 +195,7 @@ std::pair<pcap_t*, bool> getAdapter() {
 			{
 				GUI::centerText("Are you sure you want this adapter?");
 				ImGui::SetCursorPosY(350);
-				if (GUI::centerButton("Yes, in Promiscous Mode")) {
-					Data::doneCounting = true;
-					promiscous = true;
-					GUI::popFont();
-					ImGui::EndPopup();
-					ImGui::End();
-
-					// auto io = ImGui::GetIO();
-
-					// std::cout << io.Framerate << " FPS\n";
-
-					glClear(GL_COLOR_BUFFER_BIT);
-					ImGui::Render();
-					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-					glfwSwapBuffers(GUI::window);
-					break;
-				}
-				if (GUI::centerButton("Yes, not in Promiscous Mode")) {
+				if (GUI::centerButton("Yes")) {
 					Data::doneCounting = true;
 					GUI::popFont();
 					ImGui::EndPopup();
@@ -257,18 +234,18 @@ std::pair<pcap_t*, bool> getAdapter() {
 
 	SDK::findIP(Capture::getDev(selected)->name);
 
-	return { Capture::createAdapter(selected), promiscous };
+	return Capture::createAdapter(selected);
 }
 
-void capThread(int idx) {
+void capThread(pcap_t* adapter) {
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
-	auto adapter = Capture::createAdapter(idx);
-	//auto adapter = Capture::load("samples.pcapng");
+	// adapter = Capture::createAdapter(3);
+	//adapter = Capture::load("samples.pcapng");
 
 #ifdef _DEBUG
-	auto d = Capture::getDev(idx);
+	auto d = Capture::getDev(3);
 	auto filter = "";
 	struct bpf_program fcode;
 
@@ -297,13 +274,13 @@ void capThread(int idx) {
 	}
 #endif
 
-	idx = 0;
+	auto idx = 0;
 
 	while (r = pcap_next_ex(adapter, &header, &pkt_data) <= 0) {
 		r = pcap_next_ex(adapter, &header, &pkt_data);
 	}
 
-	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;;
+	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;
 
 	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
 		if (r == 0) {
@@ -327,8 +304,6 @@ int main(int argc, char* argv[])
 {
 	init();
 
-	auto t = std::thread(capThread, 3);
-
 	/*while (true) {
 		auto size = 0;
 		for (auto p : Data::captured) {
@@ -337,7 +312,9 @@ int main(int argc, char* argv[])
 		std::cout << "size of list: " << size << "\n";
 	}*/
 
-	// auto [adapter, prom] = getAdapter();
+	auto adapter = getAdapter();
+
+	auto t = std::thread(capThread, adapter);
 
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
