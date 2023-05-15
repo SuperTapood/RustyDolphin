@@ -215,6 +215,6 @@ void Capture::capturePackets() {
 			Data::capturedLength++;
 		}
 
-		std::cout << idx << " - " << "\n";
+		//std::cout << idx << " - " << "\n";
 	}
 }

@@ -101,8 +101,9 @@ void callback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename,
 }
 
 pcap_t* getAdapter() {
+	return Capture::load("samples.pcapng");
 #ifdef _DEBUG
-	//return Capture::load("samples.pcapng");
+	return Capture::load("thicc.pcapng");
 	return Capture::createAdapter(3);
 #endif
 	using std::chrono::high_resolution_clock;
@@ -353,7 +354,7 @@ int main(int argc, char* argv[])
 
 		if (ImGui::BeginTable("Packet Table", columns))
 		{
-			ImGui::TableSetupColumn("No.", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+			ImGui::TableSetupColumn((("No. (" + std::to_string(Data::captured.size()) + ")").c_str()), ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
 			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 200.0f);
@@ -364,13 +365,12 @@ int main(int argc, char* argv[])
 
 			for (int row = 0; row < Data::capturedLength; row++)
 			{
-				std::lock_guard<std::mutex> guard(Data::guard);
+
 				ImGui::TableNextRow();
 
-				auto a = Data::captured.at(row);
-
-				if (a) {
-					a->render();
+				{
+					std::lock_guard<std::mutex> guard(Data::guard);
+					Data::captured.at(row)->render();
 				}
 
 			}
