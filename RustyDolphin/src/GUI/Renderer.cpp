@@ -29,8 +29,8 @@ void Renderer::renderExpanded(Packet* p) {
 
 	if (p->m_expands.at("Packet Title")) {
 		ImGui::Text(("\tArrival time: " + map.at("time")).c_str());
-		ImGui::Text(("\tDestination: " + p->m_phyDst).c_str());
-		ImGui::Text(("\tSource: " + p->m_phySrc).c_str());
+		ImGui::Text(map.at("macDest").c_str());
+		ImGui::Text(map.at("macSrc").c_str());
 		ImGui::Text(("\tType: " + p->m_strType).c_str());
 	}
 }

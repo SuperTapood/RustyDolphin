@@ -31,7 +31,7 @@ public:
 	std::string m_phySrc;
 	unsigned short m_type;
 	std::string m_strType;
-	const u_char* m_pktData;
+	u_char* m_pktData;
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	virtual ~Packet() = default;

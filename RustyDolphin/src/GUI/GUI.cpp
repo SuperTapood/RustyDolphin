@@ -121,7 +121,7 @@ inline void GUI::endFrame() {
 pcap_t* GUI::getAdapter() {
 #ifdef _DEBUG
 	Data::fileAdapter = true;
-	return Capture::load("v6.pcapng");
+	return Capture::load("samples.pcapng");
 	return Capture::createAdapter(3);
 #endif
 	using std::chrono::high_resolution_clock;

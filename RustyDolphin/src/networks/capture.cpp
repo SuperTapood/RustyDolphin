@@ -198,6 +198,17 @@ void Capture::capturePackets() {
 		Data::captured.push_back(p);
 	}
 
+	//std::string result;
+	//result.reserve(p->m_len * 2); // Each byte will be represented by 2 hexadecimal characters
+
+	//for (int i = 0; i < p->m_len; i++) {
+	//	char buf[3];
+	//	sprintf_s(buf, "%02x", (int)p->m_pktData[i]);
+	//	result.append(buf);
+	//}
+
+	//auto s = p->getTexts()["hexData"];
+
 	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
 		if (r == 0) {
 			continue;

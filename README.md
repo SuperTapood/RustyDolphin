@@ -8,6 +8,7 @@ time spent making this nonsense in the best language ever made:
 
  to do:
  - mac addresses resolutions :)
+ - include curl in the project!
  - expand IPV4 Options
  - expand TCPOptions
  - make parseipv4 and parseipv6 use parse

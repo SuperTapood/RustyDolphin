@@ -15,6 +15,8 @@
 #include <string.h>
 #include <sstream>
 #include <IcmpAPI.h>
+#include <fstream>
+#include <cstring>
 // #include "../base/Structs.h"
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
@@ -26,6 +28,7 @@ char* SDK::SendData;
 LPVOID SDK::ReplyBuffer;
 DWORD SDK::ReplySize;
 IP_OPTION_INFORMATION SDK::ipOptions;
+std::map<std::string, std::string> SDK::MACS;
 
 std::string SDK::exec(const char* cmd) {
 	std::array<char, 128> buffer{};
@@ -263,6 +266,19 @@ void SDK::init() {
 	initPIDCache();
 	refreshTables();
 	initICMP();
+
+
+	std::ifstream manuf("deps/manuf/manuf");
+	std::string line;
+
+	while (getline(manuf, line)) {
+		auto addr = line.substr(0, 8);
+		auto firstTab = line.find("\t");
+		auto secondTab = line.rfind("\t");
+		auto name = line.substr(firstTab + 1, secondTab - firstTab - 1);
+
+		MACS.insert({ addr, std::move(name) });
+	}
 }
 
 void SDK::release() {
@@ -389,4 +405,14 @@ std::vector<json> SDK::geoTrace(std::string addr) {
 	}
 
 	return locs;
+}
+
+std::string SDK::lookupMAC(std::string addr) {
+	std::transform(addr.begin(), addr.end(), addr.begin(),
+		[](unsigned char c) { return std::toupper(c); });
+	if (MACS.contains(addr)) {
+		return std::format("{}_", MACS.at(addr));
+	}
+
+	return std::format("{}:", addr);
 }

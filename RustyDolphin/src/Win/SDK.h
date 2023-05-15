@@ -21,10 +21,13 @@ public:
 	static json geoLocate(std::string addr);
 	static std::vector<std::string> traceRoute(std::string addr);
 	static std::vector<json> geoTrace(std::string addr);
+	static std::string lookupMAC(std::string addr);
 
 private:
 	static std::map<DWORD, DWORD> PORT2PID;
 	static std::map<DWORD, std::string> PID2PROC;
+
+	static std::map<std::string, std::string> MACS;
 
 	// tracert stuff
 

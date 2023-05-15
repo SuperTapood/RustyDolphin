@@ -15,9 +15,15 @@
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	this->m_idx = idx;
-	m_idxStr = std::to_string(idx);
-	m_pktData = pkt_data;
+
+	m_idxStr = std::to_string(idx + 1);
+
 	m_len = header->len;
+
+	m_pktData = new u_char[m_len];
+
+	std::copy(pkt_data, pkt_data + m_len, m_pktData);
+	
 	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
 
 	m_epoch -= Data::epochStart;
@@ -212,7 +218,7 @@ std::map<std::string, std::string> Packet::getTexts() {
 
 		m_texts["time"] = std::format("{}/{}/{} {}:{}:{}", year, month, day, hour, min, sec);
 
-		m_texts["title"] = std::format("Frame {}: {} bytes on wire ({} bits)", m_idx, m_len, (m_len * 8));
+		m_texts["title"] = std::format("Frame {}: {} bytes on wire ({} bits)", m_idx + 1, m_len, (m_len * 8));
 
 		std::string result;
 		result.reserve(m_len * 2); // Each byte will be represented by 2 hexadecimal characters
@@ -224,6 +230,16 @@ std::map<std::string, std::string> Packet::getTexts() {
 		}
 
 		m_texts["hexData"] = result;
+
+		auto src1 = m_phySrc.substr(0, 8);
+		auto src2 = m_phySrc.substr(9, 8);
+
+		m_texts["macSrc"] = std::format("\tSource: {}{} ({})", SDK::lookupMAC(src1), src2, m_phySrc);
+
+		auto dst1 = m_phyDst.substr(0, 8);
+		auto dst2 = m_phyDst.substr(9, 8);
+
+		m_texts["macDest"] = std::format("\tDestination: {}{} ({})", SDK::lookupMAC(dst1), dst1, m_phyDst);
 	}
 
 	return m_texts;
