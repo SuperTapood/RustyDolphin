@@ -8,14 +8,12 @@ time spent making this nonsense in the best language ever made:
 
  to do:
  - include curl in the project!
- - expand IPV4 Options
  - expand TCPOptions
  - make parseipv4 and parseipv6 use parse
  - more tcp options
  - arp poisnoning
- - IPV6, TCP, UDP, ICMP, ICMPV6 expanded rendering
+ - TCP, UDP, ICMP, ICMPV6 expanded rendering
  - add more icmpv6 message types and codes (https://en.wikipedia.org/wiki/ICMPv6#Message_processing)
- - pass strings by reference
  - add filtering
  - can load files
  - can save files
