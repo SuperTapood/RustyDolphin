@@ -19,6 +19,12 @@ public:
 	static void popFont();
 	static void centerText(const char* text);
 	static bool centerButton(const char* text);
+	static void startFrame();
+	static void endFrame();
+	static void render();
+	static void handleStop();
+	static void handleStart();
+	static void handleStartFile();
 
 private:
 	static std::map<std::string, ImFont*> fonts;

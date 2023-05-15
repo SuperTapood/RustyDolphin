@@ -69,41 +69,10 @@ void countPackets(std::vector<int>* counts, int adapterIdx) {
 	pcap_close(adhandle);
 }
 
-void callback(pcap_pkthdr* header, const u_char* pkt_data, std::string filename, unsigned int idx) {
-	auto p = fromRaw(header, pkt_data, idx);
-
-	//if (idx == 982) {
-	//	p = fromRaw(header, pkt_data, idx);
-	//	std::size_t pos = filename.find('.');
-	//	if (pos != std::string::npos) {
-	//		filename.erase(pos);
-	//	}
-
-	//	std::ofstream file(filename + ".txt", std::ios_base::app);
-
-	//	if (!file) {
-	//		std::cerr << "Error opening file: " << filename + ".txt" << '\n';
-	//		exit(69);
-	//	}
-
-	//	file << p->jsonify().dump(4) << "\n";
-
-	//	 std::cout << p->jsonify().dump(4) << std::endl;
-
-	//	 std::cout << p->toString() << std::endl;
-	//	/*std::cout << "hey:" << std::endl;
-	//	for (int i = 0; i < p->m_len; i++) {
-	//		std::cout << std::hex << (int)p->m_pktData[i];
-	//	}*/
-	//}
-
-	Data::addPacket(p);
-}
-
 pcap_t* getAdapter() {
-	return Capture::load("samples.pcapng");
 #ifdef _DEBUG
-	return Capture::load("thicc.pcapng");
+	Data::fileAdapter = true;
+	return Capture::load("v6.pcapng");
 	return Capture::createAdapter(3);
 #endif
 	using std::chrono::high_resolution_clock;
@@ -233,64 +202,12 @@ pcap_t* getAdapter() {
 
 	SDK::findIP(Capture::getDev(selected)->name);
 
+	Data::fileAdapter = false;
+
 	return Capture::createAdapter(selected);
 }
 
-void handleStop() {
-	GUI::pushFont("adapters");
-	ImGui::OpenPopup("StopCapture");
-
-	ImGui::SetNextWindowSize(ImVec2(600, 500));
-	ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
-	if (ImGui::BeginPopupModal("StopCapture", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
-	{
-		GUI::centerText("Are you sure you want stop the current capture?");
-		ImGui::SetCursorPosY(350);
-		if (GUI::centerButton("Yes")) {
-			Data::doneCapturing = true;
-			Data::showStop = false;
-		}
-		ImGui::SetCursorPosY(430);
-		if (GUI::centerButton("No")) {
-			Data::showStop = false;
-		}
-		ImGui::EndPopup();
-	}
-	GUI::popFont();
-}
-
-void handleStart() {
-	GUI::pushFont("adapters");
-	ImGui::OpenPopup("StartCapture");
-
-	ImGui::SetNextWindowSize(ImVec2(600, 500));
-	ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
-	if (ImGui::BeginPopupModal("StartCapture", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
-	{
-		GUI::centerText("You have an ongoing capture.");
-		GUI::centerText(" do you want to start another one?");
-		GUI::centerText("(the current one will be reset)");
-		ImGui::SetCursorPosY(350);
-		if (GUI::centerButton("Yes")) {
-			Data::doneCapturing = true;
-			Data::selected = -1;
-			Data::showStart = false;
-			Data::captureThread.join();
-			Data::captured.clear();
-			Data::capturedLength = 0;
-			Data::doneCapturing = false;
-			Data::captureThread = std::thread(Capture::capturePackets);
-		}
-		ImGui::SetCursorPosY(430);
-		if (GUI::centerButton("No")) {
-			Data::showStart = false;
-		}
-		ImGui::EndPopup();
-	}
-	GUI::popFont();
-}
-
-int main(int argc, char* argv[])
+int main()
 {
 	init();
 
@@ -305,133 +222,8 @@ int main(int argc, char* argv[])
 	remove("imgui.ini");
 
 	constexpr auto packets = 200;
-	constexpr auto columns = 7;
 
-	while (!glfwWindowShouldClose(GUI::window))
-	{
-		// Poll and handle events
-		glfwPollEvents();
-
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		GUI::pushFont("regular");
-
-		ImGui::SetNextWindowPos(ImVec2(0, 20));
-		ImGui::SetNextWindowSize(ImVec2(1280, 360));
-		ImGui::Begin("Packet Table Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-		if (ImGui::BeginMainMenuBar()) {
-			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("Load")) {
-					// handle load
-				}
-				if (ImGui::MenuItem("Save")) {
-					// handle save
-				}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Capture")) {
-				if (ImGui::MenuItem("Start")) {
-					Data::showStart = true;
-				}
-				if (ImGui::MenuItem("Stop")) {
-					Data::showStop = true;
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMainMenuBar();
-		}
-
-		if (Data::showStop) {
-			handleStop();
-		}
-		else if (Data::showStart) {
-			handleStart();
-		}
-
-		if (ImGui::BeginTable("Packet Table", columns))
-		{
-			ImGui::TableSetupColumn((("No. (" + std::to_string(Data::captured.size()) + ")").c_str()), ImGuiTableColumnFlags_WidthFixed, 80.0f);
-			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
-			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
-			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 200.0f);
-			ImGui::TableSetupColumn("Protocol", ImGuiTableColumnFlags_WidthFixed, 100.0f);
-			ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
-			ImGui::TableHeadersRow();
-
-			for (int row = 0; row < Data::capturedLength; row++)
-			{
-
-				ImGui::TableNextRow();
-
-				{
-					std::lock_guard<std::mutex> guard(Data::guard);
-					Data::captured.at(row)->render();
-				}
-
-			}
-			ImGui::EndTable();
-		}
-		ImGui::End();
-
-		if (Data::selected != -1) {
-			ImGui::SetNextWindowPos(ImVec2(0, 380));
-			ImGui::SetNextWindowSize(ImVec2(640, 340));
-			ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-			Data::captured.at(Data::selected)->renderExpanded();
-
-			ImGui::End();
-
-			ImGui::SetNextWindowPos(ImVec2(640, 380));
-			ImGui::SetNextWindowSize(ImVec2(640, 340));
-			ImGui::Begin("Packet Data View", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-			std::string str;
-
-			GUI::pushFont("hexView");
-
-			auto p = Data::captured.at(Data::selected);
-
-			int inc = 0;
-
-			auto hexData = p->getTexts().at("hexData");
-
-			for (int i = 0; i < hexData.size(); i+=2) {
-				std::string byte = hexData.substr(i, 2);
-				if (i % 32 == 0 && i > 0) {
-					std::stringstream ss;
-					ss << std::hex << std::setw(4) << std::setfill('0') << inc;
-					ImGui::SetCursorPosX(10);
-					ImGui::Text((ss.str() + " " + str).c_str());
-					str = " " + byte;
-					inc += 16;
-				}
-				else {
-					str += " " + byte;
-				}
-			}
-			ImGui::SetCursorPosX(10);
-			std::stringstream ss;
-			ss << std::hex << std::setw(4) << std::setfill('0') << inc;
-			ImGui::Text((ss.str() + " " + str).c_str());
-			
-			GUI::popFont();
-
-			ImGui::End();
-		}
-
-		// Rendering
-		GUI::popFont();
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwSwapBuffers(GUI::window);
-	}
+	GUI::render();	
 
 	Data::doneCapturing = true;
 	Data::captureThread.join();
@@ -446,25 +238,7 @@ int main(int argc, char* argv[])
 // because nothing can ever be simple in this goddamn operating system
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	int argc;
-	LPWSTR* argvW = CommandLineToArgvW(GetCommandLineW(), &argc);
-	char** argv = new char* [argc];
-	for (int i = 0; i < argc; ++i) {
-		int wlen = lstrlenW(argvW[i]);
-		int size = WideCharToMultiByte(CP_ACP, 0, argvW[i], wlen, NULL, 0, NULL, NULL);
-		argv[i] = new char[size + 1];
-		WideCharToMultiByte(CP_ACP, 0, argvW[i], wlen, argv[i], size + 1, NULL, NULL);
-	}
-	LocalFree(argvW);
-
-	int result = main(argc, argv);
-
-	for (int i = 0; i < argc; ++i) {
-		delete[] argv[i];
-	}
-	delete[] argv;
-
-	return result;
+	return main();
 }
 
 #endif

@@ -16,13 +16,14 @@ public:
 	static std::map<int, std::string> dscpMap;
 	static std::map<int, std::string> ecnMap;
 	static bool doneCapturing;
-	static unsigned long capturedLength;
+	static long capIdx;
 	static bool showStop;
 	static bool showStart;
 	static std::thread captureThread;
 	static pcap_t* chosenAdapter;
 	static int selectExpand;
 	static std::mutex guard;
+	static bool fileAdapter;
 
 	static void addPacket(Packet* p);
 	static void init();
