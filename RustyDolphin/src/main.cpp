@@ -1,34 +1,12 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define _CRT_SECURE_NO_WARNINGS
-#define IMGUI_USE_STB_SPRINTF
-
 #include <iostream>
 #include <cstdio>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pcap.h>
-#include <Winsock2.h>
-#include <Windows.h>
+#include <thread>
 #include "Base/Base.h"
 #include "Networks/Networks.h"
-#include "Win/Win.h"
-#include <cstdint>
-#include <iostream>
-#include <fstream>
-#include <GLFW/glfw3.h>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include <fstream>
-#include <string>
-#include <GLFW/glfw3native.h>
 #include "GUI/GUI.h"
-#include "ImGuiFileDialog.h"
-#include <stdlib.h>
-#include <shellapi.h>
-#include <thread>
-#include <mutex>
 
 void release() {
 	Data::doneCounting = true;
@@ -48,172 +26,15 @@ void init() {
 	GUI::init();
 }
 
-void countPackets(std::vector<int>* counts, int adapterIdx) {
-	auto d = Capture::getDev(adapterIdx);
-	auto adhandle = Capture::createAdapter(adapterIdx, true);
-	struct pcap_pkthdr* header;
-	const u_char* pkt_data;
-	int r;
-
-	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
-		if (Data::doneCounting) {
-			break;
-		}
-		if (r == 0) {
-			continue;
-		}
-
-		counts->at(adapterIdx) += 1;
-	}
-
-	pcap_close(adhandle);
-}
-
-pcap_t* getAdapter() {
-#ifdef _DEBUG
-	Data::fileAdapter = true;
-	return Capture::load("v6.pcapng");
-	return Capture::createAdapter(3);
-#endif
-	using std::chrono::high_resolution_clock;
-	using std::chrono::duration_cast;
-	using std::chrono::duration;
-	using std::chrono::milliseconds;
-
-	auto names = Capture::getDeviceNames();
-
-	auto counts = std::vector<int>(names.size(), 0);
-
-	auto threads = std::vector<std::thread*>();
-
-	auto t1 = high_resolution_clock::now();
-
-	for (int i = 0; i < names.size(); i++) {
-		threads.push_back(new std::thread(countPackets, &counts, i));
-	}
-
-	srand(time(NULL));
-
-	int randomNumber = rand() % Data::quotes.size();
-
-	std::vector<float> rates;
-
-	rates.assign(names.size(), 0.0f);
-
-	int last = 0;
-	int selected = -1;
-
-	while (!Data::doneCounting) {
-		// Poll and handle events
-		glfwPollEvents();
-
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		if (glfwWindowShouldClose(GUI::window)) {
-			exit(0);
-		}
-
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(1280, 720));
-		ImGui::Begin("Adapter Selection Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-		ImGui::SetCursorPos(ImVec2(340, 0));
-		GUI::pushFont("title");
-		GUI::centerText("Welcome to RustyDolphin");
-		GUI::popFont();
-
-		GUI::pushFont("quote");
-		GUI::centerText(Data::quotes.at(randomNumber));
-		GUI::popFont();
-
-		GUI::pushFont("adapters");
-		ImGui::SetCursorPosY(150);
-		ImGui::Text("Choose the adapter you'd like to use:");
-
-		auto t2 = high_resolution_clock::now();
-		auto ms_int = duration_cast<milliseconds>(t2 - t1);
-		auto secs = (double)ms_int.count() / 1000;
-
-		if (secs >= ((double)last / 5.0)) {
-			for (int i = 0; i < rates.size(); i++) {
-				rates.at(i) = ((float)counts.at(i) / secs);
-			}
-			last++;
-		}
-
-		std::stringstream ss;
-		for (int i = 0; i < names.size(); i++) {
-			ImGui::SetCursorPosX(150);
-			ss << names.at(i) << " (Packet Rate: " << rates.at(i) << " per second)";
-			if (ImGui::Button(ss.str().c_str())) {
-				selected = i;
-			}
-			ss.str("");
-		}
-
-		if (selected != -1) {
-			ImGui::OpenPopup("AdapterSelectPopup");
-
-			ImGui::SetNextWindowSize(ImVec2(600, 500));
-			ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
-			if (ImGui::BeginPopupModal("AdapterSelectPopup", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
-			{
-				GUI::centerText("Are you sure you want this adapter?");
-				ImGui::SetCursorPosY(350);
-				if (GUI::centerButton("Yes")) {
-					Data::doneCounting = true;
-					GUI::popFont();
-					ImGui::EndPopup();
-					ImGui::End();
-
-					// auto io = ImGui::GetIO();
-
-					// std::cout << io.Framerate << " FPS\n";
-
-					glClear(GL_COLOR_BUFFER_BIT);
-					ImGui::Render();
-					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-					glfwSwapBuffers(GUI::window);
-					break;
-				}
-				ImGui::SetCursorPosY(430);
-				if (GUI::centerButton("No")) {
-					selected = -1;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-		}
-
-		GUI::popFont();
-
-		ImGui::End();
-
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwSwapBuffers(GUI::window);
-	}
-
-	std::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
-
-	SDK::findIP(Capture::getDev(selected)->name);
-
-	Data::fileAdapter = false;
-
-	return Capture::createAdapter(selected);
-}
-
 int main()
 {
 	init();
 
-	auto adapter = getAdapter();
+	Data::chosenAdapter = GUI::getAdapter();
 
-	Data::chosenAdapter = adapter;
+	if (Data::chosenAdapter == nullptr) {
+		return 0;
+	}
 
 	Data::captureThread = std::thread(Capture::capturePackets);
 
@@ -228,7 +49,7 @@ int main()
 	Data::doneCapturing = true;
 	Data::captureThread.join();
 
-	pcap_close(adapter);
+	pcap_close(Data::chosenAdapter);
 
 	return 0;
 }

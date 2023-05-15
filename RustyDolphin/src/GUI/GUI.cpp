@@ -118,6 +118,124 @@ inline void GUI::endFrame() {
 	glfwSwapBuffers(GUI::window);
 }
 
+pcap_t* GUI::getAdapter() {
+#ifdef _DEBUG
+	Data::fileAdapter = true;
+	return Capture::load("v6.pcapng");
+	return Capture::createAdapter(3);
+#endif
+	using std::chrono::high_resolution_clock;
+	using std::chrono::duration_cast;
+	using std::chrono::duration;
+	using std::chrono::milliseconds;
+
+	auto names = Capture::getDeviceNames();
+
+	auto counts = std::vector<int>(names.size(), 0);
+
+	auto threads = std::vector<std::thread*>();
+
+	auto t1 = high_resolution_clock::now();
+
+	for (int i = 0; i < names.size(); i++) {
+		threads.push_back(new std::thread(Capture::countPackets, &counts, i));
+	}
+
+	srand(time(NULL));
+
+	int randomNumber = rand() % Data::quotes.size();
+
+	std::vector<float> rates;
+
+	rates.assign(names.size(), 0.0f);
+
+	int last = 0;
+	int selected = -1;
+
+	while (!Data::doneCounting) {
+		startFrame();
+
+		if (glfwWindowShouldClose(GUI::window)) {
+			return nullptr;
+		}
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(1280, 720));
+		ImGui::Begin("Adapter Selection Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+		ImGui::SetCursorPos(ImVec2(340, 0));
+		GUI::pushFont("title");
+		GUI::centerText("Welcome to RustyDolphin");
+		GUI::popFont();
+
+		GUI::pushFont("quote");
+		GUI::centerText(Data::quotes.at(randomNumber));
+		GUI::popFont();
+
+		GUI::pushFont("adapters");
+		ImGui::SetCursorPosY(150);
+		ImGui::Text("Choose the adapter you'd like to use:");
+
+		auto t2 = high_resolution_clock::now();
+		auto ms_int = duration_cast<milliseconds>(t2 - t1);
+		auto secs = (double)ms_int.count() / 1000;
+
+		if (secs >= ((double)last / 5.0)) {
+			for (int i = 0; i < rates.size(); i++) {
+				rates.at(i) = ((float)counts.at(i) / secs);
+			}
+			last++;
+		}
+
+		std::stringstream ss;
+		for (int i = 0; i < names.size(); i++) {
+			ImGui::SetCursorPosX(150);
+			ss << names.at(i) << " (Packet Rate: " << rates.at(i) << " per second)";
+			if (ImGui::Button(ss.str().c_str())) {
+				selected = i;
+			}
+			ss.str("");
+		}
+
+		if (selected != -1) {
+			ImGui::OpenPopup("AdapterSelectPopup");
+
+			ImGui::SetNextWindowSize(ImVec2(600, 500));
+			ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
+			if (ImGui::BeginPopupModal("AdapterSelectPopup", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
+			{
+				centerText("Are you sure you want this adapter?");
+				ImGui::SetCursorPosY(350);
+				if (centerButton("Yes")) {
+					Data::doneCounting = true;
+					popFont();
+					ImGui::EndPopup();
+					endFrame();
+					break;
+				}
+				ImGui::SetCursorPosY(430);
+				if (centerButton("No")) {
+					selected = -1;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+		}
+
+		GUI::popFont();
+
+		endFrame();
+	}
+
+	std::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
+
+	SDK::findIP(Capture::getDev(selected)->name);
+
+	Data::fileAdapter = false;
+
+	return Capture::createAdapter(selected);
+}
+
 void GUI::handleStop() {
 	pushFont("adapters");
 	ImGui::OpenPopup("StopCapture");

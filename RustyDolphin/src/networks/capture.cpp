@@ -211,3 +211,24 @@ void Capture::capturePackets() {
 		}
 	}
 }
+
+void Capture::countPackets(std::vector<int>* counts, int adapterIdx) {
+	auto d = getDev(adapterIdx);
+	auto adhandle = createAdapter(adapterIdx, true);
+	struct pcap_pkthdr* header;
+	const u_char* pkt_data;
+	int r;
+
+	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
+		if (Data::doneCounting) {
+			break;
+		}
+		if (r == 0) {
+			continue;
+		}
+
+		counts->at(adapterIdx) += 1;
+	}
+
+	pcap_close(adhandle);
+}
