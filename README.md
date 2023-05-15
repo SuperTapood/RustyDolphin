@@ -7,15 +7,13 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do:
- - mac addresses resolutions :)
  - include curl in the project!
  - expand IPV4 Options
  - expand TCPOptions
  - make parseipv4 and parseipv6 use parse
  - more tcp options
  - arp poisnoning
- - TCP, UDP, ICMP, ICMPV6 expanded rendering
- - fully support IANA (https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml)
+ - IPV6, TCP, UDP, ICMP, ICMPV6 expanded rendering
  - add more icmpv6 message types and codes (https://en.wikipedia.org/wiki/ICMPv6#Message_processing)
  - pass strings by reference
  - add filtering

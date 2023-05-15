@@ -181,7 +181,7 @@ std::map<std::string, std::string> IPV4::getTexts() {
 
 		m_texts["proto"] = std::format("\tProtocol: {} ({})", prot, m_proto);
 
-		m_texts["IPChecksum"] = std::format("\tHeader Checksum: {:x}", m_headerChecksum);
+		m_texts["IPChecksum"] = std::format("\tHeader Checksum: 0x{:x}", m_headerChecksum);
 
 		m_texts["src"] = std::format("\tSource Address: {}", m_srcAddr);
 
