@@ -121,7 +121,7 @@ inline void GUI::endFrame() {
 pcap_t* GUI::getAdapter() {
 #ifdef _DEBUG
 	Data::fileAdapter = true;
-	return Capture::load("samples.pcapng");
+	return Capture::load("v6.pcapng");
 	return Capture::createAdapter(3);
 #endif
 	using std::chrono::high_resolution_clock;
@@ -379,7 +379,7 @@ void GUI::render() {
 			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 			ImGui::TableHeadersRow();
 
-			for (int row = 0; row < Data::capIdx - 1; row++)
+			for (int row = 0; row < Data::capIdx; row++)
 			{
 
 				ImGui::TableNextRow();

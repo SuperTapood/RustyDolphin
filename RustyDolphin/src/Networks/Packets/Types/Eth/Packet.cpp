@@ -26,8 +26,6 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	
 	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
 
-	m_epoch -= Data::epochStart;
-
 	m_phyDst = parseMAC();
 
 	m_phySrc = parseMAC();
@@ -239,7 +237,7 @@ std::map<std::string, std::string> Packet::getTexts() {
 		auto dst1 = m_phyDst.substr(0, 8);
 		auto dst2 = m_phyDst.substr(9, 8);
 
-		m_texts["macDest"] = std::format("\tDestination: {}{} ({})", SDK::lookupMAC(dst1), dst1, m_phyDst);
+		m_texts["macDest"] = std::format("\tDestination: {}{} ({})", SDK::lookupMAC(dst1), dst2, m_phyDst);
 	}
 
 	return m_texts;

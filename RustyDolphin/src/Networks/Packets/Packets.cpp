@@ -77,7 +77,7 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	default:
 #ifdef _DEBUG
 		std::stringstream ss;
-		ss << "unknown packet type: " << type;
+		ss << "unknown packet type: " << type << " at position " << idx;
 		Logger::log(ss.str());
 #endif
 		break;

@@ -279,6 +279,8 @@ void SDK::init() {
 
 		MACS.insert({ addr, std::move(name) });
 	}
+
+	MACS.insert({ "33:33:00", "IPV6mcast" });
 }
 
 void SDK::release() {
@@ -413,6 +415,8 @@ std::string SDK::lookupMAC(std::string addr) {
 	if (MACS.contains(addr)) {
 		return std::format("{}_", MACS.at(addr));
 	}
+	std::transform(addr.begin(), addr.end(), addr.begin(),
+		[](unsigned char c) { return std::tolower(c); });
 
 	return std::format("{}:", addr);
 }

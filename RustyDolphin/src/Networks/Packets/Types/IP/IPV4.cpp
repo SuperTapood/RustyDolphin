@@ -201,7 +201,7 @@ std::map<std::string, std::string> IPV4::getTexts() {
 
 		for (int i = 0; i < m_IPoptionsCount; i++) {
 			auto o = m_opts.at(i);
-			m_optButtons.push_back(std::format("\t   IP Option - {} ({} bytes): {}", o->m_name, o->m_length, o->m_value));
+			m_ipOptTexts.push_back(std::format("\t   IP Option - {} ({} bytes): {}", o->m_name, o->m_length, o->m_value));
 		}
 	}
 

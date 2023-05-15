@@ -33,6 +33,7 @@ public:
 	static void renderExpanded(ICMP* p);
 	static void render(UDP<IPV6>* p);
 	static void render(IPV6* p);
+	static void renderExpanded(IPV6* p);
 	static void render(TCP<IPV6>* p);
 	static void render(UDP<IPV4>* p);
 	static void render(ICMPV6* p);

@@ -15,6 +15,7 @@ public:
 	static long double                       epochStart;
 	static std::map<int, std::string> dscpMap;
 	static std::map<int, std::string> ecnMap;
+	static std::map<int, std::string> hopMap;
 	static bool doneCapturing;
 	static long capIdx;
 	static bool showStop;

@@ -20,7 +20,7 @@ public:
 	unsigned int m_IPoptionsCount;
 	std::vector<IPV4Option*> m_opts;
 
-	std::vector<std::string> m_optButtons;
+	std::vector<std::string> m_ipOptTexts;
 	long m_optSize;
 
 	IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);

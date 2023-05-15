@@ -8,7 +8,7 @@ void Renderer::render(Packet* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_phySrc.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -41,7 +41,7 @@ void Renderer::render(ARP* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_phySrc.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -82,7 +82,7 @@ void Renderer::render(IPV4* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -138,8 +138,8 @@ void Renderer::renderExpanded(IPV4* p) {
 			}
 
 			if (p->m_expands.at("Options General")) {
-				for (int i = 0; i < p->m_optButtons.size(); i++) {
-					auto b = p->m_optButtons.at(i);
+				for (int i = 0; i < p->m_ipOptTexts.size(); i++) {
+					auto b = p->m_ipOptTexts.at(i);
 					if (ImGui::Button(b.c_str())) {
 						
 						p->m_expands.at(std::format("option %d", i)) = !p->m_expands.at(std::format("option %d", i));
@@ -162,7 +162,7 @@ void Renderer::render(IPV6* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -175,13 +175,54 @@ void Renderer::render(IPV6* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
+void Renderer::renderExpanded(IPV6* p) {
+	renderExpanded((Packet*)p);
+	auto m = p->getTexts();
+	if (ImGui::Button(m.at("IPV6 Title").c_str())) {
+		p->m_expands["IPV6 Title"] = !p->m_expands["IPV6 Title"];
+	}
+
+	if (p->m_expands["IPV6 Title"]) {
+		ImGui::Text("\t0110 .... = Version: 6");
+		if (ImGui::Button(m.at("Traffic Class").c_str())) {
+			p->m_expands["Traffic Class"] = !p->m_expands["Traffic Class"];
+		}
+
+		if (p->m_expands["Traffic Class"]) {
+			ImGui::Text(m.at("DSCP").c_str());
+			ImGui::Text(m.at("ECN").c_str());
+		}
+		ImGui::Text(m.at("Flow Label").c_str());
+		ImGui::Text(m.at("Payload Length").c_str());
+		ImGui::Text(m.at("Next Header").c_str());
+		ImGui::Text(m.at("Hop Limit").c_str());
+		ImGui::Text(m.at("IPV6 Source").c_str());
+		ImGui::Text(m.at("IPV6 Destination").c_str());
+
+		if (p->m_options.size() > 0) {
+			if (ImGui::Button(m.at("IPV6 Option Title").c_str())) {
+				p->m_expands["IPV6 Option Title"] = !p->m_expands["IPV6 Option Title"];
+			}
+
+			if (p->m_expands["IPV6 Option Title"]) {
+				ImGui::Text(m.at("IPV6 Option Next Header").c_str());
+				ImGui::Text(m.at("IPV6 Option Length").c_str());
+
+				for (auto b : p->m_ipOptTexts) {
+					ImGui::Text(b.c_str());
+				}
+			}
+		}
+	}
+}
+
 void Renderer::render(TCP<IPV4>* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -212,7 +253,7 @@ void Renderer::render(TCP<IPV6>* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -231,7 +272,7 @@ void Renderer::render(UDP<IPV4>* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -250,7 +291,7 @@ void Renderer::render(UDP<IPV6>* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -269,7 +310,7 @@ void Renderer::render(ICMP* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -315,7 +356,7 @@ void Renderer::render(ICMPV6* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -335,7 +376,7 @@ void Renderer::render(IGMP<IPV4>* p) {
 		Data::selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch);
+	ImGui::Text("%f", p->m_epoch - Data::epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);

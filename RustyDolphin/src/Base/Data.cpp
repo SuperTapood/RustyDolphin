@@ -38,6 +38,7 @@ std::array<const char*, 30> Data::quotes = {
 long double Data::epochStart;
 std::map<int, std::string> Data::dscpMap;
 std::map<int, std::string> Data::ecnMap;
+std::map<int, std::string> Data::hopMap;
 bool Data::doneCapturing = false;
 long Data::capIdx = 0;
 bool Data::showStop = false;
@@ -74,6 +75,27 @@ void Data::init() {
 	ecnMap[1] = "ECT(1)";
 	ecnMap[2] = "ECT(0)";
 	ecnMap[3] = "CE";
+
+	hopMap[0x00] = "Pad1";
+	hopMap[0x01] = "PadN";
+	hopMap[0xC2] = "Jumbo Payload";
+	hopMap[0x23] = "Tunnel Encapsulation Limit";
+	hopMap[0x63] = "Tunnel Encapsulation Limit";
+	hopMap[0x04] = "Tunnel Encapsulation Limit";
+	hopMap[0x05] = "Router Alert";
+	hopMap[0x26] = "Quick-Start";
+	hopMap[0x07] = "CALIPSO";
+	hopMap[0x08] = "Home Address";
+	hopMap[0xC9] = "Home Address";
+	hopMap[0x8A] = "ILNP Nonce";
+	hopMap[0x8B] = "ILNP Nonce";
+	hopMap[0x8C] = "Deprecated";
+	hopMap[0x4D] = "Deprecated";
+	hopMap[0x6D] = "MPL Option";
+	hopMap[0xEE] = "Performance and Diagnostic Metrics (PDM)";
+	hopMap[0x0F] = "Performance and Diagnostic Metrics (PDM)";
+	hopMap[0x30] = "Minimum Path MTU Hop-by-Hop Option";
+	hopMap[0x12] = "AltMark";
 }
 
 void Data::addPacket(Packet* p) {
