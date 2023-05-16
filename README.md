@@ -17,7 +17,6 @@ time spent making this nonsense in the best language ever made:
  - add filtering
  - can load files
  - can save files
- - add sanity checks?
  - add geo trace route
  - more arp hard types and opcodes (https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml)
 
