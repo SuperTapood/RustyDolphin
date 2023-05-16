@@ -14,16 +14,16 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 
 	m_payloadLength = parseShort();
 
-	m_nextHeader = pkt_data[pos++];
+	m_nextHeader = parseChar();
 
-	m_hopLimit = pkt_data[pos++];
+	m_hopLimit = parseChar();
 
 	m_srcAddr = parseIPV6();
 
 	m_destAddr = parseIPV6();
 
 	if (m_nextHeader == IPPROTO_HOPOPTS) {
-		m_options.push_back(new HopByHop(pkt_data, &pos));
+		m_options.push_back(new HopByHop(this));
 	}
 
 	m_expands.insert({ "IPV6 Title", false });
@@ -132,7 +132,7 @@ std::map<std::string, std::string> IPV6::getTexts() {
 
 			auto nh = option->m_nextHeader;
 
-			switch ((int)m_nextHeader) {
+			switch ((int)nh) {
 			case IPPROTO_TCP:
 				nextHeader = "TCP (6)";
 				break;
@@ -147,8 +147,8 @@ std::map<std::string, std::string> IPV6::getTexts() {
 				break;
 			}
 
-			m_texts["IPV6 Option Next Header"] = std::format("\tNext Header: {}", nextHeader);
-			m_texts["IPV6 Option Length"] = std::format("\tLength: {} ({})", option->m_length, option->m_length + 8);
+			m_texts["IPV6 Option Next Header"] = std::format("\t\tNext Header: {}", nextHeader);
+			m_texts["IPV6 Option Length"] = std::format("\t\tLength: {} ({})", option->m_length, option->m_length + 8);
 
 			for (auto o : option->m_options) {
 				m_ipOptTexts.push_back(std::format("\t\t{} (0x{:x}) Length: {}, Data: {}", Data::hopMap[o.m_type], o.m_type, o.m_length, o.m_data));

@@ -21,7 +21,6 @@ public:
 	std::string m_description;
 	std::map<std::string, bool> m_expands;
 
-	unsigned int pos = 0;
 	// header stuff
 	long double m_epoch;
 	unsigned int m_len;
@@ -49,9 +48,6 @@ public:
 
 	virtual std::map<std::string, std::string> getTexts();
 
-protected:
-	std::map<std::string, std::string> m_texts;
-
 	std::string parseMAC(unsigned int size = 6);
 	std::string parseIPV4(unsigned int size = 4);
 	std::string parseIPV6(unsigned int size = 16);
@@ -60,8 +56,17 @@ protected:
 	long parseLong();
 	int parseInt();
 	short parseShort();
+	char parseChar();
+
+	int getPos() const {
+		return m_pos;
+	}
+
+protected:
+	std::map<std::string, std::string> m_texts;
 
 private:
+	unsigned int m_pos = 0;
 	std::string padDate(int t);
 	uint64_t htonll(uint64_t x);
 	int htoni(int x);

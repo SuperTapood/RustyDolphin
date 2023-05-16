@@ -16,8 +16,8 @@ public:
 	std::string m_messageBody;
 
 	ICMPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPV6(header, pkt_data, idx) {
-		m_ICMPV6type = pkt_data[Packet::pos++];
-		m_code = pkt_data[Packet::pos++];
+		m_ICMPV6type = parseChar();
+		m_code = parseChar();
 		m_ICMPV6Checksum = Packet::parseShort();
 		m_messageLength = IPV6::m_payloadLength - 4;
 		m_messageBody = parse(m_messageLength);

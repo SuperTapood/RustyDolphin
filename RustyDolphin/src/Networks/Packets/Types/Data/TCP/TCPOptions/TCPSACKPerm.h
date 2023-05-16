@@ -2,11 +2,13 @@
 
 #include "TCPOption.h"
 
+class Packet;
+
 class TCPSACKPerm : public TCPOption {
 public:
 	unsigned short m_len;
 
-	TCPSACKPerm(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos);
+	TCPSACKPerm(Packet* packet);
 
 	std::string toString() override;
 };

@@ -21,14 +21,14 @@ public:
 	std::string m_restOfHeader;
 
 	ICMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPV4(header, pkt_data, idx) {
-		m_ICMPtype = pkt_data[Packet::pos++];
-		m_code = pkt_data[Packet::pos++];
+		m_ICMPtype = parseChar();
+		m_code = parseChar();
 		m_ICMPChecksum = Packet::parseShort();
 		m_indentifierBE = Packet::parseShort();
 		m_indentifierLE = htons(m_indentifierBE);
 		m_seqNumberBE = Packet::parseShort();
 		m_seqNumberLE = htons(m_seqNumberBE);
-		m_ROHLength = Packet::m_len - Packet::pos;
+		m_ROHLength = Packet::m_len - getPos();
 		m_restOfHeader = Packet::parse(m_ROHLength);
 
 		Packet::m_strType = "ICMP (" + Packet::m_strType + ")";

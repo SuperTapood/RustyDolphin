@@ -9,21 +9,21 @@
 #include <ws2def.h>
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
-	auto start = pos;
-	m_headerLength = (pkt_data[pos++] & 0x0000FFFF) * 4;
-	m_differServ = pkt_data[pos++];
+	auto start = getPos();
+	m_headerLength = (parseChar() & 0x0000FFFF) * 4;
+	m_differServ = parseChar();
 
 	m_totalLength = parseShort();
 
 	m_identification = parseShort();
 
-	m_flags = (pkt_data[pos] & 0xFFF00000);
+	m_flags = (pkt_data[getPos()] & 0xFFF00000);
 
 	m_fragmentationOffset = parseShort() & 8191;
 
-	m_ttl = pkt_data[pos++];
+	m_ttl = parseChar();
 
-	m_proto = pkt_data[pos++];
+	m_proto = parseChar();
 
 	m_headerChecksum = parseShort();
 
@@ -31,21 +31,21 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 
 	m_destAddr = parseIPV4();
 
-	int diff = (m_headerLength + start) - pos;
+	int diff = (m_headerLength + start) - getPos();
 
 	m_IPoptionsCount = 0;
 
 	while (diff > 0) {
 		m_IPoptionsCount++;
-		auto temp = pos;
+		auto temp = getPos();
 
-		int code = pkt_data[pos] & 31;
+		int code = pkt_data[getPos()] & 31;
 
 		constexpr auto routerAlert = 20;
 
 		switch (code) {
 		case routerAlert:
-			m_opts.push_back(new RouterAlert(header, pkt_data, &pos));
+			m_opts.push_back(new RouterAlert(this));
 			m_optSize += m_opts.at(m_opts.size() - 1)->m_length;
 			break;
 		default:
@@ -54,13 +54,13 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 			ss << "bad ip option of packet data: " << code;
 			Logger::log(ss.str());
 			Capture::dump(header, pkt_data);
-			pos += diff;
+			parse(diff);
 			diff = 0;
 #endif
 			break;
 		}
 
-		diff -= (pos - temp);
+		diff -= (getPos() - temp);
 		m_expands.insert({ std::format("option %d", m_IPoptionsCount - 1), false});
 	}
 

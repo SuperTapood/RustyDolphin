@@ -3,16 +3,16 @@
 #include <sstream>
 #include <format>
 
-RouterAlert::RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos) : IPV4Option(20, "Router Alert") {
-	m_copyOnFrag = pkt_data[*pos] & 0x10000000;
-	m_clsType = pkt_data[*pos] & 0x01100000;
-	m_code = pkt_data[*pos] & 0x00011111;
+RouterAlert::RouterAlert(Packet* packet) : IPV4Option(20, "Router Alert") {
+	char d = packet->parseChar();
 
-	(*pos)++;
+	m_copyOnFrag = d & 0x10000000;
+	m_clsType = d & 0x01100000;
+	m_code = d & 0x00011111;
 
-	m_length = pkt_data[(*pos)++];
+	m_length = packet->parseChar();
 
-	m_extra = (long)parseLong(pos, (*pos) + (m_length - 2), pkt_data);
+	m_extra = packet->parseLongLong();
 
 	if (m_extra == 0) {
 		m_value = "Router Shall examine Packet (0)";

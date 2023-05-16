@@ -11,9 +11,9 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet
 
 	m_protoType = parseShort();
 
-	m_hardSize = pkt_data[pos++];
+	m_hardSize = parseChar();
 
-	m_protoSize = pkt_data[pos++];
+	m_protoSize = parseChar();
 
 	m_opcode = parseShort();
 

@@ -76,8 +76,8 @@ std::string Packet::parseMAC(unsigned int size) {
 	std::stringstream ss;
 	std::string mac;
 
-	for (int i = pos + size; pos < i; pos++) {
-		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos] << ":";
+	for (int i = m_pos + size; m_pos < i; m_pos++) {
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[m_pos] << ":";
 	}
 
 	mac = ss.str();
@@ -90,8 +90,8 @@ std::string Packet::parseIPV4(unsigned int size) {
 	std::stringstream ss;
 	std::string ip;
 
-	for (int i = pos + size; pos < i; pos++) {
-		ss << (int)m_pktData[pos] << ".";
+	for (int i = m_pos + size; m_pos < i; m_pos++) {
+		ss << (int)m_pktData[m_pos] << ".";
 	}
 
 	ip = ss.str();
@@ -104,12 +104,12 @@ std::string Packet::parseIPV6(unsigned int size) {
 	std::stringstream ss;
 	std::string ip;
 
-	for (int i = pos + size; pos < i; pos += 2) {
-		if ((int)m_pktData[pos] == 0 && (int)m_pktData[pos + 1] == 0) {
+	for (int i = m_pos + size; m_pos < i; m_pos += 2) {
+		if ((int)m_pktData[m_pos] == 0 && (int)m_pktData[m_pos + 1] == 0) {
 			ss << ":";
 			continue;
 		}
-		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos] << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[pos + 1] << ":";
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[m_pos] << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[m_pos + 1] << ":";
 	}
 
 	ip = ss.str();
@@ -122,9 +122,9 @@ std::string Packet::parse(unsigned long long size) {
 	std::string result;
 	result.reserve(size * 2); // Each byte will be represented by 2 hexadecimal characters
 
-	for (int end = pos + size; pos < end; pos++) {
+	for (int end = m_pos + size; m_pos < end; m_pos++) {
 		char buf[3];
-		sprintf_s(buf, "%02x", (int)m_pktData[pos]);
+		sprintf_s(buf, "%02x", (int)m_pktData[m_pos]);
 		result.append(buf);
 	}
 
@@ -158,9 +158,9 @@ long long Packet::parseLongLong() {
 
 	constexpr auto len = 8;
 
-	std::memcpy(&out, m_pktData + pos, len);
+	std::memcpy(&out, m_pktData + m_pos, len);
 
-	pos += len;
+	m_pos += len;
 
 	return htonll(out);
 }
@@ -170,9 +170,9 @@ long Packet::parseLong() {
 
 	constexpr auto len = 4;
 
-	std::memcpy(&out, m_pktData + pos, len);
+	std::memcpy(&out, m_pktData + m_pos, len);
 
-	pos += len;
+	m_pos += len;
 
 	return htonl(out);
 }
@@ -182,9 +182,9 @@ int Packet::parseInt() {
 
 	constexpr auto len = 4;
 
-	std::memcpy(&out, m_pktData + pos, len);
+	std::memcpy(&out, m_pktData + m_pos, len);
 
-	pos += len;
+	m_pos += len;
 
 	return htoni(out);
 }
@@ -194,11 +194,23 @@ short Packet::parseShort() {
 
 	constexpr auto len = 2;
 
-	std::memcpy(&out, m_pktData + pos, len);
+	std::memcpy(&out, m_pktData + m_pos, len);
 
-	pos += len;
+	m_pos += len;
 
 	return htons(out);
+}
+
+char Packet::parseChar() {
+	char out;
+	
+	constexpr auto len = 1;
+
+	std::memcpy(&out, m_pktData + m_pos, len);
+
+	m_pos += len;
+
+	return out;
 }
 
 std::map<std::string, std::string> Packet::getTexts() {

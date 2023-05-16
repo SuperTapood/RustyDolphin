@@ -43,11 +43,12 @@ public:
 
 		m_ackNum = Packet::parseInt();
 
-		m_TCPLength = (pkt_data[Packet::pos] >> 4) * 4;
+		auto len = Packet::parseShort();
+		auto flags = Packet::parseChar();
 
-		m_TCPflags = (pkt_data[Packet::pos] & 0x0F) | pkt_data[Packet::pos + 1];
+		m_TCPLength = (len >> 4) * 4;
 
-		Packet::pos += 2;
+		m_TCPflags = (len & 0x0F) | flags;
 
 		m_window = Packet::parseShort();
 
@@ -67,8 +68,8 @@ public:
 		m_optionCount = 0;
 		std::vector<TCPOption*> vec;
 
-		while (total - (signed int)IPVersion::pos > 0) {
-			int code = pkt_data[Packet::pos++];
+		while (total - Packet::getPos() > 0) {
+			int code = Packet::parseChar();
 			m_optionCount++;
 
 			switch (code) {
@@ -76,16 +77,16 @@ public:
 				vec.push_back(new TCPNOP());
 				break;
 			case MSS:
-				vec.push_back(new TCPMSS(header, pkt_data, &(IPVersion::pos)));
+				vec.push_back(new TCPMSS(this));
 				break;
 			case WSCALE:
-				vec.push_back(new TCPWScale(header, pkt_data, &(IPVersion::pos)));
+				vec.push_back(new TCPWScale(this));
 				break;
 			case SACKPERM:
-				vec.push_back(new TCPSACKPerm(header, pkt_data, &(IPVersion::pos)));
+				vec.push_back(new TCPSACKPerm(this));
 				break;
 			case SACK:
-				vec.push_back(new TCPSACK(header, pkt_data, &(IPVersion::pos)));
+				vec.push_back(new TCPSACK(this));
 				break;
 			default:
 #ifdef _DEBUG
@@ -106,9 +107,9 @@ public:
 			m_options[i] = vec[i];
 		}
 
-		if (Packet::m_len > IPVersion::pos) {
-			m_payloadLength = Packet::m_len - IPVersion::pos;
-			m_payload = IPVersion::parse(m_payloadLength);
+		if (Packet::m_len > Packet::getPos()) {
+			m_payloadLength = Packet::m_len - Packet::getPos();
+			m_payload = Packet::parse(m_payloadLength);
 		}
 
 		//if constexpr (std::is_same_v<IPVersion, IPV4>) {

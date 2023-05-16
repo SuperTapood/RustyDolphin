@@ -2,6 +2,8 @@
 
 #include "TCPOption.h"
 
+class Packet;
+
 class TCPSACK : public TCPOption {
 public:
 	int m_len;
@@ -9,7 +11,7 @@ public:
 	unsigned int* m_Redges;
 	unsigned int* m_Ledges;
 
-	TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos);
+	TCPSACK(Packet* packet);
 
 	std::string toString() override;
 };

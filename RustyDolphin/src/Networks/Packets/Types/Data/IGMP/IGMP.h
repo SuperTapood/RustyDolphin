@@ -20,8 +20,8 @@ public:
 	std::string m_multicastAddr;
 
 	IGMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
-		m_groupType = pkt_data[Packet::pos++];
-		m_maxResp = pkt_data[Packet::pos++];
+		m_groupType = Packet::parseChar();
+		m_maxResp = Packet::parseChar();
 		m_checksum = Packet::parseShort();
 		m_multicastAddr = Packet::parseIPV4();
 

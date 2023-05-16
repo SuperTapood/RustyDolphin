@@ -1,7 +1,7 @@
 #include "TCPSACKPerm.h"
 
-TCPSACKPerm::TCPSACKPerm(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos) : TCPOption(3) {
-	m_len = pkt_data[(*pos)++];
+TCPSACKPerm::TCPSACKPerm(Packet* packet) : TCPOption(3) {
+	m_len = packet->parseChar();
 }
 
 std::string TCPSACKPerm::toString() {

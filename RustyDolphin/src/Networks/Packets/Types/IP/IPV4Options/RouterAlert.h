@@ -1,8 +1,11 @@
 #pragma once
 
 #include "IPV4Option.h"
+#include "../../Eth/Packet.h"
 
 #include <string>
+
+class Packet;
 
 class RouterAlert : public IPV4Option {
 public:
@@ -11,7 +14,7 @@ public:
 	int m_code;
 	long m_extra;
 
-	RouterAlert(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos);
+	RouterAlert(Packet* packet);
 
 	std::string toString() override;
 };

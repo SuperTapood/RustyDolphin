@@ -7,6 +7,7 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do:
+ - make Packet::pos private
  - pad and make bits arranged nicely like wireshark
  - include curl in the project!
  - expand TCPOptions

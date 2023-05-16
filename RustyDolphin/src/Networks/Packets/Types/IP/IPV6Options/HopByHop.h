@@ -8,5 +8,5 @@ class HopByHop : public IPV6Option {
 public:
 	std::vector<HopOption> m_options;
 
-	HopByHop(const u_char* pkt_data, unsigned int* pos);
+	HopByHop(Packet* packet);
 };

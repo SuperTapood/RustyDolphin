@@ -1,7 +1,7 @@
 #include "TCPSACK.h"
 
-TCPSACK::TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos) : TCPOption(5) {
-	m_len = pkt_data[(*pos)++];
+TCPSACK::TCPSACK(Packet* packet) : TCPOption(5) {
+	m_len = packet->parseChar();
 
 	m_edges = (m_len - 2) / 8;
 
@@ -9,8 +9,8 @@ TCPSACK::TCPSACK(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos)
 	m_Redges = new unsigned int[m_edges];
 
 	for (int i = 0; i < m_edges; i++) {
-		m_Ledges[i] = (unsigned int)parseLong(pos, (*pos) + 4, pkt_data);
-		m_Redges[i] = (unsigned int)parseLong(pos, (*pos) + 4, pkt_data);
+		m_Ledges[i] = (unsigned int)packet->parseInt();
+		m_Redges[i] = (unsigned int)packet->parseInt();
 	}
 }
 

@@ -1,8 +1,8 @@
 #include "TCPWScale.h"
 
-TCPWScale::TCPWScale(pcap_pkthdr* header, const u_char* pkt_data, unsigned int* pos) : TCPOption(3) {
-	m_len = pkt_data[(*pos)++];
-	m_shift = pkt_data[(*pos)++];
+TCPWScale::TCPWScale(Packet* packet) : TCPOption(3) {
+	m_len = packet->parseChar();
+	m_shift = packet->parseChar();
 }
 
 std::string TCPWScale::toString() {
