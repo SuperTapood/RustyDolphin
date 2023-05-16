@@ -7,7 +7,6 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do:
- - pad and make bits arranged nicely like wireshark
  - expand TCPOptions
  - make parseipv4 and parseipv6 use parse
  - more tcp options

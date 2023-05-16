@@ -160,7 +160,7 @@ void Capture::capturePackets() {
 
 #ifdef _DEBUG
 	auto d = Capture::getDev(3);
-	auto filter = "";
+	auto filter = "ip6";
 	struct bpf_program fcode;
 
 	int netmask;

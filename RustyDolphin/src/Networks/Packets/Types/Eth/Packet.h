@@ -57,6 +57,7 @@ public:
 	int parseInt();
 	short parseShort();
 	char parseChar();
+	std::string formatBitSet(std::string bits);
 
 	int getPos() const {
 		return m_pos;

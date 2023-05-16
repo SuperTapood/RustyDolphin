@@ -10,6 +10,7 @@
 #include <sstream>
 #include <ctime>
 #include <WinSock2.h>
+#include <regex>
 
 #include "../../../../Base/Base.h"
 
@@ -253,4 +254,9 @@ std::map<std::string, std::string> Packet::getTexts() {
 	}
 
 	return m_texts;
+}
+
+std::string Packet::formatBitSet(std::string bits) {
+	static std::regex r("(.{4})");
+	return std::regex_replace(bits, r, "$1 ");
 }

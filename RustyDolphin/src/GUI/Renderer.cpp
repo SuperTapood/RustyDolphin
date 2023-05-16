@@ -105,7 +105,7 @@ void Renderer::renderExpanded(IPV4* p) {
 	}
 
 	if (p->m_expands.at("IPV4 Title")) {
-		ImGui::Text("\t0100 .... = Version 4");
+		ImGui::Text("\t0100 . . . . = Version 4");
 		ImGui::Text(m.at("headerLen").c_str());
 		if (ImGui::Button(m.at("differServ").c_str())) {
 			p->m_expands.at("DifferServ") = !p->m_expands.at("DifferServ");
@@ -183,7 +183,7 @@ void Renderer::renderExpanded(IPV6* p) {
 	}
 
 	if (p->m_expands["IPV6 Title"]) {
-		ImGui::Text("\t0110 .... = Version: 6");
+		ImGui::Text("\t0110  . . . . = Version: 6");
 		if (ImGui::Button(m.at("Traffic Class").c_str())) {
 			p->m_expands["Traffic Class"] = !p->m_expands["Traffic Class"];
 		}

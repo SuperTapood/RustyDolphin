@@ -8,7 +8,7 @@
 
 IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto thingy = parseLong();
-	m_trafficCls = thingy & 4080;
+	m_trafficCls = ((short)(thingy >> 30) & 4080);
 
 	m_flowLabel = thingy & 1048575;
 
@@ -67,33 +67,26 @@ std::map<std::string, std::string> IPV6::getTexts() {
 
 		m_texts["IPV6 Title"] = std::format("Internet Protocol Version 6, Src: {}, Dst: {}", m_srcAddr, m_destAddr);
 
-		std::bitset<8> trafficCls;
-		for (int i = 0; i < 2; i++) {
-			trafficCls[i] = (m_trafficCls >> i) & 1;
-		}
+		std::bitset<8> trafficCls(m_trafficCls);
 
-		std::bitset<6> dscpBits;
-		for (int i = 0; i < 6; i++) {
-			dscpBits[i] = (m_trafficCls >> i) & 1;
-		}
+		std::bitset<6> dscpBits(m_trafficCls);
 
-		std::bitset<2> ecnBits;
-		for (int i = 0; i < 2; i++) {
-			ecnBits[i] = (m_trafficCls >> (6 + i)) & 1;
-		}
+		std::bitset<2> ecnBits(m_trafficCls << 6);
 
-		m_texts["Traffic Class"] = std::format("   .... {} .... .... .... .... .... = Traffic Class 0x{:x} (DSCP: {}, ECN: {})", trafficCls.to_string(), m_trafficCls, Data::dscpMap[dscpBits.to_ulong()], Data::ecnMap[ecnBits.to_ulong()]);
+		m_texts["Traffic Class"] = std::format("   . . . .  {} . . . .  . . . .  . . . .  . . . .  . . . . = Traffic Class 0x{:x} (DSCP: {}, ECN: {})", formatBitSet(trafficCls.to_string()), m_trafficCls, Data::dscpMap[dscpBits.to_ulong()], Data::ecnMap[ecnBits.to_ulong()]);
 
-		m_texts["DSCP"] = std::format("\t\t.... {}.. .... .... .... .... .... = Differentiated Services Codepoint: {} ({})", dscpBits.to_string(), Data::dscpMap[dscpBits.to_ulong()], dscpBits.to_ulong());
+		m_texts["DSCP"] = std::format("\t\t. . . .  {} . .  . . . .  . . . .  . . . .  . . . .  . . . . = Differentiated Services Codepoint: {} ({})", formatBitSet(dscpBits.to_string()), Data::dscpMap[dscpBits.to_ulong()], dscpBits.to_ulong());
 
-		m_texts["ECN"] = std::format("\t\t.... .... ..{} .... .... .... .... = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecnBits.to_ulong()], ecnBits.to_ulong());
+		m_texts["ECN"] = std::format("\t\t. . . .  . . . .  . . {}  . . . .  . . . .  . . . .  . . . . = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecnBits.to_ulong()], ecnBits.to_ulong());
 
-		std::bitset<20> flowBits;
+		/*std::bitset<20> flowBits;
 		for (int i = 0; i < 2; i++) {
 			flowBits[i] = (m_flowLabel >> i) & 1;
-		}
+		}*/
 
-		m_texts["Flow Label"] = std::format("\t.... {} = Flow Label: 0x{:x}", flowBits.to_string(), m_flowLabel);
+		std::bitset<20> flowBits(m_flowLabel);
+
+		m_texts["Flow Label"] = std::format("\t. . . .  {} = Flow Label: 0x{:x}", formatBitSet(flowBits.to_string()), m_flowLabel);
 
 		m_texts["Payload Length"] = std::format("\tPayload Length: {}", m_payloadLength);
 

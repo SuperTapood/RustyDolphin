@@ -17,7 +17,7 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 
 	m_identification = parseShort();
 
-	m_flags = (pkt_data[getPos()] & 0xFFF00000);
+	m_flags = (pkt_data[getPos()] & 224);
 
 	m_fragmentationOffset = parseShort() & 8191;
 
@@ -120,7 +120,7 @@ std::map<std::string, std::string> IPV4::getTexts() {
 
 		m_texts["IPTitle"] = std::format("Internet Protocol Version 4, Src: {}, Dst: {}", m_srcAddr, m_destAddr);
 
-		m_texts["headerLen"] = std::format("\t.... {} = Header Length: {} bytes ({})", std::bitset<4>(m_headerLength).to_string(), (int)m_headerLength, (m_headerLength / 4));
+		m_texts["headerLen"] = std::format("\t. . . . {} = Header Length: {} bytes ({})", std::bitset<4>(m_headerLength).to_string(), (int)m_headerLength, (m_headerLength / 4));
 
 		auto dscp = m_differServ & 0xFFFFFF00;
 
@@ -138,29 +138,29 @@ std::map<std::string, std::string> IPV4::getTexts() {
 			ecnBits[i] = (m_differServ >> (6 + i)) & 1;
 		}
 
-		m_texts["DSCP"] = std::format("\t\t{}.. = Differentiated Services Codepoint: {} ({})", dscpBits.to_string(), Data::dscpMap[dscp], dscp);
+		m_texts["DSCP"] = std::format("\t\t{} . . = Differentiated Services Codepoint: {} ({})", formatBitSet(dscpBits.to_string()), Data::dscpMap[dscp], dscp);
 
-		m_texts["ECN"] = std::format("\t\t......{} = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecn], ecn);
+		m_texts["ECN"] = std::format("\t\t. . . .  . . {} = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecn], ecn);
 
 		m_texts["ID"] = std::format("\tIdentification: 0x{:x} ({})", m_identification, m_identification);
 
 		std::bitset<3> flagBits;
 		for (int i = 0; i < 3; i++) {
-			flagBits[i] = (m_flags >> i) & 1;
+			flagBits[i] = (m_flags >> ( 5 + i)) & 1;
 		}
 
-		m_texts["IPFlags"] = std::format("   {}. .... = Flags: 0x{:x}", flagBits.to_string(), (int)m_flags);
+		m_texts["IPFlags"] = std::format("   {} .  . . . . = Flags: 0x{:x}", flagBits.to_string(), flagBits.to_ulong());
 
-		m_texts["resBits"] = std::format("\t\t\t{}... .... = Reserved bit: {}", (int)flagBits[0], (int)flagBits[0] ? "Set" : "Not Set");
-		m_texts["dfBits"] = std::format("\t\t\t.{}.. .... = Don't Fragment: {}", (int)flagBits[1], (int)flagBits[1] ? "Set" : "Not Set");
-		m_texts["mfBits"] = std::format("\t\t\t..{}. .... = More Fragments: {}", (int)flagBits[2], (int)flagBits[2] ? "Set" : "Not Set");
+		m_texts["resBits"] = std::format("\t\t   {} . . .  . . . . = Reserved bit: {}", (int)flagBits[0], (int)flagBits[0] ? "Set" : "Not Set");
+		m_texts["dfBits"] = std::format("\t\t   . {} . .  . . . . = Don't Fragment: {}", (int)flagBits[1], (int)flagBits[1] ? "Set" : "Not Set");
+		m_texts["mfBits"] = std::format("\t\t   . . {} .   . . . . = More Fragments: {}", (int)flagBits[2], (int)flagBits[2] ? "Set" : "Not Set");
 
 		std::bitset<13> fragBits;
 		for (int i = 0; i < 13; i++) {
 			fragBits[i] = (m_fragmentationOffset >> i) & 1;
 		}
 
-		m_texts["offset"] = std::format("\t...{} = Fragmentation Offset: {}", fragBits.to_string(), m_fragmentationOffset);
+		m_texts["offset"] = std::format("\t. . . {}  {} = Fragmentation Offset: {}", fragBits.to_string().at(0), formatBitSet(fragBits.to_string().substr(1, 12)), m_fragmentationOffset);
 
 		std::string prot = "Unknown";
 

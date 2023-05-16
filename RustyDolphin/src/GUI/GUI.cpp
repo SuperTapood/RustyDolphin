@@ -58,7 +58,7 @@ void GUI::init() {
 	fonts.insert({ "quote", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 25) });
 	fonts.insert({ "adapters", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 30) });
 	fonts.insert({ "regular", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 16) });
-	fonts.insert({ "hexView", io.Fonts->AddFontFromFileTTF("deps/fonts/consola.ttf", 20) });
+	fonts.insert({ "hexView", io.Fonts->AddFontFromFileTTF("deps/fonts/consola.ttf", 16) });
 	io.Fonts->Build();
 
 	glfwSwapInterval(0);
@@ -395,15 +395,15 @@ void GUI::render() {
 
 		if (Data::selected != -1) {
 			ImGui::SetNextWindowPos(ImVec2(0, 380));
-			ImGui::SetNextWindowSize(ImVec2(640, 340));
+			ImGui::SetNextWindowSize(ImVec2(780, 340));
 			ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
 			Data::captured.at(Data::selected)->renderExpanded();
 
 			ImGui::End();
 
-			ImGui::SetNextWindowPos(ImVec2(640, 380));
-			ImGui::SetNextWindowSize(ImVec2(640, 340));
+			ImGui::SetNextWindowPos(ImVec2(780, 380));
+			ImGui::SetNextWindowSize(ImVec2(500, 340));
 			ImGui::Begin("Packet Data View", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
 			std::string str;
