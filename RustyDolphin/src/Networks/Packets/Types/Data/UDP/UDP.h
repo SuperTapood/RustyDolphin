@@ -55,6 +55,8 @@ public:
 		std::stringstream ss;
 		ss << "(" << m_process << ") " << m_srcPort << " -> " << m_destPort << " payload length = " << m_payloadLength;
 		Packet::m_description = ss.str();
+
+		Packet::m_expands.insert({ "UDP Title", false });
 	}
 
 	std::string toString() override {
@@ -83,5 +85,31 @@ public:
 
 	void render() override {
 		Renderer::render(this);
+	}
+
+	void renderExpanded() override {
+		Renderer::renderExpanded(this);
+	}
+
+	std::map<std::string, std::string> getTexts() {
+		if (Packet::m_texts.empty()) {
+			IPVersion::getTexts();
+
+			Packet::m_texts["UDP Title"] = std::format("User Datagram Protocol, Src Port: {}, Dst Port: {}", m_srcPort, m_destPort);
+
+			Packet::m_texts["UDP SPort"] = std::format("\tSource Port: {}", m_srcPort);
+
+			Packet::m_texts["UDP DPort"] = std::format("\tDestination Port: {}", m_destPort);
+
+			Packet::m_texts["UDP Length"] = std::format("\tLength: {}", m_length);
+
+			Packet::m_texts["UDP Checksum"] = std::format("\tChecksum: {:x}", m_UDPChecksum);
+
+			Packet::m_texts["UDP Payload Length"] = std::format("\tUDP Payload Length: {}", m_payloadLength);
+
+			Packet::m_texts["UDP Payload"] = std::format("\tUDP Payload: {}", m_payload);
+		}
+
+		return Packet::m_texts;
 	}
 };

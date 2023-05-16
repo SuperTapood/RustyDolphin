@@ -29,12 +29,14 @@ public:
 	static void renderExpanded(IGMP<IPV4>* p);
 	static void render(TCP<IPV4>* p);
 	static void renderExpanded(TCP<IPV4>* p);
+	static void render(UDP<IPV4>* p);
+	static void renderExpanded(UDP<IPV4>* p);
 	static void render(ICMP* p);
 	static void renderExpanded(ICMP* p);
 	static void render(UDP<IPV6>* p);
+	static void renderExpanded(UDP<IPV6>* p);
 	static void render(IPV6* p);
 	static void renderExpanded(IPV6* p);
 	static void render(TCP<IPV6>* p);
-	static void render(UDP<IPV4>* p);
 	static void render(ICMPV6* p);
 };

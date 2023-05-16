@@ -285,6 +285,24 @@ void Renderer::render(UDP<IPV4>* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
+void Renderer::renderExpanded(UDP<IPV4>* p) {
+	renderExpanded((IPV4*)p);
+
+	auto map = p->getTexts();
+	if (ImGui::Button(map.at("UDP Title").c_str())) {
+		p->m_expands.at("UDP Title") = !p->m_expands.at("UDP Title");
+	}
+
+	if (p->m_expands.at("UDP Title")) {
+		ImGui::Text(map.at("UDP SPort").c_str());
+		ImGui::Text(map.at("UDP DPort").c_str());
+		ImGui::Text(map.at("UDP Length").c_str());
+		ImGui::Text(map.at("UDP Checksum").c_str());
+		ImGui::Text(map.at("UDP Payload Length").c_str());
+		ImGui::Text(map.at("UDP Payload").c_str());
+	}
+}
+
 void Renderer::render(UDP<IPV6>* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
@@ -302,6 +320,24 @@ void Renderer::render(UDP<IPV6>* p) {
 	ImGui::Text("%d", p->m_len);
 	ImGui::TableSetColumnIndex(6);
 	ImGui::Text(p->m_description.c_str());
+}
+
+void Renderer::renderExpanded(UDP<IPV6>* p) {
+	renderExpanded((IPV6*)p);
+
+	auto map = p->getTexts();
+	if (ImGui::Button(map.at("UDP Title").c_str())) {
+		p->m_expands.at("UDP Title") = !p->m_expands.at("UDP Title");
+	}
+
+	if (p->m_expands.at("UDP Title")) {
+		ImGui::Text(map.at("UDP SPort").c_str());
+		ImGui::Text(map.at("UDP DPort").c_str());
+		ImGui::Text(map.at("UDP Length").c_str());
+		ImGui::Text(map.at("UDP Checksum").c_str());
+		ImGui::Text(map.at("UDP Payload Length").c_str());
+		ImGui::Text(map.at("UDP Payload").c_str());
+	}
 }
 
 void Renderer::render(ICMP* p) {
