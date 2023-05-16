@@ -31,9 +31,11 @@ have_icu = False
 try:
     # Use the grapheme or segments module instead?
     import icu
+
     have_icu = True
 except ImportError:
     pass
+
 
 def exit_msg(msg=None, status=1):
     if msg is not None:
@@ -41,13 +43,14 @@ def exit_msg(msg=None, status=1):
     sys.stderr.write(__doc__ + '\n')
     sys.exit(status)
 
+
 def open_url(url):
     '''Open a URL.
     Returns a tuple containing the body and response dict. The body is a
     str in Python 3 and bytes in Python 2 in order to be compatibile with
     csv.reader.
     '''
-    req_headers = { 'User-Agent': 'Wireshark make-manuf' }
+    req_headers = {'User-Agent': 'Wireshark make-manuf'}
     try:
         req = urllib.request.Request(url, headers=req_headers)
         response = urllib.request.urlopen(req)
@@ -57,11 +60,12 @@ def open_url(url):
 
     return (body, dict(response.info()))
 
+
 # These are applied after punctuation has been removed.
 # More examples at https://en.wikipedia.org/wiki/Incorporation_(business)
 general_terms = '|'.join([
-    'a +s', # A/S and A.S. but not "As" as in "Connect As".
-    'ab', # Also follows "Oy", which is covered below.
+    'a +s',  # A/S and A.S. but not "As" as in "Connect As".
+    'ab',  # Also follows "Oy", which is covered below.
     'ag',
     'b ?v',
     'closed joint stock company',
@@ -69,14 +73,14 @@ general_terms = '|'.join([
     'company',
     'corp',
     'corporation',
-    'de c ?v', # Follows "S.A.", which is covered separately below.
+    'de c ?v',  # Follows "S.A.", which is covered separately below.
     'gmbh',
     'holding',
     'inc',
     'incorporated',
     'jsc',
     'kg',
-    'k k', # "K.K." as in "kabushiki kaisha", but not "K+K" as in "K+K Messtechnik".
+    'k k',  # "K.K." as in "kabushiki kaisha", but not "K+K" as in "K+K Messtechnik".
     'limited',
     'llc',
     'ltd',
@@ -100,7 +104,8 @@ general_terms = '|'.join([
     'the',
     'zao',
     'z ?o ?o'
-    ])
+])
+
 
 def shorten(manuf):
     '''Convert a long manufacturer name to abbreviated and short names'''
@@ -161,11 +166,12 @@ def shorten(manuf):
     mixed_manuf = orig_manuf
     # At least one entry has whitespace in front of a period.
     mixed_manuf = re.sub(r'\s+\.', '.', mixed_manuf)
-    #If company is all caps, convert to mixed case (so it doesn't look like we're screaming the company name)
+    # If company is all caps, convert to mixed case (so it doesn't look like we're screaming the company name)
     if mixed_manuf.upper() == mixed_manuf:
         mixed_manuf = mixed_manuf.title()
 
     return '{}\t{}'.format(manuf, mixed_manuf)
+
 
 def prefix_to_oui(prefix):
     pfx_len = len(prefix) * 8 / 2
@@ -179,6 +185,7 @@ def prefix_to_oui(prefix):
     oui = ':'.join(hi + lo for hi, lo in zip(oui[0::2], oui[1::2]))
     return '{}/{:d}'.format(oui, int(pfx_len))
 
+
 def main():
     this_dir = os.path.dirname(__file__)
     template_path = os.path.join("../deps/manuf/manuf.tmpl")
@@ -187,18 +194,18 @@ def main():
     in_header = True
 
     ieee_d = {
-        'OUI':   { 'url': "https://standards-oui.ieee.org/oui/oui.csv", 'min_entries': 1000 },
-        'CID':   { 'url': "https://standards-oui.ieee.org/cid/cid.csv", 'min_entries': 75 },
-        'IAB':   { 'url': "https://standards-oui.ieee.org/iab/iab.csv", 'min_entries': 1000 },
-        'OUI28': { 'url': "https://standards-oui.ieee.org/oui28/mam.csv", 'min_entries': 1000 },
-        'OUI36': { 'url': "https://standards-oui.ieee.org/oui36/oui36.csv", 'min_entries': 1000 },
+        'OUI': {'url': "https://standards-oui.ieee.org/oui/oui.csv", 'min_entries': 1000},
+        'CID': {'url': "https://standards-oui.ieee.org/cid/cid.csv", 'min_entries': 75},
+        'IAB': {'url': "https://standards-oui.ieee.org/iab/iab.csv", 'min_entries': 1000},
+        'OUI28': {'url': "https://standards-oui.ieee.org/oui28/mam.csv", 'min_entries': 1000},
+        'OUI36': {'url': "https://standards-oui.ieee.org/oui36/oui36.csv", 'min_entries': 1000},
     }
     oui_d = {}
     hp = "[0-9a-fA-F]{2}"
     manuf_re = re.compile(r'^({}:{}:{})\s+(\S.*)$'.format(hp, hp, hp))
 
-    min_total = 35000; # 35830 as of 2018-09-05
-    tmpl_added  = 0
+    min_total = 35000;  # 35830 as of 2018-09-05
+    tmpl_added = 0
     total_added = 0
 
     # Write out the header and populate the OUI list with our entries.
@@ -239,8 +246,8 @@ def main():
         # Pop the title row.
         next(ieee_csv)
         for ieee_row in ieee_csv:
-            #Registry,Assignment,Organization Name,Organization Address
-            #IAB,0050C2DD6,Transas Marine Limited,Datavagen 37 Askim Vastra Gotaland SE 436 32
+            # Registry,Assignment,Organization Name,Organization Address
+            # IAB,0050C2DD6,Transas Marine Limited,Datavagen 37 Askim Vastra Gotaland SE 436 32
             oui = prefix_to_oui(ieee_row[1].upper())
             manuf = ieee_row[2].strip()
             # The Organization Name field occasionally contains HTML entities. Undo them.
@@ -276,18 +283,18 @@ def main():
     except Exception:
         exit_msg("Couldn't open manuf file for reading ({}) ".format(manuf_path))
 
-#     manuf_fd.write("# This file was generated by running ./tools/make-manuf.py.\n")
-#     manuf_fd.write("# Don't change it directly, change manuf.tmpl instead.\n#\n")
-#     manuf_fd.write('\n'.join(header_l))
-#
-#     for db in ieee_db_l:
-#         manuf_fd.write(
-#             '''\
-# # {url}:
-# #   Content-Length: {length}
-# #   Last-Modified: {last-modified}
-#
-# '''.format( **ieee_d[db]))
+    #     manuf_fd.write("# This file was generated by running ./tools/make-manuf.py.\n")
+    #     manuf_fd.write("# Don't change it directly, change manuf.tmpl instead.\n#\n")
+    #     manuf_fd.write('\n'.join(header_l))
+    #
+    #     for db in ieee_db_l:
+    #         manuf_fd.write(
+    #             '''\
+    # # {url}:
+    # #   Content-Length: {length}
+    # #   Last-Modified: {last-modified}
+    #
+    # '''.format( **ieee_d[db]))
 
     oui_l = list(oui_d.keys())
     oui_l.sort()
@@ -308,6 +315,7 @@ def main():
     print()
     for db in ieee_d:
         print('{:<20}: {}'.format('IEEE ' + db + ' skipped', ieee_d[db]['skipped']))
+
 
 if __name__ == '__main__':
     main()

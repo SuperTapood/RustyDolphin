@@ -111,7 +111,6 @@ inline void GUI::startFrame() {
 
 inline void GUI::endFrame() {
 	// Rendering
-	GUI::popFont();
 	glClear(GL_COLOR_BUFFER_BIT);
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -222,7 +221,7 @@ pcap_t* GUI::getAdapter() {
 			}
 		}
 
-		GUI::popFont();
+		popFont();
 
 		endFrame();
 	}
@@ -440,6 +439,8 @@ void GUI::render() {
 
 			ImGui::End();
 		}
+
+		popFont();
 
 		endFrame();
 	}

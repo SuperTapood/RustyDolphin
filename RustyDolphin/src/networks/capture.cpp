@@ -192,11 +192,13 @@ void Capture::capturePackets() {
 
 	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;
 
-	auto p = fromRaw(header, pkt_data, Data::capIdx++);
+	auto p = fromRaw(header, pkt_data, Data::capIdx);
 	{
 		std::lock_guard<std::mutex> guard(Data::guard);
 		Data::captured.push_back(p);
 	}
+
+	Data::capIdx++;
 
 	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
 		if (r == 0) {
