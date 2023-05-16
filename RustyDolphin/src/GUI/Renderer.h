@@ -39,4 +39,5 @@ public:
 	static void renderExpanded(IPV6* p);
 	static void render(TCP<IPV6>* p);
 	static void render(ICMPV6* p);
+	static void renderExpanded(ICMPV6* p);
 };

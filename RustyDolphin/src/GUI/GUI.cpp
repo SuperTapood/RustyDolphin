@@ -35,7 +35,7 @@ void GUI::init() {
 
 	// Initialize Dear ImGui backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 150");
+	ImGui_ImplOpenGL3_Init();
 
 	//// Get the font atlas
 	//ImGuiIO& io = ImGui::GetIO();

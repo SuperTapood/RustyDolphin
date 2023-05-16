@@ -7,8 +7,6 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do: 
- - add more icmpv6 message types and codes (https://en.wikipedia.org/wiki/ICMPv6)
- - support ICMPV6 expanded rendering
  - support TCP expanded rendering
  - expand TCPOptions
  - make parseipv4 and parseipv6 use parse

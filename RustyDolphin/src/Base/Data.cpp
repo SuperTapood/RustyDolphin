@@ -7,7 +7,7 @@ std::array<const char*, 30> Data::quotes = {
 	"Less Cheese = More Cheese",
 	"A man chooses, a slave obeys",
 	"*sigh* i guess you are my little pugchamp",
-	"made with <3",
+	"compiled with <3",
 	"where are my pants?",
 	"Spain but the S is silent",
 	"now with 5 percent more Bob Ross!",
@@ -32,13 +32,14 @@ std::array<const char*, 30> Data::quotes = {
 	"funny quote go brrrrr",
 	"Built by a part time silly sandwich",
 	"'Give someone state and they'll have a bug one day, but teach them how to represent state in two separate locations that have to be kept in sync and they'll have bugs for a lifetime.' - ryg",
-	"Panem et Circenses",
+	"The C++ giveth, and the C++ taketh away",
 	"this quote has been left as an exercise for the reader"
 };
 long double Data::epochStart;
 std::map<int, std::string> Data::dscpMap;
 std::map<int, std::string> Data::ecnMap;
 std::map<int, std::string> Data::hopMap;
+std::map<unsigned char, std::string> Data::icmpv6Types;
 bool Data::doneCapturing = false;
 long Data::capIdx = 0;
 bool Data::showStop = false;
@@ -96,6 +97,46 @@ void Data::init() {
 	hopMap[0x0F] = "Performance and Diagnostic Metrics (PDM)";
 	hopMap[0x30] = "Minimum Path MTU Hop-by-Hop Option";
 	hopMap[0x12] = "AltMark";
+
+	icmpv6Types[1] = "Destination Unreachable";
+	icmpv6Types[2] = "Packet Too Big";
+	icmpv6Types[3] = "Time Exceeded";
+	icmpv6Types[4] = "Parameter Problem";
+	icmpv6Types[127] = "Reserved for expansion of ICMPv6 error messages";
+	icmpv6Types[128] = "Echo Request";
+	icmpv6Types[129] = "Echo Reply";
+	icmpv6Types[130] = "Multicast Listener Query";
+	icmpv6Types[131] = "Multicast Listener Report";
+	icmpv6Types[132] = "Multicast Listener Done";
+	icmpv6Types[133] = "Router Solicitation";
+	icmpv6Types[134] = "Router Advertisement";
+	icmpv6Types[135] = "Neighbor Solicitation";
+	icmpv6Types[136] = "Neighbor Advertisement";
+	icmpv6Types[137] = "Redirect Message";
+	icmpv6Types[138] = "Router Renumbering";
+	icmpv6Types[139] = "ICMP Node Information Query";
+	icmpv6Types[140] = "ICMP Node Information Response";
+	icmpv6Types[141] = "Inverse Neighbor Discovery Solicitation Message";
+	icmpv6Types[142] = "Inverse Neighbor Discovery Advertisement Message";
+	icmpv6Types[143] = "Version 2 Multicast Listener Report";
+	icmpv6Types[144] = "Home Agent Address Discovery Request Message";
+	icmpv6Types[145] = "Home Agent Address Discovery Reply Message";
+	icmpv6Types[146] = "Mobile Prefix Solicitation";
+	icmpv6Types[147] = "Mobile Prefix Advertisement";
+	icmpv6Types[148] = "Certification Path Solicitation Message";
+	icmpv6Types[149] = "Certification Path Advertisement Message";
+	icmpv6Types[150] = "ICMP messages utilized by experimental mobility protocols such as Seamoby";
+	icmpv6Types[151] = "Multicast Router Advertisement";
+	icmpv6Types[152] = "Multicast Router Solicitation";
+	icmpv6Types[153] = "Multicast Router Termination";
+	icmpv6Types[154] = "FMIPv6 Messages";
+	icmpv6Types[155] = "RPL Control Message";
+	icmpv6Types[156] = "ILNPv6 Locator Update Message";
+	icmpv6Types[157] = "Duplicate Address Request";
+	icmpv6Types[158] = "Duplicate Address Confirmation";
+	icmpv6Types[159] = "MPL Control Message";
+	icmpv6Types[160] = "Extended Echo Request";
+	icmpv6Types[161] = "Extended Echo Reply";
 }
 
 void Data::addPacket(Packet* p) {

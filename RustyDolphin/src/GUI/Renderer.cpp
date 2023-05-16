@@ -405,6 +405,24 @@ void Renderer::render(ICMPV6* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
+void Renderer::renderExpanded(ICMPV6* p) {
+	renderExpanded((IPV6*)p);
+
+	auto m = p->getTexts();
+
+	if (ImGui::Button("Internet Control Message Control")) {
+		p->m_expands.at("ICMPV6 Title") = !p->m_expands.at("ICMPV6 Title");
+	}
+
+	if (p->m_expands.at("ICMPV6 Title")) {
+		ImGui::Text(m.at("ICMPV6Type").c_str());
+		ImGui::Text(m.at("ICMPV6Code").c_str());
+		ImGui::Text(m.at("ICMPV6Checksum").c_str());
+		ImGui::Text(m.at("ICMPV6Length").c_str());
+		ImGui::Text(m.at("ICMPV6Message").c_str());
+	}
+}
+
 
 void Renderer::render(IGMP<IPV4>* p) {
 	ImGui::TableSetColumnIndex(0);
