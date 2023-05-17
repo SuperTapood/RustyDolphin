@@ -11,8 +11,12 @@
 #include <ctime>
 #include <WinSock2.h>
 #include <regex>
+#include <format>
 
 #include "../../../../Base/Base.h"
+#include "../../../../Win/SDK.h"
+
+std::map<std::string, bool> Packet::m_expands;
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	this->m_idx = idx;
@@ -24,6 +28,8 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	m_pktData = new u_char[m_len];
 
 	std::copy(pkt_data, pkt_data + m_len, m_pktData);
+
+	m_header = header;
 	
 	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
 

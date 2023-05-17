@@ -4,15 +4,14 @@
 #include "../../Eth/Packet.h"
 #include "../../IP/IP.h"
 #include "../../../src/Networks/capture.h"
-#include "../../../src/Win/SDK.h"
+#include "../../../../../Win/SDK.h"
 #include "../../../../../GUI/Renderer.h"
 
 #include <iostream>
+#include <bitset>
 
 template <typename IPVersion>
 class TCP : public IPVersion {
-	static_assert(std::is_base_of_v<Packet, IPVersion>,
-		"IPVersion must inherit from Packet");
 public:
 	unsigned short m_srcPort;
 	unsigned short m_destPort;
@@ -20,19 +19,17 @@ public:
 	unsigned int m_ackNum;
 	char m_TCPLength;
 	short m_TCPflags;
-	short m_window;
-	short m_TCPchecksum;
+	unsigned short m_window;
+	unsigned short m_TCPchecksum;
 	short m_urgentPtr;
+	unsigned short m_optSize;
 
-	int m_optionCount;
-	TCPOption** m_options;
+	std::vector<TCPOption*> m_options;
 
 	long m_payloadLength;
 	std::string m_payload;
 
 	std::string m_process;
-
-	std::string m_TCPTitle;
 
 	TCP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
 		m_srcPort = Packet::parseShort();
@@ -43,12 +40,12 @@ public:
 
 		m_ackNum = Packet::parseInt();
 
-		auto len = Packet::parseShort();
+		auto len = (unsigned char)Packet::parseChar();
 		auto flags = Packet::parseChar();
 
 		m_TCPLength = (len >> 4) * 4;
 
-		m_TCPflags = (len & 0x0F) | flags;
+		m_TCPflags = (len & 0x1111) | flags;
 
 		m_window = Packet::parseShort();
 
@@ -65,28 +62,29 @@ public:
 		constexpr auto TIMESTAMPS = 8;
 
 		int total = m_TCPLength + ETHLEN + IPVersion::m_headerLength;
-		m_optionCount = 0;
-		std::vector<TCPOption*> vec;
+
+		m_optSize = 0;
 
 		while (total - Packet::getPos() > 0) {
 			int code = Packet::parseChar();
-			m_optionCount++;
+
+			TCPOption* opt;
 
 			switch (code) {
 			case NOP:
-				vec.push_back(new TCPNOP());
+				opt = new TCPNOP();
 				break;
 			case MSS:
-				vec.push_back(new TCPMSS(this));
+				opt = new TCPMSS(this);
 				break;
 			case WSCALE:
-				vec.push_back(new TCPWScale(this));
+				opt = new TCPWScale(this);
 				break;
 			case SACKPERM:
-				vec.push_back(new TCPSACKPerm(this));
+				opt = new TCPSACKPerm(this);
 				break;
 			case SACK:
-				vec.push_back(new TCPSACK(this));
+				opt = new TCPSACK(this);
 				break;
 			default:
 #ifdef _DEBUG
@@ -94,42 +92,20 @@ public:
 				ss << "bad tcp option of code " << code << " at packet index " << idx;
 				Logger::log(ss.str());
 				// Capture::dump(header, pkt_data);
-				m_optionCount--;
 				// exit(code);
 #endif
-				break;
+				continue;
 			}
-		}
 
-		m_options = new TCPOption * [vec.size()];
+			m_optSize += opt->m_size;
 
-		for (size_t i = 0; i < vec.size(); i++) {
-			m_options[i] = vec[i];
+			m_options.push_back(opt);
 		}
 
 		if (Packet::m_len > Packet::getPos()) {
 			m_payloadLength = Packet::m_len - Packet::getPos();
 			m_payload = Packet::parse(m_payloadLength);
 		}
-
-		//if constexpr (std::is_same_v<IPVersion, IPV4>) {
-		//	/*if (IPVersion::m_srcAddr == SDK::ipAddress) {
-		//		m_process = SDK::getProcFromPort(m_srcPort);
-		//	}
-		//	else {
-		//		m_process = SDK::getProcFromPort(m_destPort);
-		//	}*/
-		//	m_process = SDK::getProcFromPort(m_srcPort);
-		//	if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
-		//		m_process = SDK::getProcFromPort(m_destPort);
-		//	}
-		//}
-		//else if constexpr (std::is_same_v<IPVersion, IPV6>) {
-		//	m_process = SDK::getProcFromPort(m_srcPort);
-		//	if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
-		//		m_process = SDK::getProcFromPort(m_destPort);
-		//	}
-		//}
 
 		m_process = SDK::getProcFromPort(m_srcPort);
 		if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
@@ -142,8 +118,8 @@ public:
 		Packet::m_description = ss.str();
 
 		Packet::m_expands.insert({ "TCP Title", false });
-
-		m_TCPTitle = std::format("Transmission Control Protocol, Src Port: {}, Dst Port: {}, Seq: {}, Len: {}", m_srcPort, m_destPort, m_seqNum, m_payloadLength);
+		Packet::m_expands.insert({ "TCP Flags", false });
+		Packet::m_expands.insert({ "TCP Options", false });
 	}
 
 	std::string toString() override {
@@ -151,10 +127,9 @@ public:
 
 		ss << "TCPV4 Packet at " << Packet::m_texts["time"] << " from " << IPVersion::m_srcAddr << " at port " << m_srcPort << " to " << IPVersion::m_destAddr << " at port " << m_destPort;
 
-		if (m_optionCount > 0) {
+		if (m_options.size() > 0) {
 			ss << " with options : (";
-			for (int i = 0; i < m_optionCount; i++) {
-				auto o = m_options[i];
+			for (auto o : m_options) {
 				ss << o->toString() << ", ";
 			}
 			ss << ")";
@@ -178,11 +153,10 @@ public:
 		j["Window"] = m_window;
 		j["TCP Checksum"] = m_TCPchecksum;
 		j["Urgent Pointer"] = m_urgentPtr;
-		j["Number of Options"] = m_optionCount;
+		j["Number of Options"] = m_options.size();
 
 		std::stringstream ss;
-		for (int i = 0; i < m_optionCount; i++) {
-			auto o = m_options[i];
+		for (auto o : m_options) {
 			ss << o->toString() << ", ";
 		}
 
@@ -199,5 +173,67 @@ public:
 
 	void renderExpanded() override {
 		Renderer::renderExpanded(this);
+	}
+
+	std::map<std::string, std::string> getTexts() {
+		if (Packet::m_texts.empty()) {
+			IPVersion::getTexts();
+
+			Packet::m_texts["TCP Title"] = std::format("Transmission Control Protocol, Src Port: {}, Dst Port: {}, Seq: {}, Len: {}", m_srcPort, m_destPort, m_seqNum, m_payloadLength);
+
+			Packet::m_texts["SPort"] = std::format("\tSource Port: {}", m_srcPort);
+
+			Packet::m_texts["DPort"] = std::format("\tDestination Port: {}", m_destPort);
+
+			Packet::m_texts["SeqNum"] = std::format("\tSequence Number: {}", m_seqNum);
+
+			Packet::m_texts["AckNum"] = std::format("\tAcknowledgement Number: {}", m_ackNum);
+
+			Packet::m_texts["HeaderLen"] = std::format("\t{}  . . . . = Header Length: {} bytes ({})", std::bitset<4>(m_TCPLength).to_string(), (int)m_TCPLength, ((int)m_TCPLength / 4));
+
+			auto flagBits = std::bitset<12>(m_TCPflags).to_string();
+			std::stringstream ss;
+			
+			static std::array<std::string, 9> flagNames = {
+				"Accurate ECN",
+				"Congestion Window Reduced",
+				"ECN-Echo",
+				"Urgent",
+				"Acknowledgement",
+				"Push",
+				"Reset",
+				"Syn",
+				"Fin",
+			};
+
+			for (int i = 0; i < 9; i++) {
+				std::string base = ". . . .  . . . .  . . . .";
+				if (flagBits[i + 3] == '1') {
+					ss << Data::TCPFlags[i + 1] << ", ";
+				}
+
+				auto idx = i + 3;
+				auto group = (idx / 4);
+
+				base[idx * 2 + group] = flagBits[i + 3];
+
+				Packet::m_texts[Data::TCPFlags[i + 1]] = std::format("\t\t{} = {}: {}", base, flagNames[i], flagBits[idx] == '1' ? "Set" : "Not Set");
+			}
+
+			Packet::m_texts["RES"] = std::format("\t\t{} .  . . . .  . . . . = Reserved: {}", flagBits.substr(0, 3), flagBits.substr(0, 3) == "000" ? "Not Set" : "Set");
+
+			Packet::m_texts["TCPFlags"] = std::format("   Flags: 0x{:03x} ({})", m_TCPflags, ss.str());
+
+			Packet::m_texts["TCPWindow"] = std::format("\tWindow: {}", m_window);
+
+			Packet::m_texts["TCPChecksum"] = std::format("\tChecksum: 0x{:x}", m_TCPchecksum);
+
+			Packet::m_texts["UrgentPtr"] = std::format("\tUrgent Pointer: {}", m_urgentPtr);
+
+			Packet::m_texts["OptionTitle"] = std::format("   Options: ({} bytes)", m_optSize);
+
+		}
+
+		return Packet::m_texts;
 	}
 };

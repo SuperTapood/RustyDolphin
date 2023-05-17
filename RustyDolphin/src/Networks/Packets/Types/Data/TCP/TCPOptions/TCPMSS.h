@@ -11,5 +11,5 @@ public:
 
 	TCPMSS(Packet* packet);
 
-	std::string toString() override;
+	const std::string toString() override;
 };

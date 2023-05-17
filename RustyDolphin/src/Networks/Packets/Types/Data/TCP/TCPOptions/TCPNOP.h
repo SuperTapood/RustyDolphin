@@ -6,5 +6,5 @@ class TCPNOP : public TCPOption {
 public:
 	TCPNOP();
 
-	std::string toString() override;
+	const std::string toString() override;
 };

@@ -6,17 +6,17 @@ time spent making this nonsense in the best language ever made:
  
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
- to do: 
- - support TCP expanded rendering
- - expand TCPOptions
+ to do:
  - make parseipv4 and parseipv6 use parse
- - more tcp options
+ - keep selected row hightlighted
+ - up and down can move selected
  - arp poisnoning
  - add filtering
  - can load files
  - can save files
  - add geo trace route
  - more arp hard types and opcodes (https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml)
+ - maybe add checksum verification?
 
 
 file dialog: https://github.com/aiekick/ImGuiFileDialog

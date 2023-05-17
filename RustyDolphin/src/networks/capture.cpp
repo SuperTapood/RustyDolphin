@@ -7,6 +7,7 @@
 #include "../Win/SDK.h"
 #include <iostream>
 #include "Packets/Packets.h"
+#include "../Base/MacroSettings.h"
 
 pcap_if_t* Capture::m_alldevs;
 int Capture::m_devs;
@@ -158,9 +159,11 @@ void Capture::capturePackets() {
 	const u_char* pkt_data;
 	int r;
 
+	m_dumpfile = pcap_dump_open(adapter, "captures/capture.pcap");
+
 #ifdef _DEBUG
 	auto d = Capture::getDev(3);
-	auto filter = "ip6";
+	auto filter = FILTER;
 	struct bpf_program fcode;
 
 	int netmask;
@@ -211,6 +214,8 @@ void Capture::capturePackets() {
 			std::lock_guard<std::mutex> guard(Data::guard);
 			Data::captured.push_back(p);
 		}
+
+		dump(header, pkt_data);
 
 		Data::capIdx++;
 	}

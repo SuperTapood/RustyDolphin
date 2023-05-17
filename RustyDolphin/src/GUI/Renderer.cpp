@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "../Base/Data.h"
+#include "../Networks/Packets/Types/Types.h"
 
 void Renderer::render(Packet* p) {
 	ImGui::TableSetColumnIndex(0);
@@ -238,13 +239,42 @@ void Renderer::render(TCP<IPV4>* p) {
 void Renderer::renderExpanded(TCP<IPV4>* p) {
 	renderExpanded((IPV4*)p);
 
-	/*if (ImGui::Button(p->m_TCPTitle.c_str())) {
+	auto m = p->getTexts();
+
+	if (ImGui::Button(m.at("TCP Title").c_str())) {
 		p->m_expands.at("TCP Title") = !p->m_expands.at("TCP Title");
 	}
 
 	if (p->m_expands.at("TCP Title")) {
+		ImGui::Text(m.at("SPort").c_str());
+		ImGui::Text(m.at("DPort").c_str());
+		ImGui::Text(m.at("SeqNum").c_str());
+		ImGui::Text(m.at("AckNum").c_str());
+		ImGui::Text(m.at("HeaderLen").c_str());
 
-	}*/
+		if (ImGui::Button(m.at("TCPFlags").c_str())) {
+			p->m_expands.at("TCP Flags") = !p->m_expands.at("TCP Flags");
+		}
+
+		if (p->m_expands.at("TCP Flags")) {
+			for (auto s : Data::TCPFlags) {
+				ImGui::Text(m.at(s).c_str());
+			}
+		}
+		ImGui::Text(m.at("TCPWindow").c_str());
+		ImGui::Text(m.at("TCPChecksum").c_str());
+		ImGui::Text(m.at("UrgentPtr").c_str());
+
+		if (ImGui::Button(m.at("OptionTitle").c_str())) {
+			p->m_expands["TCP Options"] = !p->m_expands["TCP Options"];
+		}
+
+		if (p->m_expands["TCP Options"]) {
+			for (auto opt : p->m_options) {
+				ImGui::Text(("\t\t" + opt->toString()).c_str());
+			}
+		}
+	}
 }
 
 void Renderer::render(TCP<IPV6>* p) {

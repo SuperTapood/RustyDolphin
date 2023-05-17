@@ -8,12 +8,11 @@
 #include "../../../Eth/Packet.h"
 
 class TCPOption {
-protected:
-	long long parseLong(unsigned int* start, int end, const u_char* pkt_data);
 public:
 	unsigned int m_kind;
+	unsigned int m_size;
 
 	TCPOption(int code);
 
-	virtual std::string toString();
+	const virtual std::string toString();
 };

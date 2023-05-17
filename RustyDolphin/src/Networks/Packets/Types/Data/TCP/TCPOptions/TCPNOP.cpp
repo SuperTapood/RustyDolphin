@@ -1,8 +1,9 @@
 #include "TCPNOP.h"
 
 TCPNOP::TCPNOP() : TCPOption(1) {
+	m_size = 1;
 }
 
-std::string TCPNOP::toString() {
-	return "No Operation";
+const std::string TCPNOP::toString() {
+	return "No Operation (NOP)";
 }

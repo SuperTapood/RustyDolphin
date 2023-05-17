@@ -48,6 +48,10 @@ std::thread Data::captureThread;
 pcap_t* Data::chosenAdapter;
 std::mutex Data::guard;
 bool Data::fileAdapter;
+std::array<const char*, 10> Data::TCPFlags = {
+	"RES", "ACN", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"
+};
+
 
 void Data::init() {
 	dscpMap[0] = "Default";

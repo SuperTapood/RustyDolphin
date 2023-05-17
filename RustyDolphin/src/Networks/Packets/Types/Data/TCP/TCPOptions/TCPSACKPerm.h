@@ -10,5 +10,5 @@ public:
 
 	TCPSACKPerm(Packet* packet);
 
-	std::string toString() override;
+	const std::string toString() override;
 };

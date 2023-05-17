@@ -19,7 +19,7 @@ public:
 	unsigned int m_idx;
 	std::string m_idxStr;
 	std::string m_description;
-	std::map<std::string, bool> m_expands;
+	static std::map<std::string, bool> m_expands;
 
 	// header stuff
 	long double m_epoch;
@@ -31,6 +31,7 @@ public:
 	unsigned short m_type;
 	std::string m_strType;
 	u_char* m_pktData;
+	pcap_pkthdr* m_header;
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	virtual ~Packet() = default;

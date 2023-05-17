@@ -1,6 +1,9 @@
 #include "GUI.h"
 #include "ImageLoader.h"
 #include "../Base/Data.h"
+#include "../Networks/capture.h"
+#include "../Win/SDK.h"
+#include "../Base/MacroSettings.h"
 
 GLFWwindow* GUI::window;
 std::map<std::string, ImFont*> GUI::fonts;
@@ -61,7 +64,7 @@ void GUI::init() {
 	fonts.insert({ "hexView", io.Fonts->AddFontFromFileTTF("deps/fonts/consola.ttf", 16) });
 	io.Fonts->Build();
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -118,10 +121,21 @@ inline void GUI::endFrame() {
 }
 
 pcap_t* GUI::getAdapter() {
-#ifdef _DEBUG
+#ifdef CAPTURE_LIVE
+	Data::fileAdapter = false;
+	return Capture::createAdapter(3);
+#endif
+#ifdef CAPTURE_SAMPLES
 	Data::fileAdapter = true;
 	return Capture::load("samples.pcapng");
-	return Capture::createAdapter(3);
+#endif
+#ifdef CAPTURE_V6
+	Data::fileAdapter = true;
+	return Capture::load("v6.pcapng");
+#endif
+#ifdef CAPTURE_ICMPV6
+	Data::fileAdapter = true;
+	return Capture::load("icmpv6.pcapng");
 #endif
 	using std::chrono::high_resolution_clock;
 	using std::chrono::duration_cast;
@@ -378,14 +392,14 @@ void GUI::render() {
 			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 			ImGui::TableHeadersRow();
 
-			for (int row = 0; row < Data::capIdx; row++)
+			for (int row = 0; row < Data::capIdx - 10; row++)
 			{
 
 				ImGui::TableNextRow();
-
+				auto p = Data::captured.at(row);
 				{
 					std::lock_guard<std::mutex> guard(Data::guard);
-					Data::captured.at(row)->render();
+					p->render();
 				}
 
 			}

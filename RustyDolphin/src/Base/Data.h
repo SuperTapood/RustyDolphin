@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Networks/Packets/Types/Types.h"
+#include "../Networks/Packets/Types/Eth/Packet.h"
 #include <vector>
 #include <string>
 #include <thread>
@@ -26,6 +26,7 @@ public:
 	static int selectExpand;
 	static std::mutex guard;
 	static bool fileAdapter;
+	static std::array<const char*, 10> TCPFlags;
 
 	static void addPacket(Packet* p);
 	static void init();

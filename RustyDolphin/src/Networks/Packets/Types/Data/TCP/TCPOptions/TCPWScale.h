@@ -11,5 +11,5 @@ public:
 
 	TCPWScale(Packet* packet);
 
-	std::string toString() override;
+	const std::string toString() override;
 };
