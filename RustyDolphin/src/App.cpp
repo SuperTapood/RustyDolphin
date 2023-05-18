@@ -8,6 +8,8 @@
 #include "Base/Logger.h"
 #include "Networks/capture.h"
 #include "Win/SDK.h"
+#include "ImGuiFileDialog.h"
+#include <iostream>
 
 void App::release() {
 	Data::doneCounting = true;
@@ -16,7 +18,9 @@ void App::release() {
 	Capture::release();
 	SDK::release();
 	GUI::release();
-	pcap_close(Data::chosenAdapter);
+	if (Data::chosenAdapter != nullptr) {
+		pcap_close(Data::chosenAdapter);
+	}
 }
 
 void App::init() {
@@ -46,6 +50,46 @@ void App::captureScreen() {
 
 	Data::doneCapturing = true;
 	Data::captureThread.join();
+}
+
+void App::renderAdapterMenuBar() {
+	GUI::pushFont("regular");
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Load")) {
+				Data::showLoad = true;
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	GUI::popFont();
+}
+
+void App::handleLoad() {
+	ImGui::SetNextWindowPos(ImVec2(100, 100));
+	ImGui::SetNextWindowSize(ImVec2(1080, 480));
+	// open Dialog Simple
+	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".");
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+	{
+		// action if OK
+		if (ImGuiFileDialog::Instance()->IsOk())
+		{
+			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+			Data::fileAdapter = true;
+			Data::chosenAdapter = Capture::load(filePathName);
+			Data::doneCounting = true;
+			Data::showLoad = false;
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+	}
 }
 
 void App::getAdapter() {
@@ -104,9 +148,17 @@ void App::getAdapter() {
 			exit(0);
 		}
 
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(1280, 720));
+		ImGui::SetNextWindowPos(ImVec2(0, 20));
+		ImGui::SetNextWindowSize(ImVec2(1280, 700));
 		ImGui::Begin("Adapter Selection Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+		renderAdapterMenuBar();
+
+		if (Data::showLoad) {
+			GUI::pushFont("regular");
+			handleLoad();
+			GUI::popFont();
+		}
 
 		ImGui::SetCursorPos(ImVec2(340, 0));
 		GUI::pushFont("title");
@@ -179,7 +231,9 @@ void App::getAdapter() {
 
 	Data::fileAdapter = false;
 
-	Data::chosenAdapter = Capture::createAdapter(selected);
+	if (selected != -1) {
+		Data::chosenAdapter = Capture::createAdapter(selected);
+	}
 }
 
 void App::handleStop() {
@@ -267,9 +321,188 @@ void App::handleStartFile() {
 	GUI::popFont();
 }
 
+void App::handleSaveGoing() {
+	GUI::pushFont("adapters");
+	ImGui::OpenPopup("Save Packets");
+	ImGui::SetNextWindowSize(ImVec2(600, 500));
+	ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
+	if (ImGui::BeginPopupModal("Save Packets", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
+	{
+		GUI::centerText("Your current capture is still on going.");
+		GUI::centerText("Stop the current capture to save.");
+		ImGui::SetCursorPosY(350);
+		if (GUI::centerButton("OK")) {
+			Data::showSave = false;
+		}
+		ImGui::EndPopup();
+	}
+	GUI::popFont();
+}
+
+void App::handleSave() {
+	ImGui::SetNextWindowPos(ImVec2(100, 100));
+	ImGui::SetNextWindowSize(ImVec2(1080, 480));
+	// open Dialog Simple
+	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+	{
+		// action if OK
+		if (ImGuiFileDialog::Instance()->IsOk())
+		{
+			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			
+			Capture::dumpAll(filePathName);
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+	}
+}
+
+void App::handleLoadCapture() {
+	ImGui::SetNextWindowPos(ImVec2(100, 100));
+	ImGui::SetNextWindowSize(ImVec2(1080, 480));
+	// open Dialog Simple
+	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".");
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+	{
+		// action if OK
+		if (ImGuiFileDialog::Instance()->IsOk())
+		{
+			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+			Data::doneCapturing = true;
+			Data::selected = -1;
+			Data::showStart = false;
+			Data::captureThread.join();
+			Data::captured.clear();
+			Data::capIdx = 0;
+			Data::doneCapturing = false;
+			Data::doneLoading = false;
+			Data::fileAdapter = true;
+			Data::showLoad = false;
+			Data::chosenAdapter = Capture::load(filePathName);
+			Data::captureThread = std::thread(Capture::capturePackets);
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+	}
+}
+
+void App::renderCaptureMenuBar() {
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Load")) {
+				Data::showLoad = true;
+			}
+			if (ImGui::MenuItem("Save")) {
+				Data::showSave = true;
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Capture")) {
+			if (ImGui::MenuItem("Start")) {
+				Data::showStart = true;
+			}
+			if (ImGui::MenuItem("Stop")) {
+				Data::showStop = true;
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+}
 
 constexpr auto columns = 7;
 
+void App::renderTable() {
+	if (ImGui::BeginTable("Packet Table", columns))
+	{
+		ImGui::TableSetupColumn((("No. (" + std::to_string(Data::captured.size()) + ")").c_str()), ImGuiTableColumnFlags_WidthFixed, 80.0f);
+		ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+		ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+		ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+		ImGui::TableSetupColumn("Protocol", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+		ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+		ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
+		ImGui::TableHeadersRow();
+
+		for (int row = 0; row < Data::capIdx; row++)
+		{
+			ImGui::TableNextRow();
+
+			auto p = Data::captured.at(row);
+			{
+				std::lock_guard<std::mutex> guard(Data::guard);
+				p->render();
+			}
+
+			if (row == Data::selected)
+			{
+				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
+
+			}
+
+		}
+		ImGui::EndTable();
+	}
+	ImGui::End();
+}
+
+
+void App::renderExpandedPacket() {
+	ImGui::SetNextWindowPos(ImVec2(0, 380));
+	ImGui::SetNextWindowSize(ImVec2(780, 340));
+	ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+	Data::captured.at(Data::selected)->renderExpanded();
+
+	ImGui::End();
+
+	ImGui::SetNextWindowPos(ImVec2(780, 380));
+	ImGui::SetNextWindowSize(ImVec2(500, 340));
+	ImGui::Begin("Packet Data View", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+
+	std::string str;
+
+	GUI::pushFont("hexView");
+
+	auto p = Data::captured.at(Data::selected);
+
+	int inc = 0;
+
+	auto hexData = p->getTexts().at("hexData");
+
+	for (int i = 0; i < hexData.size(); i += 2) {
+		std::string byte = hexData.substr(i, 2);
+		if (i % 32 == 0 && i > 0) {
+			std::stringstream ss;
+			ss << std::hex << std::setw(4) << std::setfill('0') << inc;
+			ImGui::SetCursorPosX(10);
+			ImGui::Text((ss.str() + " " + str).c_str());
+			str = " " + byte;
+			inc += 16;
+		}
+		else {
+			str += " " + byte;
+		}
+	}
+	ImGui::SetCursorPosX(10);
+	std::stringstream ss;
+	ss << std::hex << std::setw(4) << std::setfill('0') << inc;
+	ImGui::Text((ss.str() + " " + str).c_str());
+
+	GUI::popFont();
+
+	ImGui::End();
+}
 
 void App::render() {
 	const auto upArrow = ImGui::GetKeyIndex(ImGuiKey_UpArrow);
@@ -284,26 +517,12 @@ void App::render() {
 		ImGui::SetNextWindowSize(ImVec2(1280, 360));
 		ImGui::Begin("Packet Table Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
-		if (ImGui::BeginMainMenuBar()) {
-			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("Load")) {
-					// handle load
-				}
-				if (ImGui::MenuItem("Save")) {
-					// handle save
-				}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Capture")) {
-				if (ImGui::MenuItem("Start")) {
-					Data::showStart = true;
-				}
-				if (ImGui::MenuItem("Stop")) {
-					Data::showStop = true;
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMainMenuBar();
+		renderCaptureMenuBar();
+
+		renderTable();
+
+		if (Data::selected != -1) {
+			renderExpandedPacket();
 		}
 
 		if (Data::showStop) {
@@ -316,83 +535,15 @@ void App::render() {
 			handleStartFile();
 		}
 
-		if (ImGui::BeginTable("Packet Table", columns))
-		{
-			ImGui::TableSetupColumn((("No. (" + std::to_string(Data::captured.size()) + ")").c_str()), ImGuiTableColumnFlags_WidthFixed, 80.0f);
-			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
-			ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
-			ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 200.0f);
-			ImGui::TableSetupColumn("Protocol", ImGuiTableColumnFlags_WidthFixed, 100.0f);
-			ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
-			ImGui::TableHeadersRow();
-
-			for (int row = 0; row < Data::capIdx; row++)
-			{
-				ImGui::TableNextRow();
-
-				auto p = Data::captured.at(row);
-				{
-					std::lock_guard<std::mutex> guard(Data::guard);
-					p->render();
-				}
-
-				if (row == Data::selected)
-				{
-					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
-
-				}
-
-			}
-			ImGui::EndTable();
+		if (!Data::doneCapturing && Data::showSave) {
+			handleSaveGoing();
 		}
-		ImGui::End();
+		else if (Data::doneCapturing && Data::showSave) {
+			handleSave();
+		}
 
-		if (Data::selected != -1) {
-			ImGui::SetNextWindowPos(ImVec2(0, 380));
-			ImGui::SetNextWindowSize(ImVec2(780, 340));
-			ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-			Data::captured.at(Data::selected)->renderExpanded();
-
-			ImGui::End();
-
-			ImGui::SetNextWindowPos(ImVec2(780, 380));
-			ImGui::SetNextWindowSize(ImVec2(500, 340));
-			ImGui::Begin("Packet Data View", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-
-			std::string str;
-
-			GUI::pushFont("hexView");
-
-			auto p = Data::captured.at(Data::selected);
-
-			int inc = 0;
-
-			auto hexData = p->getTexts().at("hexData");
-
-			for (int i = 0; i < hexData.size(); i += 2) {
-				std::string byte = hexData.substr(i, 2);
-				if (i % 32 == 0 && i > 0) {
-					std::stringstream ss;
-					ss << std::hex << std::setw(4) << std::setfill('0') << inc;
-					ImGui::SetCursorPosX(10);
-					ImGui::Text((ss.str() + " " + str).c_str());
-					str = " " + byte;
-					inc += 16;
-				}
-				else {
-					str += " " + byte;
-				}
-			}
-			ImGui::SetCursorPosX(10);
-			std::stringstream ss;
-			ss << std::hex << std::setw(4) << std::setfill('0') << inc;
-			ImGui::Text((ss.str() + " " + str).c_str());
-
-			GUI::popFont();
-
-			ImGui::End();
+		if (Data::showLoad) {
+			handleLoadCapture();
 		}
 
 		GUI::popFont();

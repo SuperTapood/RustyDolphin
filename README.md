@@ -9,8 +9,6 @@ time spent making this nonsense in the best language ever made:
  to do:
  - arp poisnoning
  - add filtering
- - can load files
- - can save files
  - add geo trace route
  - more arp hard types and opcodes (https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml)
  - maybe add checksum verification?

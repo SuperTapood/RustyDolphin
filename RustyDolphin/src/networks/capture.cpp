@@ -192,6 +192,10 @@ void Capture::capturePackets() {
 	}
 #endif
 
+	if (Data::doneLoading) {
+		return;
+	}
+
 	while (pcap_next_ex(adapter, &header, &pkt_data) <= 0) {}
 
 	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;
@@ -204,9 +208,20 @@ void Capture::capturePackets() {
 
 	Data::capIdx++;
 
-	while ((r = pcap_next_ex(adapter, &header, &pkt_data)) >= 0 && !Data::doneCapturing) {
+	while (true) {
+		r = pcap_next_ex(adapter, &header, &pkt_data);
 		if (r == 0) {
 			continue;
+		}
+
+		if (r == -2) {
+			Data::doneCapturing = true;
+			Data::doneLoading = true;
+			return;
+		}
+
+		if (Data::doneCapturing) {
+			return;
 		}
 
 		auto p = fromRaw(header, pkt_data, Data::capIdx);
@@ -241,4 +256,14 @@ void Capture::countPackets(std::vector<int>* counts, int adapterIdx) {
 	}
 
 	pcap_close(adhandle);
+}
+
+void Capture::dumpAll(std::string filename) {
+	auto dumpfile = pcap_dump_open(Data::chosenAdapter, filename.c_str());
+
+	for (auto p : Data::captured) {
+		pcap_dump((u_char*)dumpfile, p->m_header, p->m_pktData);
+	}
+
+	pcap_dump_close(dumpfile);
 }

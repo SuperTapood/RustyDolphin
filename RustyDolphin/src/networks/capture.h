@@ -18,6 +18,7 @@ public:
 	static void dump(struct pcap_pkthdr* h, const u_char* pkt);
 	static pcap_t* load(std::string name);
 	static void countPackets(std::vector<int>* counts, int adapterIdx);
+	static void dumpAll(std::string filename);
 
 private:
 	static pcap_if_t* m_alldevs;

@@ -14,8 +14,8 @@
 
 #if FEATURES_ENABLED
 //#define CAPTURE_LIVE
-#define CAPTURE_SAMPLES
+//#define CAPTURE_SAMPLES
 //#define CAPTURE_V6
 //#define CAPTURE_ICMPV6
-#define FILTER "igmp"
+#define FILTER ""
 #endif

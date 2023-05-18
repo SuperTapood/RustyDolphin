@@ -27,6 +27,9 @@ public:
 	static std::mutex guard;
 	static bool fileAdapter;
 	static std::array<const char*, 10> TCPFlags;
+	static bool doneLoading;
+	static bool showSave;
+	static bool showLoad;
 
 	static void addPacket(Packet* p);
 	static void init();

@@ -22,13 +22,13 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 
 	m_idxStr = std::to_string(idx + 1);
 
-	m_len = header->len;
+	m_len = header->caplen;
 
 	m_pktData = new u_char[m_len];
 
 	std::copy(pkt_data, pkt_data + m_len, m_pktData);
 
-	m_header = header;
+	m_header = new pcap_pkthdr(*header);
 	
 	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
 
