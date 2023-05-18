@@ -7,9 +7,7 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do:
- - make parseipv4 and parseipv6 use parse
- - keep selected row hightlighted
- - up and down can move selected
+ - extract to App class
  - arp poisnoning
  - add filtering
  - can load files

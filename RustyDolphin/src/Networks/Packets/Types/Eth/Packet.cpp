@@ -79,7 +79,8 @@ std::string Packet::padDate(int t) {
 	return s;
 }
 
-std::string Packet::parseMAC(unsigned int size) {
+std::string Packet::parseMAC() {
+	constexpr auto size = 6;
 	std::stringstream ss;
 	std::string mac;
 
@@ -93,7 +94,8 @@ std::string Packet::parseMAC(unsigned int size) {
 	return mac;
 }
 
-std::string Packet::parseIPV4(unsigned int size) {
+std::string Packet::parseIPV4() {
+	constexpr auto size = 4;
 	std::stringstream ss;
 	std::string ip;
 
@@ -107,7 +109,8 @@ std::string Packet::parseIPV4(unsigned int size) {
 	return ip;
 }
 
-std::string Packet::parseIPV6(unsigned int size) {
+std::string Packet::parseIPV6() {
+	constexpr auto size = 16;
 	std::stringstream ss;
 	std::string ip;
 

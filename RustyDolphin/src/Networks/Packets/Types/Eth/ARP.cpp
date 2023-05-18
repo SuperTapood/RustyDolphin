@@ -17,13 +17,13 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet
 
 	m_opcode = parseShort();
 
-	m_sendMAC = parseMAC(m_hardSize);
+	m_sendMAC = parseMAC();
 
-	m_sendAddr = parseIPV4(m_protoSize);
+	m_sendAddr = parseIPV4();
 
-	m_targetMAC = parseMAC(m_hardSize);
+	m_targetMAC = parseMAC();
 
-	m_targetAddr = parseIPV4(m_protoSize);
+	m_targetAddr = parseIPV4();
 
 	Packet::m_strType = "ARP";
 

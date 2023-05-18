@@ -49,9 +49,9 @@ public:
 
 	virtual std::map<std::string, std::string> getTexts();
 
-	std::string parseMAC(unsigned int size = 6);
-	std::string parseIPV4(unsigned int size = 4);
-	std::string parseIPV6(unsigned int size = 16);
+	std::string parseMAC();
+	std::string parseIPV4();
+	std::string parseIPV6();
 	std::string parse(unsigned long long size);
 	long long parseLongLong();
 	long parseLong();

@@ -4,6 +4,8 @@
 #include "../Networks/capture.h"
 #include "../Win/SDK.h"
 #include "../Base/MacroSettings.h"
+#include <imgui_internal.h>
+#include <iostream>
 
 GLFWwindow* GUI::window;
 std::map<std::string, ImFont*> GUI::fonts;
@@ -339,6 +341,8 @@ constexpr auto columns = 7;
 
 
 void GUI::render() {
+	const auto upArrow = ImGui::GetKeyIndex(ImGuiKey_UpArrow);
+	const auto downArrow = ImGui::GetKeyIndex(ImGuiKey_DownArrow);
 	while (!glfwWindowShouldClose(GUI::window))
 	{
 		startFrame();
@@ -392,14 +396,20 @@ void GUI::render() {
 			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 			ImGui::TableHeadersRow();
 
-			for (int row = 0; row < Data::capIdx - 10; row++)
+			for (int row = 0; row < Data::capIdx; row++)
 			{
-
 				ImGui::TableNextRow();
+
 				auto p = Data::captured.at(row);
 				{
 					std::lock_guard<std::mutex> guard(Data::guard);
 					p->render();
+				}
+
+				if (row == Data::selected)
+				{
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
+
 				}
 
 			}
@@ -455,6 +465,14 @@ void GUI::render() {
 		}
 
 		popFont();
+
+		if (ImGui::IsKeyPressed(upArrow)) {
+			Data::selected = max(Data::selected - 1, 0);
+		}
+
+		if (ImGui::IsKeyPressed(downArrow)) {
+			Data::selected = min(Data::selected + 1, Data::capIdx);
+		}
 
 		endFrame();
 	}
