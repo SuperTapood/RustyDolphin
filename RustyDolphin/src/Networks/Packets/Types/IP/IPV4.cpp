@@ -62,7 +62,7 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 		}
 
 		diff -= (getPos() - temp);
-		m_expands.insert({ std::format("option %d", m_IPoptionsCount - 1), false});
+		m_expands.insert({ std::format("option %d", m_IPoptionsCount - 1), false });
 	}
 
 	Packet::m_strType = "IPV4";
@@ -147,7 +147,7 @@ std::map<std::string, std::string> IPV4::getTexts() {
 
 		std::bitset<3> flagBits;
 		for (int i = 0; i < 3; i++) {
-			flagBits[i] = (m_flags >> ( 5 + i)) & 1;
+			flagBits[i] = (m_flags >> (5 + i)) & 1;
 		}
 
 		m_texts["IPFlags"] = std::format("   {} .  . . . . = Flags: 0x{:x}", flagBits.to_string(), flagBits.to_ulong());

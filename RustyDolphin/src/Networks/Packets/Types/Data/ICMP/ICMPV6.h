@@ -24,7 +24,7 @@ public:
 
 		Packet::m_strType = "ICMPV6";
 
-		Packet::m_description = std::format("{} of code = {} len = {} hop limit = {}", m_ICMPV6Type->m_typeStr, m_ICMPV6Type->m_codeStr,  m_messageLength, (int)IPV6::m_hopLimit);
+		Packet::m_description = std::format("{} of code = {} len = {} hop limit = {}", m_ICMPV6Type->m_typeStr, m_ICMPV6Type->m_codeStr, m_messageLength, (int)IPV6::m_hopLimit);
 
 		m_expands.insert({ "ICMPV6 Title", false });
 	}
@@ -63,7 +63,7 @@ public:
 			IPV6::getTexts();
 
 			m_texts["ICMPV6Type"] = std::format("\tType: {} ({})", m_ICMPV6Type->m_typeStr, m_ICMPV6Type->m_type);
-			
+
 			m_texts["ICMPV6Code"] = std::format("\tCode: {} ({})", m_ICMPV6Type->m_codeStr, m_ICMPV6Type->m_code);
 
 			m_texts["ICMPV6Checksum"] = std::format("\tChecksum: {:x}", m_ICMPV6Checksum);

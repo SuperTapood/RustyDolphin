@@ -222,7 +222,6 @@ void SDK::init() {
 	refreshTables();
 	initICMP();
 
-
 	std::ifstream manuf("deps/manuf/manuf");
 	std::string line;
 

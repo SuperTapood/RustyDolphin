@@ -15,7 +15,7 @@ public:
 	static GLFWwindow* window;
 
 	static void init();
-	static void release();	
+	static void release();
 	static void pushFont(std::string name);
 	static void popFont();
 	static void centerText(const char* text);

@@ -6,7 +6,6 @@
 #include <string>
 #include <pcap.h>
 
-
 constexpr auto report = 0x16;
 constexpr auto leave = 0x17;
 constexpr auto query = 0x11;
@@ -103,7 +102,6 @@ public:
 			Packet::m_texts["IGMPChecksum"] = std::format("\tChecksum: 0x{:x}", m_checksum);
 
 			Packet::m_texts["multicastAddr"] = std::format("\tMulticast Address: {}", m_multicastAddr);
-
 		}
 
 		return Packet::m_texts;

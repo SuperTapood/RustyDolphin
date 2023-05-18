@@ -116,7 +116,6 @@ std::map<std::string, std::string> ARP::getTexts() {
 		}
 
 		m_texts["code"] = std::format("{} ({})", m_texts["opcode"], m_opcode);
-
 	}
 
 	return m_texts;

@@ -13,7 +13,7 @@ TCPSACK::TCPSACK(Packet* packet) : TCPOption(5) {
 		m_LEdges[i] = (unsigned int)packet->parseInt();
 		m_REdges[i] = (unsigned int)packet->parseInt();
 	}
-	
+
 	m_size = packet->getPos() - start;
 }
 

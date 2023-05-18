@@ -142,7 +142,6 @@ void Renderer::renderExpanded(IPV4* p) {
 				for (int i = 0; i < p->m_ipOptTexts.size(); i++) {
 					auto b = p->m_ipOptTexts.at(i);
 					if (ImGui::Button(b.c_str())) {
-						
 						p->m_expands.at(std::format("option %d", i)) = !p->m_expands.at(std::format("option %d", i));
 					}
 
@@ -452,7 +451,6 @@ void Renderer::renderExpanded(ICMPV6* p) {
 		ImGui::Text(m.at("ICMPV6Message").c_str());
 	}
 }
-
 
 void Renderer::render(IGMP<IPV4>* p) {
 	ImGui::TableSetColumnIndex(0);

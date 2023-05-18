@@ -1,18 +1,594 @@
 {\rtf1\ansi\uc0\deff0{\fonttbl{\f0\fmodern\fprq1\fcharset0;}}{\colortbl;\red187\green187\blue187;\red61\green123\blue123;\red156\green101\blue0;\red0\green128\blue0;\red176\green0\blue64;\red102\green102\blue102;\red170\green34\blue255;\red0\green0\blue255;\red203\green63\blue56;\red25\green23\blue124;\red136\green0\blue0;\red118\green118\blue0;\red113\green113\blue113;\red104\green120\blue34;\red186\green33\blue33;\red164\green90\blue119;\red170\green93\blue31;\red0\green0\blue128;\red128\green0\blue128;\red160\green0\blue0;\red0\green132\blue0;\red228\green0\blue0;\red0\green68\blue221;\red255\green0\blue0;}\f0 {\cf2\i //App.cpp\par
 }{\cf1 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "App.h"}{\cf3 \par
 }{\cf1 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <stdlib.h>}{\cf3 \par
+}{\cf1 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Base/Data.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Base/MacroSettings.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "GUI/GUI.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Base/Logger.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Networks/capture.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Win/SDK.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "ImGuiFileDialog.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::release}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 	}{\cf4\b Logger}{\cf6 :}{\cf6 :}release();{\cf1 \par
+}{\cf1 	}{\cf4\b Capture}{\cf6 :}{\cf6 :}release();{\cf1 \par
+}{\cf1 	}{\cf4\b SDK}{\cf6 :}{\cf6 :}release();{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}release();{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
+}{\cf1 		}pcap_close({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter);{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::init}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}remove({\cf15 "}{\cf15 captures/output.pcap}{\cf15 "});{\cf1 \par
+}{\cf1 	}remove({\cf15 "}{\cf15 captures/output.txt}{\cf15 "});{\cf1 \par
+}{\cf1 	}remove({\cf15 "}{\cf15 imgui.ini}{\cf15 "});{\cf1 \par
+}{\cf1 	}atexit(App{\cf6 :}{\cf6 :}release);{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}init();{\cf1 \par
+}{\cf1 	}{\cf4\b Logger}{\cf6 :}{\cf6 :}init();{\cf1 \par
+}{\cf1 	}{\cf4\b Capture}{\cf6 :}{\cf6 :}init();{\cf1 \par
+}{\cf1 	}{\cf4\b SDK}{\cf6 :}{\cf6 :}init();{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}init();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::adapterScreen}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}getAdapter();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
+}{\cf1 		}exit({\cf6 -1});{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::captureScreen}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}render();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::renderAdapterMenuBar}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 regular}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMainMenuBar()){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMenu({\cf15 "}{\cf15 File}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Load}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMenu();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMainMenuBar();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleLoad}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
+}{\cf1 	}{\cf2\i // open Dialog Simple\par
+}{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // display\par
+}{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf2\i // action if OK\par
+}{\cf1 		}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}IsOk()){\cf1 \par
+}{\cf1 		}\{{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePathName{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetFilePathName();{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePath{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetCurrentPath();{\cf1 \par
+}{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load(filePathName);{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf2\i // close\par
+}{\cf1 		}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Close();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::getAdapter}(){\cf1  }\{{\cf1 \par
+}{\cf3 #}{\cf3 ifdef CAPTURE_LIVE}{\cf3 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}createAdapter({\cf6 3});{\cf1 \par
+}{\cf1 	}{\cf4\b return};{\cf1 \par
+}{\cf3 #}{\cf3 endif}{\cf3 \par
+}{\cf3 #}{\cf3 ifdef CAPTURE_SAMPLES}{\cf3 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load({\cf15 "}{\cf15 samples.pcapng}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b return};{\cf1 \par
+}{\cf3 #}{\cf3 endif}{\cf3 \par
+}{\cf3 #}{\cf3 ifdef CAPTURE_V6}{\cf3 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load({\cf15 "}{\cf15 v6.pcapng}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b return};{\cf1 \par
+}{\cf3 #}{\cf3 endif}{\cf3 \par
+}{\cf3 #}{\cf3 ifdef CAPTURE_ICMPV6}{\cf3 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load({\cf15 "}{\cf15 icmpv6.pcapng}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b return};{\cf1 \par
+}{\cf3 #}{\cf3 endif}{\cf3 \par
+}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}high_resolution_clock;{\cf1 \par
+}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}duration_cast;{\cf1 \par
+}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}duration;{\cf1 \par
+}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}milliseconds;{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }names{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}getDeviceNames();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }counts{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 int}{\cf6 >}(names.size(),{\cf1  }{\cf6 0});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }threads{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}{\cf4\b thread}{\cf6 *}{\cf6 >}();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }t1{\cf1  }{\cf6 =}{\cf1  }high_resolution_clock{\cf6 :}{\cf6 :}now();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }names.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
+}{\cf1 		}threads.push_back({\cf4\b new}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}countPackets,{\cf1  }{\cf6 &}counts,{\cf1  }i));{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}srand(time({\cf4 NULL}));{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf5 int}{\cf1  }randomNumber{\cf1  }{\cf6 =}{\cf1  }rand(){\cf1  }{\cf6 %}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}quotes.size();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 float}{\cf6 >}{\cf1  }rates;{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}rates.assign(names.size(),{\cf1  }{\cf6 0.0f});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf5 int}{\cf1  }last{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 	}{\cf5 int}{\cf1  }selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b while}{\cf1  }({\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}startFrame();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(glfwWindowShouldClose({\cf4\b GUI}{\cf6 :}{\cf6 :}window)){\cf1  }\{{\cf1 \par
+}{\cf1 			}exit({\cf6 0});{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 20}));{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 700}));{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Adapter Selection Window}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}renderAdapterMenuBar();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showLoad){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 regular}{\cf15 "});{\cf1 \par
+}{\cf1 			}handleLoad();{\cf1 \par
+}{\cf1 			}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPos(ImVec2({\cf6 340},{\cf1  }{\cf6 0}));{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 title}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Welcome to RustyDolphin}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 quote}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf4\b Data}{\cf6 :}{\cf6 :}quotes.at(randomNumber));{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 150});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 Choose the adapter you'd like to use:}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }t2{\cf1  }{\cf6 =}{\cf1  }high_resolution_clock{\cf6 :}{\cf6 :}now();{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }ms_int{\cf1  }{\cf6 =}{\cf1  }duration_cast{\cf6 <}milliseconds{\cf6 >}(t2{\cf1  }{\cf6 -}{\cf1  }t1);{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }secs{\cf1  }{\cf6 =}{\cf1  }({\cf5 double})ms_int.count(){\cf1  }{\cf6 /}{\cf1  }{\cf6 1000};{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(secs{\cf1  }{\cf6 >}{\cf6 =}{\cf1  }(({\cf5 double})last{\cf1  }{\cf6 /}{\cf1  }{\cf6 5.0})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }rates.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
+}{\cf1 				}rates.at(i){\cf1  }{\cf6 =}{\cf1  }(({\cf5 float})counts.at(i){\cf1  }{\cf6 /}{\cf1  }secs);{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}last{\cf6 +}{\cf6 +};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
+}{\cf1 		}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }names.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosX({\cf6 150});{\cf1 \par
+}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }names.at(i){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  (Packet Rate: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }rates.at(i){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  per second)}{\cf15 "};{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Button(ss.str().c_str())){\cf1  }\{{\cf1 \par
+}{\cf1 				}selected{\cf1  }{\cf6 =}{\cf1  }i;{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}ss.str({\cf15 "}{\cf15 "});{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(selected{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 AdapterSelectPopup}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 AdapterSelectPopup}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
+}{\cf1 			}\{{\cf1 \par
+}{\cf1 				}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Are you sure you want this adapter?}{\cf15 "});{\cf1 \par
+}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
+}{\cf1 				}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 					}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 					}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
+}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
+}{\cf1 					}{\cf4\b GUI}{\cf6 :}{\cf6 :}endFrame();{\cf1 \par
+}{\cf1 					}{\cf4\b break};{\cf1 \par
+}{\cf1 				}\}{\cf1 \par
+}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
+}{\cf1 				}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 					}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
+}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}CloseCurrentPopup();{\cf1 \par
+}{\cf1 				}\}{\cf1 \par
+}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}endFrame();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}std{\cf6 :}{\cf6 :}for_each(threads.cbegin(),{\cf1  }threads.cend(),{\cf1  }[](std{\cf6 :}{\cf6 :}{\cf4\b thread}{\cf6 *}{\cf1  }t){\cf1  }\{t{\cf6 -}{\cf6 >}join();{\cf1  }\});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(selected{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}createAdapter(selected);{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleStop}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 StopCapture}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 StopCapture}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Are you sure you want stop the current capture?}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleStart}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 StartCapture}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 StartCapture}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 You have an ongoing capture.}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 do you want to start another one?}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 (the current one will be reset)}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleStartFile}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 StartCapture}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 StartCapture}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Your current capture is from a file.}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 file captures cannot be re-started.}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 would you like to reset the currently captured packets?}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleSaveGoing}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 Save Packets}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 Save Packets}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Your current capture is still on going.}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Stop the current capture to save.}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 OK}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showSave{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleSave}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
+}{\cf1 	}{\cf2\i // open Dialog Simple\par
+}{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "},{\cf1  }{\cf6 1},{\cf1  }{\cf4\b nullptr},{\cf1  }ImGuiFileDialogFlags_ConfirmOverwrite);{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // display\par
+}{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf2\i // action if OK\par
+}{\cf1 		}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}IsOk()){\cf1 \par
+}{\cf1 		}\{{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePathName{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetFilePathName();{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePath{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetCurrentPath();{\cf1 \par
+}{\cf1 			}{\cf1 \par
+}{\cf1 			}{\cf4\b Capture}{\cf6 :}{\cf6 :}dumpAll(filePathName);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf2\i // close\par
+}{\cf1 		}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Close();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::handleLoadCapture}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
+}{\cf1 	}{\cf2\i // open Dialog Simple\par
+}{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // display\par
+}{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf2\i // action if OK\par
+}{\cf1 		}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}IsOk()){\cf1 \par
+}{\cf1 		}\{{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePathName{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetFilePathName();{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePath{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetCurrentPath();{\cf1 \par
+}{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneLoading{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load(filePathName);{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf2\i // close\par
+}{\cf1 		}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Close();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::renderCaptureMenuBar}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMainMenuBar()){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMenu({\cf15 "}{\cf15 File}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Load}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Save}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b Data}{\cf6 :}{\cf6 :}showSave{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMenu();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMenu({\cf15 "}{\cf15 Capture}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Start}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Stop}{\cf15 "})){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMenu();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMainMenuBar();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf4\b constexpr}{\cf1  }{\cf4\b auto}{\cf1  }columns{\cf1  }{\cf6 =}{\cf1  }{\cf6 7};{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::renderTable}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginTable({\cf15 "}{\cf15 Packet Table}{\cf15 "},{\cf1  }columns)){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn((({\cf15 "}{\cf15 No. (}{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }std{\cf6 :}{\cf6 :}to_string({\cf4\b Data}{\cf6 :}{\cf6 :}captured.size()){\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15 )}{\cf15 "}).c_str()),{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 80.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Time}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 90.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Source}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 200.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Destination}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 200.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Protocol}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 100.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Length}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 50.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Info}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 560.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableHeadersRow();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }row{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }row{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx;{\cf1  }row{\cf6 +}{\cf6 +}){\cf1 \par
+}{\cf1 		}\{{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableNextRow();{\cf1 \par
+}{\cf1 \par
+}{\cf1 			}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at(row);{\cf1 \par
+}{\cf1 			}\{{\cf1 \par
+}{\cf1 				}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
+}{\cf1 				}p{\cf6 -}{\cf6 >}render();{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }(row{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}selected){\cf1 \par
+}{\cf1 			}\{{\cf1 \par
+}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetBgColor(ImGuiTableBgTarget_RowBg0,{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}ColorConvertFloat4ToU32(ImVec4({\cf6 56.f}{\cf1  }{\cf6 /}{\cf1  }{\cf6 255.f},{\cf1  }{\cf6 123.f}{\cf1  }{\cf6 /}{\cf1  }{\cf6 255.f},{\cf1  }{\cf6 203.f}{\cf1  }{\cf6 /}{\cf1  }{\cf6 255.f},{\cf1  }{\cf6 0.5})));{\cf1 \par
+}{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndTable();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::renderExpandedPacket}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 380}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 780},{\cf1  }{\cf6 340}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Expanded Packet}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at({\cf4\b Data}{\cf6 :}{\cf6 :}selected){\cf6 -}{\cf6 >}renderExpanded();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 780},{\cf1  }{\cf6 380}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 500},{\cf1  }{\cf6 340}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Packet Data View}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }str;{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 hexView}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at({\cf4\b Data}{\cf6 :}{\cf6 :}selected);{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf5 int}{\cf1  }inc{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }hexData{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts().at({\cf15 "}{\cf15 hexData}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }hexData.size();{\cf1  }i{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf6 2}){\cf1  }\{{\cf1 \par
+}{\cf1 		}std{\cf6 :}{\cf6 :}string{\cf1  }byte{\cf1  }{\cf6 =}{\cf1  }hexData.substr(i,{\cf1  }{\cf6 2});{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(i{\cf1  }{\cf6 %}{\cf1  }{\cf6 32}{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }i{\cf1  }{\cf6 >}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
+}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}hex{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setw({\cf6 4}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setfill({\cf15 '}{\cf15 0}{\cf15 '}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }inc;{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosX({\cf6 10});{\cf1 \par
+}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text((ss.str(){\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }str).c_str());{\cf1 \par
+}{\cf1 			}str{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }byte;{\cf1 \par
+}{\cf1 			}inc{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf6 16};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }\{{\cf1 \par
+}{\cf1 			}str{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }byte;{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosX({\cf6 10});{\cf1 \par
+}{\cf1 	}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
+}{\cf1 	}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}hex{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setw({\cf6 4}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setfill({\cf15 '}{\cf15 0}{\cf15 '}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }inc;{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text((ss.str(){\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }str).c_str());{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 App::render}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b const}{\cf1  }{\cf4\b auto}{\cf1  }upArrow{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetKeyIndex(ImGuiKey_UpArrow);{\cf1 \par
+}{\cf1 	}{\cf4\b const}{\cf1  }{\cf4\b auto}{\cf1  }downArrow{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetKeyIndex(ImGuiKey_DownArrow);{\cf1 \par
+}{\cf1 	}{\cf4\b while}{\cf1  }({\cf6 !}glfwWindowShouldClose({\cf4\b GUI}{\cf6 :}{\cf6 :}window)){\cf1 \par
+}{\cf1 	}\{{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}startFrame();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 regular}{\cf15 "});{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 20}));{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 360}));{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Packet Table Window}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}renderCaptureMenuBar();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}renderTable();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1  }\{{\cf1 \par
+}{\cf1 			}renderExpandedPacket();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showStop){\cf1  }\{{\cf1 \par
+}{\cf1 			}handleStop();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter){\cf1  }\{{\cf1 \par
+}{\cf1 			}handleStart();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter){\cf1  }\{{\cf1 \par
+}{\cf1 			}handleStartFile();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}showSave){\cf1  }\{{\cf1 \par
+}{\cf1 			}handleSaveGoing();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}showSave){\cf1  }\{{\cf1 \par
+}{\cf1 			}handleSave();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showLoad){\cf1  }\{{\cf1 \par
+}{\cf1 			}handleLoadCapture();{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}IsKeyPressed(upArrow)){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }max({\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 -}{\cf1  }{\cf6 1},{\cf1  }{\cf6 0});{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}IsKeyPressed(downArrow)){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }min({\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 +}{\cf1  }{\cf6 1},{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}endFrame();{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}\}{\cf1 \par
 }{\cf1 \par
 }{\cf2\i //App.h\par
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
 }{\cf1 \par
 }{\cf1 \par
-}{\cf2\i //Base.h\par
+}{\cf4\b class}{\cf1  }{\cf8\b App}{\cf1  }\{{\cf1 \par
+}{\cf4\b public}{\cf6 :}{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }init();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 release}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 adapterScreen}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 captureScreen}();{\cf1 \par
 }{\cf1 \par
-}{\cf3 #}{\cf3 pragma once}{\cf3 \par
-}{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Logger.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Data.h"}{\cf3 \par
+}{\cf4\b private}{\cf6 :}{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }handleStop();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleStart}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleStartFile}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 getAdapter}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 render}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderCaptureMenuBar}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderTable}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpandedPacket}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleSaveGoing}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleSave}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleLoadCapture}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleLoad}();{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderAdapterMenuBar}();{\cf1 \par
+}\};{\cf1 \par
 }{\cf1 \par
 }{\cf2\i //Data.cpp\par
 }{\cf1 \par
@@ -62,6 +638,9 @@
 }{\cf5 long}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}doneLoading{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}showSave{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4\b thread}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread;{\cf1 \par
 }{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter;{\cf1 \par
 }std{\cf6 :}{\cf6 :}mutex{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}guard;{\cf1 \par
@@ -196,6 +775,9 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}mutex{\cf1  }guard;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }fileAdapter;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}array{\cf6 <}{\cf4\b const}{\cf1  }{\cf5 char}{\cf6 *},{\cf1  }{\cf6 10}{\cf6 >}{\cf1  }TCPFlags;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }doneLoading;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }showSave;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }showLoad;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 addPacket}({\cf4 Packet}{\cf6 *}{\cf1  }p);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 init}();{\cf1 \par
@@ -206,6 +788,7 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Logger.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <cassert>}{\cf3 \par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}ofstream{\cf1  }{\cf4\b Logger}{\cf6 :}{\cf6 :}m_file;{\cf1 \par
 }{\cf1 \par
@@ -215,6 +798,7 @@
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 Logger::log}(std{\cf6 :}{\cf6 :}string{\cf1  }str){\cf1  }\{{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}cout{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 log: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }str{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
+}{\cf1 	}assert({\cf4 false});{\cf1 \par
 }{\cf1 	}m_file{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }str{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -275,7 +859,7 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 if FEATURES_ENABLED}{\cf3 \par
 }{\cf2\i //#define CAPTURE_LIVE\par
-}{\cf3 #}{\cf3 define CAPTURE_SAMPLES}{\cf3 \par
+}{\cf2\i //#define CAPTURE_SAMPLES\par
 }{\cf2\i //#define CAPTURE_V6\par
 }{\cf2\i //#define CAPTURE_ICMPV6\par
 }{\cf3 #}{\cf3 define FILTER ""}{\cf3 \par
@@ -286,10 +870,6 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "GUI.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "ImageLoader.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Base/Data.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Networks/capture.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Win/SDK.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Base/MacroSettings.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <imgui_internal.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf1 \par
@@ -390,7 +970,7 @@
 }{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}Button(text);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf4\b inline}{\cf1  }{\cf5 void}{\cf1  }{\cf8 GUI::startFrame}(){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 GUI::startFrame}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf2\i // Poll and handle events\par
 }{\cf1 	}glfwPollEvents();{\cf1 \par
 }{\cf1 \par
@@ -400,368 +980,12 @@
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}NewFrame();{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf4\b inline}{\cf1  }{\cf5 void}{\cf1  }{\cf8 GUI::endFrame}(){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 GUI::endFrame}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf2\i // Rendering\par
 }{\cf1 	}glClear(GL_COLOR_BUFFER_BIT);{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Render();{\cf1 \par
 }{\cf1 	}ImGui_ImplOpenGL3_RenderDrawData({\cf4\b ImGui}{\cf6 :}{\cf6 :}GetDrawData());{\cf1 \par
 }{\cf1 	}glfwSwapBuffers({\cf4\b GUI}{\cf6 :}{\cf6 :}window);{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf8 GUI::getAdapter}(){\cf1  }\{{\cf1 \par
-}{\cf3 #}{\cf3 ifdef CAPTURE_LIVE}{\cf3 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}createAdapter({\cf6 3});{\cf1 \par
-}{\cf3 #}{\cf3 endif}{\cf3 \par
-}{\cf3 #}{\cf3 ifdef CAPTURE_SAMPLES}{\cf3 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load({\cf15 "}{\cf15 samples.pcapng}{\cf15 "});{\cf1 \par
-}{\cf3 #}{\cf3 endif}{\cf3 \par
-}{\cf3 #}{\cf3 ifdef CAPTURE_V6}{\cf3 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load({\cf15 "}{\cf15 v6.pcapng}{\cf15 "});{\cf1 \par
-}{\cf3 #}{\cf3 endif}{\cf3 \par
-}{\cf3 #}{\cf3 ifdef CAPTURE_ICMPV6}{\cf3 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load({\cf15 "}{\cf15 icmpv6.pcapng}{\cf15 "});{\cf1 \par
-}{\cf3 #}{\cf3 endif}{\cf3 \par
-}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}high_resolution_clock;{\cf1 \par
-}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}duration_cast;{\cf1 \par
-}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}duration;{\cf1 \par
-}{\cf1 	}{\cf4\b using}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}milliseconds;{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b auto}{\cf1  }names{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}getDeviceNames();{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b auto}{\cf1  }counts{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 int}{\cf6 >}(names.size(),{\cf1  }{\cf6 0});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b auto}{\cf1  }threads{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}{\cf4\b thread}{\cf6 *}{\cf6 >}();{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b auto}{\cf1  }t1{\cf1  }{\cf6 =}{\cf1  }high_resolution_clock{\cf6 :}{\cf6 :}now();{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }names.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
-}{\cf1 		}threads.push_back({\cf4\b new}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}countPackets,{\cf1  }{\cf6 &}counts,{\cf1  }i));{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}srand(time({\cf4 NULL}));{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }randomNumber{\cf1  }{\cf6 =}{\cf1  }rand(){\cf1  }{\cf6 %}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}quotes.size();{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 float}{\cf6 >}{\cf1  }rates;{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}rates.assign(names.size(),{\cf1  }{\cf6 0.0f});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }last{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b while}{\cf1  }({\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting){\cf1  }\{{\cf1 \par
-}{\cf1 		}startFrame();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(glfwWindowShouldClose({\cf4\b GUI}{\cf6 :}{\cf6 :}window)){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 0}));{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 720}));{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Adapter Selection Window}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPos(ImVec2({\cf6 340},{\cf1  }{\cf6 0}));{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 title}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Welcome to RustyDolphin}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 quote}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf4\b Data}{\cf6 :}{\cf6 :}quotes.at(randomNumber));{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 150});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 Choose the adapter you'd like to use:}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b auto}{\cf1  }t2{\cf1  }{\cf6 =}{\cf1  }high_resolution_clock{\cf6 :}{\cf6 :}now();{\cf1 \par
-}{\cf1 		}{\cf4\b auto}{\cf1  }ms_int{\cf1  }{\cf6 =}{\cf1  }duration_cast{\cf6 <}milliseconds{\cf6 >}(t2{\cf1  }{\cf6 -}{\cf1  }t1);{\cf1 \par
-}{\cf1 		}{\cf4\b auto}{\cf1  }secs{\cf1  }{\cf6 =}{\cf1  }({\cf5 double})ms_int.count(){\cf1  }{\cf6 /}{\cf1  }{\cf6 1000};{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(secs{\cf1  }{\cf6 >}{\cf6 =}{\cf1  }(({\cf5 double})last{\cf1  }{\cf6 /}{\cf1  }{\cf6 5.0})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }rates.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
-}{\cf1 				}rates.at(i){\cf1  }{\cf6 =}{\cf1  }(({\cf5 float})counts.at(i){\cf1  }{\cf6 /}{\cf1  }secs);{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 			}last{\cf6 +}{\cf6 +};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
-}{\cf1 		}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }names.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosX({\cf6 150});{\cf1 \par
-}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }names.at(i){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  (Packet Rate: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }rates.at(i){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  per second)}{\cf15 "};{\cf1 \par
-}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Button(ss.str().c_str())){\cf1  }\{{\cf1 \par
-}{\cf1 				}selected{\cf1  }{\cf6 =}{\cf1  }i;{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 			}ss.str({\cf15 "}{\cf15 "});{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(selected{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 AdapterSelectPopup}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
-}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 AdapterSelectPopup}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
-}{\cf1 			}\{{\cf1 \par
-}{\cf1 				}centerText({\cf15 "}{\cf15 Are you sure you want this adapter?}{\cf15 "});{\cf1 \par
-}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 					}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 					}popFont();{\cf1 \par
-}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
-}{\cf1 					}endFrame();{\cf1 \par
-}{\cf1 					}{\cf4\b break};{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 					}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
-}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}CloseCurrentPopup();{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}popFont();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}endFrame();{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}for_each(threads.cbegin(),{\cf1  }threads.cend(),{\cf1  }[](std{\cf6 :}{\cf6 :}{\cf4\b thread}{\cf6 *}{\cf1  }t){\cf1  }\{t{\cf6 -}{\cf6 >}join();{\cf1  }\});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b SDK}{\cf6 :}{\cf6 :}findIP({\cf4\b Capture}{\cf6 :}{\cf6 :}getDev(selected){\cf6 -}{\cf6 >}name);{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}createAdapter(selected);{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 GUI::handleStop}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 StopCapture}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 StopCapture}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
-}{\cf1 	}\{{\cf1 \par
-}{\cf1 		}centerText({\cf15 "}{\cf15 Are you sure you want stop the current capture?}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 	}popFont();{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 GUI::handleStart}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 StartCapture}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 StartCapture}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
-}{\cf1 	}\{{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 You have an ongoing capture.}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 do you want to start another one?}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 (the current one will be reset)}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 	}popFont();{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 GUI::handleStartFile}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}pushFont({\cf15 "}{\cf15 adapters}{\cf15 "});{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}OpenPopup({\cf15 "}{\cf15 StartCapture}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 600},{\cf1  }{\cf6 500}));{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 640}{\cf1  }{\cf6 -}{\cf1  }{\cf6 300},{\cf1  }{\cf6 360}{\cf1  }{\cf6 -}{\cf1  }{\cf6 250}));{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 StartCapture}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
-}{\cf1 	}\{{\cf1 \par
-}{\cf1 		}centerText({\cf15 "}{\cf15 Your current capture is from a file.}{\cf15 "});{\cf1 \par
-}{\cf1 		}centerText({\cf15 "}{\cf15 file captures cannot be re-started.}{\cf15 "});{\cf1 \par
-}{\cf1 		}centerText({\cf15 "}{\cf15 would you like to reset the currently captured packets?}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 350});{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 Yes}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosY({\cf6 430});{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(centerButton({\cf15 "}{\cf15 No}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndPopup();{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 	}popFont();{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 \par
-}{\cf4\b constexpr}{\cf1  }{\cf4\b auto}{\cf1  }columns{\cf1  }{\cf6 =}{\cf1  }{\cf6 7};{\cf1 \par
-}{\cf1 \par
-}{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 GUI::render}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf4\b const}{\cf1  }{\cf4\b auto}{\cf1  }upArrow{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetKeyIndex(ImGuiKey_UpArrow);{\cf1 \par
-}{\cf1 	}{\cf4\b const}{\cf1  }{\cf4\b auto}{\cf1  }downArrow{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetKeyIndex(ImGuiKey_DownArrow);{\cf1 \par
-}{\cf1 	}{\cf4\b while}{\cf1  }({\cf6 !}glfwWindowShouldClose({\cf4\b GUI}{\cf6 :}{\cf6 :}window)){\cf1 \par
-}{\cf1 	}\{{\cf1 \par
-}{\cf1 		}startFrame();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 regular}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 20}));{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 360}));{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Packet Table Window}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMainMenuBar()){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMenu({\cf15 "}{\cf15 File}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Load}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 					}{\cf2\i // handle load\par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Save}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 					}{\cf2\i // handle save\par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMenu();{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 			}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginMenu({\cf15 "}{\cf15 Capture}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Start}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 					}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}MenuItem({\cf15 "}{\cf15 Stop}{\cf15 "})){\cf1  }\{{\cf1 \par
-}{\cf1 					}{\cf4\b Data}{\cf6 :}{\cf6 :}showStop{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMenu();{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndMainMenuBar();{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showStop){\cf1  }\{{\cf1 \par
-}{\cf1 			}handleStop();{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter){\cf1  }\{{\cf1 \par
-}{\cf1 			}handleStart();{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter){\cf1  }\{{\cf1 \par
-}{\cf1 			}handleStartFile();{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginTable({\cf15 "}{\cf15 Packet Table}{\cf15 "},{\cf1  }columns)){\cf1 \par
-}{\cf1 		}\{{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn((({\cf15 "}{\cf15 No. (}{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }std{\cf6 :}{\cf6 :}to_string({\cf4\b Data}{\cf6 :}{\cf6 :}captured.size()){\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15 )}{\cf15 "}).c_str()),{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 80.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Time}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 90.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Source}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 200.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Destination}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 200.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Protocol}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 100.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Length}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 50.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Info}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 560.0f});{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableHeadersRow();{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }row{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }row{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx;{\cf1  }row{\cf6 +}{\cf6 +}){\cf1 \par
-}{\cf1 			}\{{\cf1 \par
-}{\cf1 				}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableNextRow();{\cf1 \par
-}{\cf1 \par
-}{\cf1 				}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at(row);{\cf1 \par
-}{\cf1 				}\{{\cf1 \par
-}{\cf1 					}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
-}{\cf1 					}p{\cf6 -}{\cf6 >}render();{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }(row{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}selected){\cf1 \par
-}{\cf1 				}\{{\cf1 \par
-}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetBgColor(ImGuiTableBgTarget_RowBg0,{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}ColorConvertFloat4ToU32(ImVec4({\cf6 56.f}{\cf1  }{\cf6 /}{\cf1  }{\cf6 255.f},{\cf1  }{\cf6 123.f}{\cf1  }{\cf6 /}{\cf1  }{\cf6 255.f},{\cf1  }{\cf6 203.f}{\cf1  }{\cf6 /}{\cf1  }{\cf6 255.f},{\cf1  }{\cf6 0.5})));{\cf1 \par
-}{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}EndTable();{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 380}));{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 780},{\cf1  }{\cf6 340}));{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Expanded Packet}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at({\cf4\b Data}{\cf6 :}{\cf6 :}selected){\cf6 -}{\cf6 >}renderExpanded();{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 780},{\cf1  }{\cf6 380}));{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 500},{\cf1  }{\cf6 340}));{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Begin({\cf15 "}{\cf15 Packet Data View}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoCollapse{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar);{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }str;{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 hexView}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at({\cf4\b Data}{\cf6 :}{\cf6 :}selected);{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf5 int}{\cf1  }inc{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b auto}{\cf1  }hexData{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts().at({\cf15 "}{\cf15 hexData}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }hexData.size();{\cf1  }i{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf6 2}){\cf1  }\{{\cf1 \par
-}{\cf1 				}std{\cf6 :}{\cf6 :}string{\cf1  }byte{\cf1  }{\cf6 =}{\cf1  }hexData.substr(i,{\cf1  }{\cf6 2});{\cf1 \par
-}{\cf1 				}{\cf4\b if}{\cf1  }(i{\cf1  }{\cf6 %}{\cf1  }{\cf6 32}{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }i{\cf1  }{\cf6 >}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
-}{\cf1 					}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
-}{\cf1 					}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}hex{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setw({\cf6 4}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setfill({\cf15 '}{\cf15 0}{\cf15 '}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }inc;{\cf1 \par
-}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosX({\cf6 10});{\cf1 \par
-}{\cf1 					}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text((ss.str(){\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }str).c_str());{\cf1 \par
-}{\cf1 					}str{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }byte;{\cf1 \par
-}{\cf1 					}inc{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf6 16};{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 				}{\cf4\b else}{\cf1  }\{{\cf1 \par
-}{\cf1 					}str{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }byte;{\cf1 \par
-}{\cf1 				}\}{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetCursorPosX({\cf6 10});{\cf1 \par
-}{\cf1 			}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
-}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}hex{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setw({\cf6 4}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}setfill({\cf15 '}{\cf15 0}{\cf15 '}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }inc;{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text((ss.str(){\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }str).c_str());{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b ImGui}{\cf6 :}{\cf6 :}End();{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}popFont();{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}IsKeyPressed(upArrow)){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }max({\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 -}{\cf1  }{\cf6 1},{\cf1  }{\cf6 0});{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}IsKeyPressed(downArrow)){\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }min({\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 +}{\cf1  }{\cf6 1},{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx);{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}endFrame();{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf2\i //GUI.h\par
@@ -783,24 +1007,16 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }GLFWwindow{\cf6 *}{\cf1  }window;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 init}();{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 release}();{\cf1 \par
-}{\cf1 	}{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf8 getAdapter}();{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 render}();{\cf1 \par
-}{\cf1 	}{\cf1 \par
-}{\cf1 \par
-}{\cf4\b private}{\cf6 :}{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }ImFont{\cf6 *}{\cf6 >}{\cf1  }fonts;{\cf1 \par
-}{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 release}();{\cf1 	}{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 pushFont}(std{\cf6 :}{\cf6 :}string{\cf1  }name);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 popFont}();{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 centerText}({\cf4\b const}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }text);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }{\cf8 centerButton}({\cf4\b const}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }text);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 startFrame}();{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 endFrame}();{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleStop}();{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleStart}();{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 handleStartFile}();{\cf1 \par
+}{\cf1 \par
+}{\cf4\b private}{\cf6 :}{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }ImFont{\cf6 *}{\cf6 >}{\cf1  }fonts;{\cf1 \par
 }\};{\cf1 \par
 }{\cf1 \par
 }{\cf2\i //ImageLoader.h\par
@@ -956,7 +1172,6 @@
 }{\cf1 				}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }p{\cf6 -}{\cf6 >}m_ipOptTexts.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
 }{\cf1 					}{\cf4\b auto}{\cf1  }b{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}m_ipOptTexts.at(i);{\cf1 \par
 }{\cf1 					}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Button(b.c_str())){\cf1  }\{{\cf1 \par
-}{\cf1 						}{\cf1 \par
 }{\cf1 						}p{\cf6 -}{\cf6 >}m_expands.at(std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 option %d}{\cf15 "},{\cf1  }i)){\cf1  }{\cf6 =}{\cf1  }{\cf6 !}p{\cf6 -}{\cf6 >}m_expands.at(std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 option %d}{\cf15 "},{\cf1  }i));{\cf1 \par
 }{\cf1 					}\}{\cf1 \par
 }{\cf1 \par
@@ -1267,7 +1482,6 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 Renderer::render}(IGMP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetColumnIndex({\cf6 0});{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Selectable(p{\cf6 -}{\cf6 >}m_idxStr.c_str(),{\cf1  }{\cf4 false},{\cf1  }ImGuiSelectableFlags_SpanAllColumns)){\cf1  }\{{\cf1 \par
@@ -1352,60 +1566,15 @@
 }{\cf1 \par
 }{\cf2\i //Main.cpp\par
 }{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <cstdio>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <stdio.h>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <stdlib.h>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <pcap.h>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <thread>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Base/Base.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Networks/Networks.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "GUI/GUI.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "App.h"}{\cf3 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 release}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf4\b Logger}{\cf6 :}{\cf6 :}release();{\cf1 \par
-}{\cf1 	}{\cf4\b Capture}{\cf6 :}{\cf6 :}release();{\cf1 \par
-}{\cf1 	}{\cf4\b SDK}{\cf6 :}{\cf6 :}release();{\cf1 \par
-}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}release();{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 init}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}atexit(release);{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}init();{\cf1 \par
-}{\cf1 	}{\cf4\b Logger}{\cf6 :}{\cf6 :}init();{\cf1 \par
-}{\cf1 	}{\cf4\b Capture}{\cf6 :}{\cf6 :}init();{\cf1 \par
-}{\cf1 	}{\cf4\b SDK}{\cf6 :}{\cf6 :}init();{\cf1 \par
-}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}init();{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf5 int}{\cf1  }{\cf8 main}(){\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 main}(){\cf1 \par
 }\{{\cf1 \par
-}{\cf1 	}init();{\cf1 \par
+}{\cf1 	}App{\cf6 :}{\cf6 :}init();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4\b GUI}{\cf6 :}{\cf6 :}getAdapter();{\cf1 \par
+}{\cf1 	}App{\cf6 :}{\cf6 :}adapterScreen();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}remove({\cf15 "}{\cf15 captures/output.pcap}{\cf15 "});{\cf1 \par
-}{\cf1 	}remove({\cf15 "}{\cf15 captures/output.txt}{\cf15 "});{\cf1 \par
-}{\cf1 	}remove({\cf15 "}{\cf15 imgui.ini}{\cf15 "});{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b constexpr}{\cf1  }{\cf4\b auto}{\cf1  }packets{\cf1  }{\cf6 =}{\cf1  }{\cf6 200};{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b GUI}{\cf6 :}{\cf6 :}render();{\cf1 	}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}pcap_close({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter);{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 	}App{\cf6 :}{\cf6 :}captureScreen();{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 ifdef NDEBUG}{\cf3 \par
@@ -1426,10 +1595,11 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <tchar.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <vector>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <string>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Win/SDK.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Packets/Packets.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Base/MacroSettings.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Base/Data.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Base/Logger.h"}{\cf3 \par
 }{\cf1 \par
 }pcap_if_t{\cf6 *}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}m_alldevs;{\cf1 \par
 }{\cf5 int}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}m_devs;{\cf1 \par
@@ -1613,6 +1783,10 @@
 }{\cf1 	}\}{\cf1 \par
 }{\cf3 #}{\cf3 endif}{\cf3 \par
 }{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}doneLoading){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b return};{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf4\b while}{\cf1  }(pcap_next_ex(adapter,{\cf1  }{\cf6 &}header,{\cf1  }{\cf6 &}pkt_data){\cf1  }{\cf6 <}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}epochStart{\cf1  }{\cf6 =}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_sec{\cf1  }{\cf6 +}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_usec{\cf1  }{\cf6 /}{\cf1  }{\cf6 1000000.0};{\cf1 \par
@@ -1625,9 +1799,20 @@
 }{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf6 +}{\cf6 +};{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b while}{\cf1  }((r{\cf1  }{\cf6 =}{\cf1  }pcap_next_ex(adapter,{\cf1  }{\cf6 &}header,{\cf1  }{\cf6 &}pkt_data)){\cf1  }{\cf6 >}{\cf6 =}{\cf1  }{\cf6 0}{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }{\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b while}{\cf1  }({\cf4 true}){\cf1  }\{{\cf1 \par
+}{\cf1 		}r{\cf1  }{\cf6 =}{\cf1  }pcap_next_ex(adapter,{\cf1  }{\cf6 &}header,{\cf1  }{\cf6 &}pkt_data);{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(r{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b continue};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(r{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 -2}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneLoading{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
+}{\cf1 			}{\cf4\b return};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b return};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }fromRaw(header,{\cf1  }pkt_data,{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx);{\cf1 \par
@@ -1664,11 +1849,19 @@
 }{\cf1 	}pcap_close(adhandle);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}dumpAll(std{\cf6 :}{\cf6 :}string{\cf1  }filename){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b auto}{\cf1  }dumpfile{\cf1  }{\cf6 =}{\cf1  }pcap_dump_open({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter,{\cf1  }filename.c_str());{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b for}{\cf1  }({\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 :}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured){\cf1  }\{{\cf1 \par
+}{\cf1 		}pcap_dump((u_char{\cf6 *})dumpfile,{\cf1  }p{\cf6 -}{\cf6 >}m_header,{\cf1  }p{\cf6 -}{\cf6 >}m_pktData);{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}pcap_dump_close(dumpfile);{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
 }{\cf2\i //capture.h\par
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
-}{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Base/Base.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <pcap.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <string>}{\cf3 \par
@@ -1688,6 +1881,7 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 dump}({\cf4\b struct}{\cf1  }{\cf8\b pcap_pkthdr}{\cf6 *}{\cf1  }h,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf8 load}(std{\cf6 :}{\cf6 :}string{\cf1  }name);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 countPackets}(std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 int}{\cf6 >}{\cf6 *}{\cf1  }counts,{\cf1  }{\cf5 int}{\cf1  }adapterIdx);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 dumpAll}(std{\cf6 :}{\cf6 :}string{\cf1  }filename);{\cf1 \par
 }{\cf1 \par
 }{\cf4\b private}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }pcap_if_t{\cf6 *}{\cf1  }m_alldevs;{\cf1 \par
@@ -1697,13 +1891,6 @@
 }{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }{\cf8 LoadNpcapDlls}();{\cf1 \par
 }\};{\cf1 \par
-}{\cf1 \par
-}{\cf2\i //networks.h\par
-}{\cf1 \par
-}{\cf3 #}{\cf3 pragma once}{\cf3 \par
-}{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Capture.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Packets/Packets.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf2\i //Packets.cpp\par
 }{\cf1 \par
@@ -2016,7 +2203,6 @@
 }{\cf1 	}m_type{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseChar();{\cf1 \par
 }{\cf1 	}m_code{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseChar();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf1 \par
 }{\cf1 	}m_typeStr{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}icmpv6Types[m_type];{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b switch}{\cf1  }(({\cf5 int})m_type){\cf1  }\{{\cf1 \par
@@ -2182,7 +2368,6 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 \par
 }{\cf2\i //ICMPV6Type.h\par
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
@@ -2240,8 +2425,8 @@
 }{\cf4\b class}{\cf1  }{\cf8\b IGMP}{\cf1  }{\cf6 :}{\cf1  }{\cf4\b public}{\cf1  }IPVersion{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf5 char}{\cf1  }m_groupType;{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }m_maxResp;{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }m_checksum;{\cf1 \par
+}{\cf1 	}{\cf5 char}{\cf1  }m_maxResp;{\cf1 \par
+}{\cf1 	}{\cf5 short}{\cf1  }m_checksum;{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_multicastAddr;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}IGMP(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
@@ -2253,7 +2438,7 @@
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_strType{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 IGMP (}{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}m_strType{\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15 )}{\cf15 "};{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
-}{\cf1 		}{\cf4\b switch}{\cf1  }(m_groupType){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b switch}{\cf1  }(({\cf5 int})m_groupType){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b case}{\cf1  }({\cf11 report}):{\cf1 \par
 }{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Membership Report Group }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_multicastAddr;{\cf1 \par
 }{\cf1 			}{\cf4\b break};{\cf1 \par
@@ -2306,7 +2491,7 @@
 }{\cf1 			}IPVersion{\cf6 :}{\cf6 :}getTexts();{\cf1 \par
 }{\cf1 \par
 }{\cf1 			}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
-}{\cf1 			}{\cf4\b switch}{\cf1  }(m_groupType){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b switch}{\cf1  }(({\cf5 int})m_groupType){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b case}{\cf1  }({\cf11 report}):{\cf1 \par
 }{\cf1 				}{\cf4 Packet}{\cf6 :}{\cf6 :}m_texts[{\cf15 "}{\cf15 groupType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 Membership Report}{\cf15 "};{\cf1 \par
 }{\cf1 				}{\cf4\b break};{\cf1 \par
@@ -2342,9 +2527,10 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "TCPOptions/TCPOptions.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../Eth/Packet.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../IP/IP.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../src/Networks/capture.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../../Win/SDK.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../../GUI/Renderer.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../.././../Base/Data.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../.././../Base/Logger.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <bitset>}{\cf3 \par
@@ -3035,7 +3221,6 @@
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 code}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 \{\} (\{\})}{\cf15 "},{\cf1  }m_texts[{\cf15 "}{\cf15 opcode}{\cf15 "}],{\cf1  }m_opcode);{\cf1 \par
-}{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }m_texts;{\cf1 \par
@@ -3075,13 +3260,6 @@
 }{\cf1 	}std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }getTexts(){\cf1  }{\cf4\b override};{\cf1 \par
 }\};{\cf1 \par
 }{\cf1 \par
-}{\cf2\i //Eth.h\par
-}{\cf1 \par
-}{\cf3 #}{\cf3 pragma once}{\cf3 \par
-}{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "ARP.h"}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Packet.h"}{\cf3 \par
-}{\cf1 \par
 }{\cf2\i //Packet.cpp\par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Packet.h"}{\cf3 \par
@@ -3099,7 +3277,6 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <regex>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <format>}{\cf3 \par
 }{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Base/Base.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Win/SDK.h"}{\cf3 \par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf5 bool}{\cf6 >}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}m_expands;{\cf1 \par
@@ -3109,13 +3286,13 @@
 }{\cf1 \par
 }{\cf1 	}m_idxStr{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}to_string(idx{\cf1  }{\cf6 +}{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}m_len{\cf1  }{\cf6 =}{\cf1  }header{\cf6 -}{\cf6 >}len;{\cf1 \par
+}{\cf1 	}m_len{\cf1  }{\cf6 =}{\cf1  }header{\cf6 -}{\cf6 >}caplen;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}m_pktData{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }u_char[m_len];{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}copy(pkt_data,{\cf1  }pkt_data{\cf1  }{\cf6 +}{\cf1  }m_len,{\cf1  }m_pktData);{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}m_header{\cf1  }{\cf6 =}{\cf1  }header;{\cf1 \par
+}{\cf1 	}m_header{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }pcap_pkthdr({\cf6 *}header);{\cf1 \par
 }{\cf1 	}{\cf1 \par
 }{\cf1 	}m_epoch{\cf1  }{\cf6 =}{\cf1  }(({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_sec{\cf1  }{\cf6 +}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_usec{\cf1  }{\cf6 /}{\cf1  }{\cf6 1000000.0});{\cf1 \par
 }{\cf1 \par
@@ -3452,6 +3629,7 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <bitset>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <ws2def.h>}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Base/Data.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf4 IPV4}{\cf6 :}{\cf6 :}{\cf4 IPV4}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }{\cf4 Packet}(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }start{\cf1  }{\cf6 =}{\cf1  }getPos();{\cf1 \par
@@ -3752,15 +3930,15 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <format>}{\cf3 \par
 }{\cf1 \par
 }RouterAlert{\cf6 :}{\cf6 :}RouterAlert({\cf4 Packet}{\cf6 *}{\cf1  }packet){\cf1  }{\cf6 :}{\cf1  }IPV4Option({\cf6 20},{\cf1  }{\cf15 "}{\cf15 Router Alert}{\cf15 "}){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf5 char}{\cf1  }d{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseChar();{\cf1 \par
+}{\cf1 	}{\cf5 unsigned}{\cf1  }{\cf5 char}{\cf1  }d{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseChar();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}m_copyOnFrag{\cf1  }{\cf6 =}{\cf1  }d{\cf1  }{\cf6 &}{\cf1  }{\cf6 0x10000000};{\cf1 \par
-}{\cf1 	}m_clsType{\cf1  }{\cf6 =}{\cf1  }d{\cf1  }{\cf6 &}{\cf1  }{\cf6 0x01100000};{\cf1 \par
-}{\cf1 	}m_code{\cf1  }{\cf6 =}{\cf1  }d{\cf1  }{\cf6 &}{\cf1  }{\cf6 0x00011111};{\cf1 \par
+}{\cf1 	}m_copyOnFrag{\cf1  }{\cf6 =}{\cf1  }d{\cf1  }{\cf6 &}{\cf1  }{\cf6 128};{\cf1 \par
+}{\cf1 	}m_clsType{\cf1  }{\cf6 =}{\cf1  }d{\cf1  }{\cf6 &}{\cf1  }{\cf6 96};{\cf1 \par
+}{\cf1 	}m_code{\cf1  }{\cf6 =}{\cf1  }d{\cf1  }{\cf6 &}{\cf1  }{\cf6 31};{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}m_length{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseChar();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}m_extra{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseLongLong();{\cf1 \par
+}{\cf1 	}m_extra{\cf1  }{\cf6 =}{\cf1  }packet{\cf6 -}{\cf6 >}parseShort();{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(m_extra{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
 }{\cf1 		}m_value{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 Router Shall examine Packet (0)}{\cf15 "};{\cf1 \par
@@ -3807,7 +3985,7 @@
 }{\cf1 	}{\cf5 bool}{\cf1  }m_copyOnFrag;{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }m_clsType;{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }m_code;{\cf1 \par
-}{\cf1 	}{\cf5 long}{\cf1  }m_extra;{\cf1 \par
+}{\cf1 	}{\cf5 short}{\cf1  }m_extra;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}RouterAlert({\cf4 Packet}{\cf6 *}{\cf1  }packet);{\cf1 \par
 }{\cf1 \par
@@ -4113,7 +4291,8 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
 }{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Eth/Eth.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Eth/Packet.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Eth/ARP.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "IP/IP.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Data/ICMP/ICMP.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Data/ICMP/ICMPV6.h"}{\cf3 \par
@@ -4159,7 +4338,6 @@
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}DWORD,{\cf1  }DWORD{\cf6 >}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}PORT2PID;{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}DWORD,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}PID2PROC;{\cf1 \par
-}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ipAddress;{\cf1 \par
 }HANDLE{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}hIcmpFile;{\cf1 \par
 }DWORD{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}dwRetVal;{\cf1 \par
 }{\cf5 char}{\cf6 *}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}SendData;{\cf1 \par
@@ -4327,50 +4505,6 @@
 }{\cf5 void}{\cf1  }{\cf8 SDK::refreshTables}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}refreshTCP();{\cf1 \par
 }{\cf1 	}refreshUDP();{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 SDK::findIP}({\cf5 char}{\cf6 *}{\cf1  }adName){\cf1  }\{{\cf1 \par
-}{\cf1 	}ULONG{\cf1  }buffer_size{\cf1  }{\cf6 =}{\cf1  }{\cf4\b sizeof}(IP_ADAPTER_INFO);{\cf1 \par
-}{\cf1 	}IP_ADAPTER_INFO{\cf6 *}{\cf1  }adapter_info{\cf1  }{\cf6 =}{\cf1  }(IP_ADAPTER_INFO{\cf6 *})malloc(buffer_size);{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i // Get the adapter information\par
-}{\cf1 	}{\cf4\b if}{\cf1  }(GetAdaptersInfo(adapter_info,{\cf1  }{\cf6 &}buffer_size){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }ERROR_BUFFER_OVERFLOW){\cf1  }\{{\cf1 \par
-}{\cf1 		}free(adapter_info);{\cf1 \par
-}{\cf1 		}adapter_info{\cf1  }{\cf6 =}{\cf1  }(IP_ADAPTER_INFO{\cf6 *})malloc(buffer_size);{\cf1 \par
-}{\cf1 		}GetAdaptersInfo(adapter_info,{\cf1  }{\cf6 &}buffer_size);{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }ad{\cf1  }{\cf6 =}{\cf1  }adName;{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b for}{\cf1  }(;{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }ad.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(ad.at(i){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 _}{\cf15 '}){\cf1  }\{{\cf1 \par
-}{\cf1 			}i{\cf6 +}{\cf6 +};{\cf1 \par
-}{\cf1 			}{\cf4\b break};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b for}{\cf1  }(;{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }ad.size();{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
-}{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }ad.at(i);{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}ad{\cf1  }{\cf6 =}{\cf1  }ss.str();{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i // Print the IP addresses\par
-}{\cf1 	}{\cf4\b for}{\cf1  }(IP_ADAPTER_INFO{\cf6 *}{\cf1  }adapter{\cf1  }{\cf6 =}{\cf1  }adapter_info;{\cf1  }adapter{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1  }adapter{\cf1  }{\cf6 =}{\cf1  }adapter{\cf6 -}{\cf6 >}Next){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf2\i /*std::cout << "Adapter name: " << adapter->AdapterName << std::endl;\par
-		std::cout << "IP address: " << adapter->IpAddressList.IpAddress.String << std::endl;\par
-		std::cout << "Subnet mask: " << adapter->IpAddressList.IpMask.String << std::endl;\par
-		std::cout << std::endl;*/}{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }((adapter{\cf6 -}{\cf6 >}AdapterName){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }ad){\cf1  }\{{\cf1 \par
-}{\cf1 			}ipAddress{\cf1  }{\cf6 =}{\cf1  }adapter{\cf6 -}{\cf6 >}IpAddressList.IpAddress.String;{\cf1 \par
-}{\cf1 			}{\cf4\b break};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}free(adapter_info);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 SDK::initICMP}(){\cf1  }\{{\cf1 \par
@@ -4573,9 +4707,7 @@
 }{\cf1 \par
 }{\cf4\b class}{\cf1  }{\cf8\b SDK}{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }ipAddress;{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 findIP}({\cf5 char}{\cf6 *}{\cf1  }adName);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 exec}({\cf4\b const}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }cmd);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }exec({\cf4\b const}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }cmd);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 init}();{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 release}();{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }DWORD{\cf1  }{\cf8 getPIDFromPort}(DWORD{\cf1  }port);{\cf1 \par
@@ -4609,10 +4741,4 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }PMIB_UDPTABLE_OWNER_PID{\cf1  }{\cf8 getUDPTable}();{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 refreshUDP}();{\cf1 \par
 }\};{\cf1 \par
-}{\cf1 \par
-}{\cf2\i //Win.h\par
-}{\cf1 \par
-}{\cf3 #}{\cf3 pragma once}{\cf3 \par
-}{\cf1 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "SDK.h"}{\cf3 \par
 }}

@@ -8,7 +8,6 @@ ICMPV6Type::ICMPV6Type(Packet* packet) {
 	m_type = packet->parseChar();
 	m_code = packet->parseChar();
 
-	
 	m_typeStr = Data::icmpv6Types[m_type];
 
 	switch ((int)m_type) {

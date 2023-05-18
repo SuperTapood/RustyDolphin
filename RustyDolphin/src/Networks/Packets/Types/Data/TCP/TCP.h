@@ -194,7 +194,7 @@ public:
 
 			auto flagBits = std::bitset<12>(m_TCPflags).to_string();
 			std::stringstream ss;
-			
+
 			static std::array<std::string, 9> flagNames = {
 				"Accurate ECN",
 				"Congestion Window Reduced",
@@ -232,7 +232,6 @@ public:
 			Packet::m_texts["UrgentPtr"] = std::format("\tUrgent Pointer: {}", m_urgentPtr);
 
 			Packet::m_texts["OptionTitle"] = std::format("   Options: ({} bytes)", m_optSize);
-
 		}
 
 		return Packet::m_texts;
