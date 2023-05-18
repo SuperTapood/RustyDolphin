@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Base/Base.h"
-
 #include <pcap.h>
 #include <string>
 #include <vector>

@@ -7,7 +7,6 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do:
- - extract to App class
  - arp poisnoning
  - add filtering
  - can load files

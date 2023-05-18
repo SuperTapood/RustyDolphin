@@ -10,8 +10,6 @@ using json = nlohmann::ordered_json;
 
 class SDK {
 public:
-	static std::string ipAddress;
-	static void findIP(char* adName);
 	static std::string exec(const char* cmd);
 	static void init();
 	static void release();

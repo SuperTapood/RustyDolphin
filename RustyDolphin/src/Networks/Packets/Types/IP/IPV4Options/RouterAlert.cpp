@@ -4,15 +4,15 @@
 #include <format>
 
 RouterAlert::RouterAlert(Packet* packet) : IPV4Option(20, "Router Alert") {
-	char d = packet->parseChar();
+	unsigned char d = packet->parseChar();
 
-	m_copyOnFrag = d & 0x10000000;
-	m_clsType = d & 0x01100000;
-	m_code = d & 0x00011111;
+	m_copyOnFrag = d & 128;
+	m_clsType = d & 96;
+	m_code = d & 31;
 
 	m_length = packet->parseChar();
 
-	m_extra = packet->parseLongLong();
+	m_extra = packet->parseShort();
 
 	if (m_extra == 0) {
 		m_value = "Router Shall examine Packet (0)";

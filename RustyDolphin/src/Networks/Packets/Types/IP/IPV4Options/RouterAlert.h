@@ -12,7 +12,7 @@ public:
 	bool m_copyOnFrag;
 	int m_clsType;
 	int m_code;
-	long m_extra;
+	short m_extra;
 
 	RouterAlert(Packet* packet);
 

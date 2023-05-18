@@ -7,6 +7,7 @@
 #include <iostream>
 #include <bitset>
 #include <ws2def.h>
+#include "../../../../Base/Data.h"
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto start = getPos();

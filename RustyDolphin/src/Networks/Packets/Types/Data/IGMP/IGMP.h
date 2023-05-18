@@ -15,8 +15,8 @@ template <typename IPVersion>
 class IGMP : public IPVersion {
 public:
 	char m_groupType;
-	int m_maxResp;
-	int m_checksum;
+	char m_maxResp;
+	short m_checksum;
 	std::string m_multicastAddr;
 
 	IGMP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : IPVersion(header, pkt_data, idx) {
@@ -28,7 +28,7 @@ public:
 		Packet::m_strType = "IGMP (" + Packet::m_strType + ")";
 
 		std::stringstream ss;
-		switch (m_groupType) {
+		switch ((int)m_groupType) {
 		case (report):
 			ss << "Membership Report Group " << m_multicastAddr;
 			break;
@@ -81,7 +81,7 @@ public:
 			IPVersion::getTexts();
 
 			std::stringstream ss;
-			switch (m_groupType) {
+			switch ((int)m_groupType) {
 			case (report):
 				Packet::m_texts["groupType"] = "Membership Report";
 				break;

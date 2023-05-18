@@ -4,10 +4,11 @@
 #include <tchar.h>
 #include <vector>
 #include <string>
-#include "../Win/SDK.h"
 #include <iostream>
 #include "Packets/Packets.h"
 #include "../Base/MacroSettings.h"
+#include "../Base/Data.h"
+#include "../Base/Logger.h"
 
 pcap_if_t* Capture::m_alldevs;
 int Capture::m_devs;

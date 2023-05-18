@@ -21,7 +21,6 @@
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
 std::map<DWORD, std::string> SDK::PID2PROC;
-std::string SDK::ipAddress;
 HANDLE SDK::hIcmpFile;
 DWORD SDK::dwRetVal;
 char* SDK::SendData;
@@ -189,50 +188,6 @@ void SDK::refreshUDP() {
 void SDK::refreshTables() {
 	refreshTCP();
 	refreshUDP();
-}
-
-void SDK::findIP(char* adName) {
-	ULONG buffer_size = sizeof(IP_ADAPTER_INFO);
-	IP_ADAPTER_INFO* adapter_info = (IP_ADAPTER_INFO*)malloc(buffer_size);
-
-	// Get the adapter information
-	if (GetAdaptersInfo(adapter_info, &buffer_size) == ERROR_BUFFER_OVERFLOW) {
-		free(adapter_info);
-		adapter_info = (IP_ADAPTER_INFO*)malloc(buffer_size);
-		GetAdaptersInfo(adapter_info, &buffer_size);
-	}
-
-	std::stringstream ss;
-
-	std::string ad = adName;
-	int i = 0;
-
-	for (; i < ad.size(); i++) {
-		if (ad.at(i) == '_') {
-			i++;
-			break;
-		}
-	}
-
-	for (; i < ad.size(); i++) {
-		ss << ad.at(i);
-	}
-
-	ad = ss.str();
-
-	// Print the IP addresses
-	for (IP_ADAPTER_INFO* adapter = adapter_info; adapter != nullptr; adapter = adapter->Next) {
-		/*std::cout << "Adapter name: " << adapter->AdapterName << std::endl;
-		std::cout << "IP address: " << adapter->IpAddressList.IpAddress.String << std::endl;
-		std::cout << "Subnet mask: " << adapter->IpAddressList.IpMask.String << std::endl;
-		std::cout << std::endl;*/
-		if ((adapter->AdapterName) == ad) {
-			ipAddress = adapter->IpAddressList.IpAddress.String;
-			break;
-		}
-	}
-
-	free(adapter_info);
 }
 
 void SDK::initICMP() {

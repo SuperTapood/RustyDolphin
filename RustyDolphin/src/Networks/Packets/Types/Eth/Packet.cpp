@@ -13,7 +13,6 @@
 #include <regex>
 #include <format>
 
-#include "../../../../Base/Base.h"
 #include "../../../../Win/SDK.h"
 
 std::map<std::string, bool> Packet::m_expands;

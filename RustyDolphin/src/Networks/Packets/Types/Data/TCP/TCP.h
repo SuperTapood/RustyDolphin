@@ -3,9 +3,10 @@
 #include "TCPOptions/TCPOptions.h"
 #include "../../Eth/Packet.h"
 #include "../../IP/IP.h"
-#include "../../../src/Networks/capture.h"
 #include "../../../../../Win/SDK.h"
 #include "../../../../../GUI/Renderer.h"
+#include "../../../.././../Base/Data.h"
+#include "../../../.././../Base/Logger.h"
 
 #include <iostream>
 #include <bitset>

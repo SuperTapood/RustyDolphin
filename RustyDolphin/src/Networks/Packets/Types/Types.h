@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Eth/Eth.h"
+#include "Eth/Packet.h"
+#include "Eth/ARP.h"
 #include "IP/IP.h"
 #include "Data/ICMP/ICMP.h"
 #include "Data/ICMP/ICMPV6.h"
