@@ -130,10 +130,12 @@ void Renderer::renderExpanded(IPV4* p) {
 		if (ImGui::Button(m.at("differServ").c_str())) {
 			p->m_expands.at("DifferServ") = !p->m_expands.at("DifferServ");
 		}
+
 		if (p->m_expands.at("DifferServ")) {
 			ImGui::Text(m.at("DSCP").c_str());
 			ImGui::Text(m.at("ECN").c_str());
 		}
+
 		ImGui::Text("\tTotal Length: %d", p->m_totalLength);
 		ImGui::Text(m.at("ID").c_str());
 		if (ImGui::Button(m.at("IPFlags").c_str())) {
@@ -145,6 +147,7 @@ void Renderer::renderExpanded(IPV4* p) {
 			ImGui::Text(m.at("dfBits").c_str());
 			ImGui::Text(m.at("mfBits").c_str());
 		}
+
 		ImGui::Text(m.at("offset").c_str());
 		ImGui::Text("\tTime to Live: %d", p->m_ttl);
 		ImGui::Text(m.at("proto").c_str());
@@ -171,6 +174,11 @@ void Renderer::renderExpanded(IPV4* p) {
 					}
 				}
 			}
+		}
+		
+		if (ImGui::Button("   Geo Trace this Packet? (will open a pop up with the info)")) {
+			Data::showGeoTrace = p->m_idx;
+			Data::geoLocThread = std::jthread(SDK::geoTrace, p->getAlienAddr());
 		}
 	}
 }

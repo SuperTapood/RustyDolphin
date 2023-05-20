@@ -160,7 +160,9 @@ void Capture::capturePackets() {
 	const u_char* pkt_data;
 	int r;
 
+#if _DEBUG
 	m_dumpfile = pcap_dump_open(adapter, "captures/capture.pcap");
+#endif
 
 	if (Data::doneLoading) {
 		return;
@@ -201,7 +203,7 @@ void Capture::capturePackets() {
 			Data::captured.push_back(p);
 		}
 
-		dump(header, pkt_data);
+		//dump(header, pkt_data);
 
 		Data::capIdx++;
 	}

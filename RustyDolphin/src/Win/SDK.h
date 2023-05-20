@@ -10,7 +10,9 @@ using json = nlohmann::ordered_json;
 
 class SDK {
 public:
+	static std::string ipAddress;
 	static std::string exec(const char* cmd);
+	static void findIP(char* adName);
 	static void init();
 	static void release();
 	static DWORD getPIDFromPort(DWORD port);
@@ -18,7 +20,7 @@ public:
 	static std::string getProcFromPort(DWORD port);
 	static json geoLocate(std::string addr);
 	static std::vector<std::string> traceRoute(std::string addr);
-	static std::vector<json> geoTrace(std::string addr);
+	static void geoTrace(std::string addr);
 	static std::string lookupMAC(std::string addr);
 
 private:

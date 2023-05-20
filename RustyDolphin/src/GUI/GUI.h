@@ -13,6 +13,7 @@
 class GUI {
 public:
 	static GLFWwindow* window;
+	static GLuint earthTex;
 
 	static void init();
 	static void release();

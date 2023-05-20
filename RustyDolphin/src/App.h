@@ -24,4 +24,6 @@ private:
 	static void renderFilterBox();
 	static void alertFilter();
 	static void filterHelp();
+	static void showGeoTrace();
+	static void geoTable();
 };

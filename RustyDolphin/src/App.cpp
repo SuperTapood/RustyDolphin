@@ -14,6 +14,7 @@
 void App::release() {
 	Data::doneCounting = true;
 	Data::doneCapturing = true;
+	Data::geoTerminate = true;
 	Logger::release();
 	Capture::release();
 	SDK::release();
@@ -44,7 +45,7 @@ void App::adapterScreen() {
 }
 
 void App::captureScreen() {
-	Data::captureThread = std::thread(Capture::capturePackets);
+	Data::captureThread = std::jthread(Capture::capturePackets);
 
 	render();
 
@@ -86,6 +87,9 @@ void App::handleLoad() {
 			Data::doneCounting = true;
 			Data::showLoad = false;
 		}
+		else {
+			Data::showLoad = false;
+		}
 
 		// close
 		ImGuiFileDialog::Instance()->Close();
@@ -96,6 +100,7 @@ void App::getAdapter() {
 #ifdef CAPTURE_LIVE
 	Data::fileAdapter = false;
 	Data::chosenAdapter = Capture::createAdapter(3);
+	SDK::findIP(Capture::getDev(3)->name);
 	return;
 #endif
 #ifdef CAPTURE_SAMPLES
@@ -227,13 +232,14 @@ void App::getAdapter() {
 		GUI::endFrame();
 	}
 
-	std::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
+	std::ranges::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
 
 	Data::fileAdapter = false;
 
 	if (selected != -1) {
 		Data::chosenAdapter = Capture::createAdapter(selected);
 	}
+	SDK::findIP(Capture::getDev(selected)->name);
 }
 
 void App::handleStop() {
@@ -279,7 +285,7 @@ void App::handleStart() {
 			Data::captured.clear();
 			Data::capIdx = 0;
 			Data::doneCapturing = false;
-			Data::captureThread = std::thread(Capture::capturePackets);
+			Data::captureThread = std::jthread(Capture::capturePackets);
 		}
 		ImGui::SetCursorPosY(430);
 		if (GUI::centerButton("No")) {
@@ -310,7 +316,7 @@ void App::handleStartFile() {
 			Data::captured.clear();
 			Data::capIdx = 0;
 			Data::doneCapturing = false;
-			Data::captureThread = std::thread(Capture::capturePackets);
+			Data::captureThread = std::jthread(Capture::capturePackets);
 		}
 		ImGui::SetCursorPosY(430);
 		if (GUI::centerButton("No")) {
@@ -355,6 +361,11 @@ void App::handleSave() {
 			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 
 			Capture::dumpAll(filePathName);
+
+			Data::showSave = false;
+		}
+		else {
+			Data::showSave = false;
 		}
 
 		// close
@@ -388,7 +399,10 @@ void App::handleLoadCapture() {
 			Data::fileAdapter = true;
 			Data::showLoad = false;
 			Data::chosenAdapter = Capture::load(filePathName);
-			Data::captureThread = std::thread(Capture::capturePackets);
+			Data::captureThread = std::jthread(Capture::capturePackets);
+		}
+		else {
+			Data::showLoad = false;
 		}
 
 		// close
@@ -627,6 +641,94 @@ void App::renderFilterBox() {
 	}
 }
 
+void App::geoTable() {
+	if (ImGui::BeginTable("Geo Table", columns, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg, ImVec2(1250, 500)))
+	{
+		GUI::pushFont("regular");
+		ImGui::TableSetupScrollFreeze(0, 1);
+		ImGui::TableSetupColumn("Hop Number", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+		ImGui::TableSetupColumn("rDNS", ImGuiTableColumnFlags_WidthFixed, 320.0f);
+		ImGui::TableSetupColumn("ISP", ImGuiTableColumnFlags_WidthFixed, 300.0f);
+		ImGui::TableSetupColumn("Latitude", ImGuiTableColumnFlags_WidthFixed, 110.0f);
+		ImGui::TableSetupColumn("Longitude", ImGuiTableColumnFlags_WidthFixed, 110.0f);
+		ImGui::TableSetupColumn("Timezone", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+		ImGui::TableHeadersRow();
+
+		for (int row = 0; row < Data::locs.size(); row++) {
+			ImGui::TableNextRow();
+			auto j = Data::locs.at(row);
+
+			{
+				auto data = j.at("data").at("geo");
+				std::lock_guard<std::mutex> guard(Data::geoGuard);
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text(std::to_string(row).c_str());
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text(data.at("ip").dump(0).c_str());
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text(data.at("rdns").dump(0).c_str());
+				ImGui::TableSetColumnIndex(3);
+				ImGui::Text(data.at("isp").dump(0).c_str());
+				ImGui::TableSetColumnIndex(4);
+				ImGui::Text(data.at("latitude").dump(0).c_str());
+				ImGui::TableSetColumnIndex(5);
+				ImGui::Text(data.at("longitude").dump(0).c_str());
+				ImGui::TableSetColumnIndex(6);
+				ImGui::Text(data.at("timezone").dump(0).c_str());
+			}
+		}
+
+		GUI::popFont();
+		ImGui::EndTable();
+	}
+}
+
+void App::showGeoTrace() {
+	GUI::pushFont("adapters");
+	ImGui::OpenPopup("GeoLoc");
+	ImGui::SetNextWindowSize(ImVec2(1280, 720));
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	if (ImGui::BeginPopupModal("GeoLoc", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
+	{
+		
+		GUI::centerText("Filter Documentation");
+		GUI::centerText("below are the allowed filters and the values they accept:");
+		geoTable();
+
+		ImVec2 window_size = ImGui::GetContentRegionAvail();
+		ImGui::SetCursorPosX((window_size.x - 1024) * 0.5f);
+		ImGui::Image((void*)(intptr_t)GUI::earthTex, ImVec2(1024, 794));
+		if (GUI::centerButton("OK")) {
+			if (!Data::geoDone) {
+				Data::geoAlert = true;
+			}
+			else {
+				Data::geoLocThread.join();
+				Data::showGeoTrace = -1;
+			}
+		}
+
+		if (Data::geoAlert) {
+			ImGui::OpenPopup("hotshot");
+			ImGui::SetNextWindowSize(ImVec2(600, 500));
+			ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
+			if (ImGui::BeginPopupModal("hotshot", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
+			{
+				GUI::centerText("you cannot exit just yet");
+				GUI::centerText("the data caputring is not yet done\n");
+				ImGui::SetCursorPosY(350);
+				if (GUI::centerButton("OK")) {
+					Data::geoAlert = false;
+				}
+				ImGui::EndPopup();
+			}
+		}
+	}
+	ImGui::End();
+	GUI::popFont();
+}
+
 void App::render() {
 	const auto upArrow = ImGui::GetKeyIndex(ImGuiKey_UpArrow);
 	const auto downArrow = ImGui::GetKeyIndex(ImGuiKey_DownArrow);
@@ -664,15 +766,19 @@ void App::render() {
 			handleStartFile();
 		}
 
-		if (!Data::doneCapturing && Data::showSave) {
+		else if (!Data::doneCapturing && Data::showSave) {
 			handleSaveGoing();
 		}
 		else if (Data::doneCapturing && Data::showSave) {
 			handleSave();
 		}
 
-		if (Data::showLoad) {
+		else if (Data::showLoad) {
 			handleLoadCapture();
+		}
+
+		else if (Data::showGeoTrace != -1) {
+			showGeoTrace();
 		}
 
 		GUI::popFont();

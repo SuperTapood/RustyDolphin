@@ -5,6 +5,7 @@
 
 GLFWwindow* GUI::window;
 std::map<std::string, ImFont*> GUI::fonts;
+GLuint GUI::earthTex;
 
 void GUI::init() {
 	if (!glfwInit())
@@ -67,6 +68,13 @@ void GUI::init() {
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.5f, 0.5f, 0.5f, 0.5f);
+
+	images[0].pixels = stbi_load("deps/assets/earth.jpeg", &images[0].width, &images[0].height, 0, 4); //rgba channels
+
+	glGenTextures(1, &earthTex);
+	glBindTexture(GL_TEXTURE_2D, earthTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, images[0].width, images[0].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, images[0].pixels);
 }
 
 void GUI::release() {

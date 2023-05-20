@@ -8,6 +8,7 @@
 #include <bitset>
 #include <ws2def.h>
 #include "../../../../Base/Data.h"
+#include "../../../../Win/SDK.h"
 
 IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
 	auto start = getPos();
@@ -211,4 +212,12 @@ std::map<std::string, std::string> IPV4::getTexts() {
 	}
 
 	return m_texts;
+}
+
+std::string IPV4::getAlienAddr() {
+	if (m_srcAddr == SDK::ipAddress) {
+		return m_destAddr;
+	}
+	
+	return m_srcAddr;
 }

@@ -38,4 +38,6 @@ public:
 	}
 
 	virtual std::map<std::string, std::string> getTexts() override;
+
+	std::string getAlienAddr();
 };

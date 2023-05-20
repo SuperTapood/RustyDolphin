@@ -49,7 +49,7 @@ bool Data::doneLoading = false;
 bool Data::showSave = false;
 bool Data::showLoad = false;
 bool Data::showFilterHelp = false;
-std::thread Data::captureThread;
+std::jthread Data::captureThread;
 pcap_t* Data::chosenAdapter;
 std::mutex Data::guard;
 bool Data::fileAdapter;
@@ -66,6 +66,13 @@ std::string Data::filterIssue;
 bool Data::showBadFilter;
 bool Data::newFilter = true;
 long Data::displayed = 0;
+long Data::showGeoTrace = -1;
+std::vector<json> Data::locs;
+std::jthread Data::geoLocThread;
+std::mutex Data::geoGuard;
+bool Data::geoDone;
+bool Data::geoAlert;
+bool Data::geoTerminate = false;
 
 void Data::init() {
 	dscpMap[0] = "Default";

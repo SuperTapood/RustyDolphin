@@ -7,6 +7,7 @@
 #include <mutex>
 #include <set>
 
+// please no more global variables i beg thee
 class Data {
 public:
 	static std::vector<Packet*>              captured;
@@ -22,7 +23,7 @@ public:
 	static long capIdx;
 	static bool showStop;
 	static bool showStart;
-	static std::thread captureThread;
+	static std::jthread captureThread;
 	static pcap_t* chosenAdapter;
 	static int selectExpand;
 	static std::mutex guard;
@@ -39,6 +40,15 @@ public:
 	static bool newFilter;
 	static bool showFilterHelp;
 	static long displayed;
+	static long showGeoTrace;
+	static std::vector<json> locs;
+	static std::jthread geoLocThread;
+	static std::mutex geoGuard;
+	static bool geoDone;
+	static bool geoAlert;
+	static bool geoTerminate;
+
+
 
 
 	static void addPacket(Packet* p);
