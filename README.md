@@ -8,6 +8,7 @@ time spent making this nonsense in the best language ever made:
 
  to do:
  - add filtering
+ - add packet stats :)
  - arp poisnoning
  - add geo trace route
  - more arp hard types and opcodes (https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml)

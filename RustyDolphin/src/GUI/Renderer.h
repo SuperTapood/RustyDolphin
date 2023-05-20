@@ -22,24 +22,18 @@ public:
 	static void filterPacket(Packet* p);
 	static void render(Packet* p);
 	static void renderExpanded(Packet* p);
-	static void render(ARP* p);
 	static void renderExpanded(ARP* p);
 	static void render(IPV4* p);
 	static void renderExpanded(IPV4* p);
-	static void render(IGMP<IPV4>* p);
 	static void renderExpanded(IGMP<IPV4>* p);
-	static void render(TCP<IPV4>* p);
+	static void renderExpanded(IGMP<IPV6>* p);
 	static void renderExpanded(TCP<IPV4>* p);
-	static void render(UDP<IPV4>* p);
+	static void renderExpanded(TCP<IPV6>* p);
 	static void renderExpanded(UDP<IPV4>* p);
-	static void render(ICMP* p);
 	static void renderExpanded(ICMP* p);
-	static void render(UDP<IPV6>* p);
 	static void renderExpanded(UDP<IPV6>* p);
 	static void render(IPV6* p);
 	static void renderExpanded(IPV6* p);
-	static void render(TCP<IPV6>* p);
-	static void render(ICMPV6* p);
 	static void renderExpanded(ICMPV6* p);
 
 private:

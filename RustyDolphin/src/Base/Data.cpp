@@ -32,7 +32,7 @@ std::array<const char*, 30> Data::quotes = {
 	"The numbers Mason! What do they mean?!?!",
 	"funny quote go brrrrr",
 	"Built by a part time silly sandwich",
-	"'Give someone state and they'll have a bug one day, but teach them how to represent state in two separate locations that have to be kept in sync and they'll have bugs for a lifetime.' - ryg",
+	"do NOT tap the glass",
 	"The C++ giveth, and the C++ taketh away",
 	"this quote has been left as an exercise for the reader"
 };
@@ -48,6 +48,7 @@ bool Data::showStart = false;
 bool Data::doneLoading = false;
 bool Data::showSave = false;
 bool Data::showLoad = false;
+bool Data::showFilterHelp = false;
 std::thread Data::captureThread;
 pcap_t* Data::chosenAdapter;
 std::mutex Data::guard;
@@ -197,6 +198,12 @@ void Data::processFilter() {
 		first = value.find_first_not_of(' ');
 		last = value.find_last_not_of(' ');
 		value = value.substr(first, last - first + 1);
+
+		std::ranges::transform(key.begin(), key.end(), key.begin(),
+			[](unsigned char c) { return std::tolower(c); });
+
+		std::ranges::transform(value.begin(), value.end(), value.begin(),
+			[](unsigned char c) { return std::tolower(c); });
 
 		args.push_back(key);
 		args.push_back(value);

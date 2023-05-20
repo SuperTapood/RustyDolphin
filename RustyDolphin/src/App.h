@@ -23,4 +23,5 @@ private:
 	static void renderAdapterMenuBar();
 	static void renderFilterBox();
 	static void alertFilter();
+	static void filterHelp();
 };

@@ -13,8 +13,8 @@
 #endif
 
 #if FEATURES_ENABLED
-#define CAPTURE_LIVE
-//#define CAPTURE_SAMPLES
+//#define CAPTURE_LIVE
+#define CAPTURE_SAMPLES
 //#define CAPTURE_V6
 //#define CAPTURE_ICMPV6
 #endif

@@ -37,6 +37,7 @@ public:
 	static std::set<std::string> filterKeys;
 	static std::map<std::string, std::string> filter;
 	static bool newFilter;
+	static bool showFilterHelp;
 
 
 	static void addPacket(Packet* p);

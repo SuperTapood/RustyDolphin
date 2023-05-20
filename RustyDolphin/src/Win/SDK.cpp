@@ -249,11 +249,11 @@ DWORD SDK::getPIDFromPort(DWORD port) {
 		return PORT2PID.at(port);
 	}
 
-	/*refreshTables();
+	refreshTables();
 
 	if (PORT2PID.contains(port)) {
 		return PORT2PID.at(port);
-	}*/
+	}
 
 	return MAXDWORD;
 }

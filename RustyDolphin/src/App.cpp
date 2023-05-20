@@ -396,6 +396,76 @@ void App::handleLoadCapture() {
 	}
 }
 
+void App::filterHelp() {
+	GUI::pushFont("adapters");
+	ImGui::OpenPopup("Filter Help");
+	ImGui::SetNextWindowSize(ImVec2(1080, 520));
+	ImGui::SetNextWindowPos(ImVec2(100, 100));
+	if (ImGui::BeginPopupModal("Filter Help", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
+	{
+		GUI::centerText("Filter Documentation");
+		GUI::centerText("below are the allowed filters and the values they accept:");
+		ImGui::Text("num");
+		GUI::pushFont("regular");
+		ImGui::Text("the number of the packet in the packet stream. (this filter only shows one packet)");
+		ImGui::Text("for example, if you wanted to only see packet number 68 you can type: 'num=68'");
+		GUI::popFont();
+		ImGui::Text("len");
+		GUI::pushFont("regular");
+		ImGui::Text("the overall length of the packet in bytes (bytes on wire)");
+		ImGui::Text("for example, if you wanted to only see packets containing exactly 60 bytes you can type: 'len=60'");
+		GUI::popFont();
+		ImGui::Text("ip");
+		GUI::pushFont("regular");
+		ImGui::Text("the type of meta-protocol used in the packet itself (called ip for brevity, but this also includes arp)");
+		ImGui::Text("for example, if you wanted to only see arp packets you can type: 'ip=arp'");
+		GUI::popFont();
+		ImGui::Text("proto");
+		GUI::pushFont("regular");
+		ImGui::Text("the type of protocol used in the packet itself (such as TCP, UDP, ICMP, etc)");
+		ImGui::Text("for example, if you wanted to only see packets which use the IGMP protocol you can type: 'proto=igmp'");
+		GUI::popFont();
+		ImGui::Text("saddr");
+		GUI::pushFont("regular");
+		ImGui::Text("the address (whether it is IPv4, IPv6, or MAC depends on the packet) of the packet's source");
+		ImGui::Text("for example, if you wanted to only see packets which came from 10.0.11.69 you can type: 'saddr=10.0.11.69'");
+		GUI::popFont();
+		ImGui::Text("daddr");
+		GUI::pushFont("regular");
+		ImGui::Text("the address (whether it is IPv4, IPv6, or MAC depends on the packet) of the packet's destination");
+		ImGui::Text("for example, if you wanted to only see packets which are addressed to MAC broadcast you can type: 'daddr=ff:ff:ff:ff:ff:ff'");
+		GUI::popFont();
+		ImGui::Text("sport");
+		GUI::pushFont("regular");
+		ImGui::Text("the port from which the packet originated");
+		ImGui::Text("for example, if you wanted to only see packets which came from port 443 you can type: 'sport=443'");
+		GUI::popFont();
+		ImGui::Text("dport");
+		GUI::pushFont("regular");
+		ImGui::Text("the port to which the packet is headed");
+		ImGui::Text("for example, if you wanted to only see packets headed to port 42069 you can type: 'dport=42069'");
+		GUI::popFont();
+		ImGui::Text("proc");
+		GUI::pushFont("regular");
+		ImGui::Text("the process which sent the packet (due to the way the process detecting works, only tcp and udp connections are detected, and some mistakes may be made)");
+		ImGui::Text("for example, if you wanted to only see packets sent / received by Google's Chrome you can: 'proc=chrome.exe'");
+		GUI::popFont();
+		ImGui::Text("notes");
+		GUI::pushFont("regular");
+		ImGui::Text("-in order to chain multiple filters together, use commas to sepearte them: 'proto=tcp, proc=msedge.exe, len=42'");
+		ImGui::Text("-leading and trailing spaces are trimmed from filter inputs to reduce the amount of headache :)");
+		ImGui::Text("-if a bad filter is given, no packet will be presented");
+		ImGui::Text("-each presented packet has to pass every filter. you cannot use filters to present both tcp and udp packets for example by using 'proto=tcp, proto=udp'. only udp packets will be presented as its the last filter");
+		GUI::popFont();
+		ImGui::Text("\n\n");
+		if (GUI::centerButton("OK")) {
+			Data::showFilterHelp = false;
+		}
+		ImGui::EndPopup();
+	}
+	GUI::popFont();
+}
+
 void App::renderCaptureMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
@@ -413,6 +483,12 @@ void App::renderCaptureMenuBar() {
 			}
 			if (ImGui::MenuItem("Stop")) {
 				Data::showStop = true;
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::MenuItem("Filter Docs")) {
+				Data::showFilterHelp = true;
 			}
 			ImGui::EndMenu();
 		}
@@ -513,6 +589,9 @@ void App::alertFilter() {
 	{
 		GUI::centerText("Your filter is not correct:");
 		GUI::centerText(Data::filterIssue.c_str());
+		GUI::centerText("\nIf you need help with filtering");
+		GUI::centerText("You can use the documentation:");
+		GUI::centerText("Help->Filter Docs");
 		ImGui::SetCursorPosY(350);
 		if (GUI::centerButton("OK")) {
 			Data::showBadFilter = false;
@@ -560,6 +639,10 @@ void App::render() {
 		renderFilterBox();
 
 		renderTable();
+
+		if (Data::showFilterHelp) {
+			filterHelp();
+		}
 
 		if (Data::selected != -1) {
 			renderExpandedPacket();
