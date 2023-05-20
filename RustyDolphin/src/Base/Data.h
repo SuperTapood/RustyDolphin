@@ -38,6 +38,7 @@ public:
 	static std::map<std::string, std::string> filter;
 	static bool newFilter;
 	static bool showFilterHelp;
+	static long displayed;
 
 
 	static void addPacket(Packet* p);

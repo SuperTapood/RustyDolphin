@@ -65,6 +65,7 @@ std::map<std::string, std::string> Data::filter;
 std::string Data::filterIssue;
 bool Data::showBadFilter;
 bool Data::newFilter = true;
+long Data::displayed = 0;
 
 void Data::init() {
 	dscpMap[0] = "Default";

@@ -35,6 +35,7 @@ bool Renderer::filter(Packet* p) {
 
 void Renderer::filterPacket(Packet* p) {
 	if (filter(p)) {
+		Data::displayed++;
 		ImGui::TableNextRow();
 		p->render();
 	}

@@ -492,6 +492,10 @@ void App::renderCaptureMenuBar() {
 			}
 			ImGui::EndMenu();
 		}
+		std::string text = std::format("total packet captured: {} | packets displayed: {}", Data::capIdx, Data::displayed);
+		ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - textSize.x);
+		ImGui::Text(text.c_str());
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -502,7 +506,7 @@ void App::renderTable() {
 	if (ImGui::BeginTable("Packet Table", columns, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg))
 	{
 		ImGui::TableSetupScrollFreeze(0, 1);
-		ImGui::TableSetupColumn((("No. (" + std::to_string(Data::captured.size()) + ")").c_str()), ImGuiTableColumnFlags_WidthFixed, 80.0f);
+		ImGui::TableSetupColumn(("No."), ImGuiTableColumnFlags_WidthFixed, 80.0f);
 		ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 		ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
 		ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthFixed, 200.0f);
@@ -510,6 +514,8 @@ void App::renderTable() {
 		ImGui::TableSetupColumn("Length", ImGuiTableColumnFlags_WidthFixed, 50.0f);
 		ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 		ImGui::TableHeadersRow();
+
+		Data::displayed = 0;
 
 		for (int row = 0; row < Data::capIdx; row++)
 		{

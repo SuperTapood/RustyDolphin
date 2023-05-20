@@ -7,15 +7,10 @@ time spent making this nonsense in the best language ever made:
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
  to do:
- - add filtering
- - add packet stats :)
  - arp poisnoning
  - add geo trace route
  - more arp hard types and opcodes (https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml)
  - maybe add checksum verification?
-
-
-file dialog: https://github.com/aiekick/ImGuiFileDialog
 
 Filtering:
 Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag is somewhere else indicating a need to refilter. Upon refiltering, the string filter is converted to a a dict, which defaults of all options.
@@ -29,7 +24,6 @@ Each packet has a flag 1 passed filter 2 failed filter 0 unchecked. Second flag 
 General flow:
 
 - Init everything and caches
-- Run sanity checks
 - Fetch all adapters (maybe run some sort of check)
 - Create render thread (maybe main?)
 - Create a thread for each adapter to count packets and create rate
