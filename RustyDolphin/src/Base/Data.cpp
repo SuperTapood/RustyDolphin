@@ -160,6 +160,17 @@ void Data::addPacket(Packet* p) {
 }
 
 void Data::processFilter() {
+	filter["ip"] = "";
+	filter["sport"] = "";
+	filter["dport"] = "";
+	filter["saddr"] = "";
+	filter["daddr"] = "";
+	filter["proto"] = "";
+	filter["num"] = "";
+	filter["len"] = "";
+	filter["proc"] = "";
+	Data::newFilter = true;
+	
 	// filter is empty
 	if (Data::filterTxt[0] == '\0') {
 		return;
@@ -174,6 +185,7 @@ void Data::processFilter() {
 		if (eq != current.find_last_of('=')) {
 			showBadFilter = true;
 			filterIssue = std::format("{} is not a valid filter", current);
+			filter["num"] = "-1";
 			return;
 		}
 		auto key = current.substr(0, eq);
@@ -193,18 +205,9 @@ void Data::processFilter() {
 	if (args.size() % 2 == 1) {
 		showBadFilter = true;
 		filterIssue = "the number of arguments isn't even.";
+		filter["num"] = "-1";
 		return;
 	}
-
-	filter["ip"] = "";
-	filter["sport"] = "";
-	filter["dport"] = "";
-	filter["saddr"] = "";
-	filter["daddr"] = "";
-	filter["proto"] = "";
-	filter["num"] = "";
-	filter["len"] = "";
-	filter["proc"] = "";
 
 	for (int idx = 0; idx < args.size(); idx += 2) {
 		auto key = args.at(idx);
@@ -214,13 +217,12 @@ void Data::processFilter() {
 		if (!filterKeys.contains(key)) {
 			showBadFilter = true;
 			filterIssue = std::format("'{}' isn't a valid filter flag.", key);
+			filter["num"] = "-1";
 			return;
 		}
 
 		filter[key] = value;
 	}
-
-	Data::newFilter = true;
 
 	/*for (auto key : filter) {
 		std::cout << key.first << ":" << key.second << std::endl;
