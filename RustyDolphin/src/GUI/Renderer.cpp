@@ -3,6 +3,43 @@
 #include "../Base/Data.h"
 #include "../Networks/Packets/Types/Types.h"
 
+bool Renderer::filter(Packet* p) {
+	if (!Data::newFilter) {
+		if (p->m_flag == FilterFlag::Passed) {
+			return true;
+		}
+		else if (p->m_flag == FilterFlag::Failed) {
+			return false;
+		}
+	}
+
+	for (auto pair : Data::filter) {
+		if (pair.second == "") {
+			continue;
+		}
+
+		if (!p->m_properties.contains(pair.first)) {
+			p->m_flag = FilterFlag::Failed;
+			return false;
+		}
+
+		if (p->m_properties.at(pair.first) != pair.second) {
+			p->m_flag = FilterFlag::Failed;
+			return false;
+		}
+	}
+
+	p->m_flag = FilterFlag::Passed;
+	return true;
+}
+
+void Renderer::filterPacket(Packet* p) {
+	if (filter(p)) {
+		ImGui::TableNextRow();
+		p->render();
+	}
+}
+
 void Renderer::render(Packet* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {

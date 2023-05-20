@@ -2526,16 +2526,16 @@ static void ShowDemoWindowWidgets()
 		// Helper class to easy setup a text filter.
 		// You may want to implement a more feature-full filtering scheme in your own application.
 		HelpMarker("Not a widget per-se, but ImGuiTextFilter is a helper to perform simple filtering on text strings.");
-		static ImGuiTextFilter filter;
+		static ImGuiTextFilter filterTxt;
 		ImGui::Text("Filter usage:\n"
 			"  \"\"         display all lines\n"
 			"  \"xxx\"      display lines containing \"xxx\"\n"
 			"  \"xxx,yyy\"  display lines containing \"xxx\" or \"yyy\"\n"
 			"  \"-xxx\"     hide lines containing \"xxx\"");
-		filter.Draw();
+		filterTxt.Draw();
 		const char* lines[] = { "aaa1.c", "bbb1.c", "ccc1.c", "aaa2.cpp", "bbb2.cpp", "ccc2.cpp", "abc.h", "hello, world" };
 		for (int i = 0; i < IM_ARRAYSIZE(lines); i++)
-			if (filter.PassFilter(lines[i]))
+			if (filterTxt.PassFilter(lines[i]))
 				ImGui::BulletText("%s", lines[i]);
 		ImGui::TreePop();
 	}
@@ -6239,8 +6239,8 @@ void ImGui::ShowStyleEditor(ImGuiStyle * ref)
 			ImGui::SameLine(); ImGui::SetNextItemWidth(120); ImGui::Combo("##output_type", &output_dest, "To Clipboard\0To TTY\0");
 			ImGui::SameLine(); ImGui::Checkbox("Only Modified Colors", &output_only_modified);
 
-			static ImGuiTextFilter filter;
-			filter.Draw("Filter colors", ImGui::GetFontSize() * 16);
+			static ImGuiTextFilter filterTxt;
+			filterTxt.Draw("Filter colors", ImGui::GetFontSize() * 16);
 
 			static ImGuiColorEditFlags alpha_flags = 0;
 			if (ImGui::RadioButton("Opaque", alpha_flags == ImGuiColorEditFlags_None)) { alpha_flags = ImGuiColorEditFlags_None; } ImGui::SameLine();
@@ -6256,7 +6256,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle * ref)
 			for (int i = 0; i < ImGuiCol_COUNT; i++)
 			{
 				const char* name = ImGui::GetStyleColorName(i);
-				if (!filter.PassFilter(name))
+				if (!filterTxt.PassFilter(name))
 					continue;
 				ImGui::PushID(i);
 				ImGui::ColorEdit4("##color", (float*)&style.Colors[i], ImGuiColorEditFlags_AlphaBar | alpha_flags);

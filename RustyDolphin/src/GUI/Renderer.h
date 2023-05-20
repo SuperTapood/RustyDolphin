@@ -19,6 +19,7 @@ class IGMP;
 
 class Renderer {
 public:
+	static void filterPacket(Packet* p);
 	static void render(Packet* p);
 	static void renderExpanded(Packet* p);
 	static void render(ARP* p);
@@ -40,4 +41,7 @@ public:
 	static void render(TCP<IPV6>* p);
 	static void render(ICMPV6* p);
 	static void renderExpanded(ICMPV6* p);
+
+private:
+	static bool filter(Packet* p);
 };

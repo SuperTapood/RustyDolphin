@@ -29,7 +29,7 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	std::copy(pkt_data, pkt_data + m_len, m_pktData);
 
 	m_header = new pcap_pkthdr(*header);
-	
+
 	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
 
 	m_phyDst = parseMAC();
@@ -41,6 +41,9 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	m_description = "base packet";
 
 	m_expands.insert({ "Packet Title", false });
+
+	m_properties.insert({ "len", std::to_string(m_len) });
+	m_properties.insert({ "num", m_idxStr });
 }
 
 std::string Packet::toString() {
@@ -212,7 +215,7 @@ short Packet::parseShort() {
 
 char Packet::parseChar() {
 	char out;
-	
+
 	constexpr auto len = 1;
 
 	std::memcpy(&out, m_pktData + m_pos, len);

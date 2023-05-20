@@ -303,7 +303,7 @@ extern "C" {
 	static void _wrewinddir(_WDIR* dirp);
 
 	static int scandir(const char* dirname, struct dirent*** namelist,
-		int (*filter)(const struct dirent*),
+		int (*filterTxt)(const struct dirent*),
 		int (*compare)(const struct dirent**, const struct dirent**));
 
 	static int alphasort(const struct dirent** a, const struct dirent** b);
@@ -860,7 +860,7 @@ extern "C" {
 		scandir(
 			const char* dirname,
 			struct dirent*** namelist,
-			int (*filter)(const struct dirent*),
+			int (*filterTxt)(const struct dirent*),
 			int (*compare)(const struct dirent**, const struct dirent**))
 	{
 		struct dirent** files = NULL;
@@ -924,9 +924,9 @@ extern "C" {
 						int pass;
 
 						/* Determine whether to include the entry in result */
-						if (filter) {
+						if (filterTxt) {
 							/* Let the filter function decide */
-							pass = filter(tmp);
+							pass = filterTxt(tmp);
 						}
 						else {
 							/* No filter function, include everything */

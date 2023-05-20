@@ -264,7 +264,7 @@ void App::handleStart() {
 	ImGui::OpenPopup("StartCapture");
 
 	ImGui::SetNextWindowSize(ImVec2(600, 500));
-	ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
+	ImGui::SetNextWindowPos(ImVec2(340, 110));
 	if (ImGui::BeginPopupModal("StartCapture", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
 	{
 		GUI::centerText("You have an ongoing capture.");
@@ -353,7 +353,7 @@ void App::handleSave() {
 		{
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-			
+
 			Capture::dumpAll(filePathName);
 		}
 
@@ -423,8 +423,9 @@ void App::renderCaptureMenuBar() {
 constexpr auto columns = 7;
 
 void App::renderTable() {
-	if (ImGui::BeginTable("Packet Table", columns))
+	if (ImGui::BeginTable("Packet Table", columns, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg))
 	{
+		ImGui::TableSetupScrollFreeze(0, 1);
 		ImGui::TableSetupColumn((("No. (" + std::to_string(Data::captured.size()) + ")").c_str()), ImGuiTableColumnFlags_WidthFixed, 80.0f);
 		ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 		ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 200.0f);
@@ -436,26 +437,25 @@ void App::renderTable() {
 
 		for (int row = 0; row < Data::capIdx; row++)
 		{
-			ImGui::TableNextRow();
 
 			auto p = Data::captured.at(row);
 			{
 				std::lock_guard<std::mutex> guard(Data::guard);
-				p->render();
+				Renderer::filterPacket(p);
 			}
 
 			if (row == Data::selected)
 			{
 				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
-
 			}
-
 		}
+
+		// after one frame the filter is no longer new
+		Data::newFilter = false;
 		ImGui::EndTable();
 	}
 	ImGui::End();
 }
-
 
 void App::renderExpandedPacket() {
 	ImGui::SetNextWindowPos(ImVec2(0, 380));
@@ -504,6 +504,44 @@ void App::renderExpandedPacket() {
 	ImGui::End();
 }
 
+void App::alertFilter() {
+	GUI::pushFont("adapters");
+	ImGui::OpenPopup("Bad Filter");
+	ImGui::SetNextWindowSize(ImVec2(600, 500));
+	ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
+	if (ImGui::BeginPopupModal("Bad Filter", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
+	{
+		GUI::centerText("Your filter is not correct:");
+		GUI::centerText(Data::filterIssue.c_str());
+		ImGui::SetCursorPosY(350);
+		if (GUI::centerButton("OK")) {
+			Data::showBadFilter = false;
+		}
+		ImGui::EndPopup();
+	}
+	GUI::popFont();
+}
+
+void App::renderFilterBox() {
+	ImGui::InputText("##", Data::filterTxt, IM_ARRAYSIZE(Data::filterTxt));
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Apply")) {
+		Data::processFilter();
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Clear")) {
+		Data::filterTxt[0] = '\0';
+	}
+
+	if (Data::showBadFilter) {
+		alertFilter();
+	}
+}
+
 void App::render() {
 	const auto upArrow = ImGui::GetKeyIndex(ImGuiKey_UpArrow);
 	const auto downArrow = ImGui::GetKeyIndex(ImGuiKey_DownArrow);
@@ -518,6 +556,8 @@ void App::render() {
 		ImGui::Begin("Packet Table Window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
 		renderCaptureMenuBar();
+
+		renderFilterBox();
 
 		renderTable();
 

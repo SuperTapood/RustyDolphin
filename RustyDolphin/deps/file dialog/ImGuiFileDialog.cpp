@@ -846,7 +846,7 @@ namespace IGFD
 
 	void IGFD::FilterManager::FilterInfos::clear()
 	{
-		filter.clear();
+		filterTxt.clear();
 		filter_regex = std::regex();
 		collectionfilters.clear();
 		filter_optimized.clear();
@@ -856,7 +856,7 @@ namespace IGFD
 
 	bool IGFD::FilterManager::FilterInfos::empty() const
 	{
-		return filter.empty() && collectionfilters.empty();
+		return filterTxt.empty() && collectionfilters.empty();
 	}
 
 	bool IGFD::FilterManager::FilterInfos::exist(const std::string& vFilter, bool vIsCaseInsensitive) const
@@ -869,7 +869,7 @@ namespace IGFD
 				(collectionfilters_optimized.find(_filter) != collectionfilters_optimized.end());
 		}
 		return
-			filter == vFilter ||
+			filterTxt == vFilter ||
 			(collectionfilters.find(vFilter) != collectionfilters.end());
 	}
 
@@ -923,8 +923,8 @@ namespace IGFD
 
 				if (puDLGFilters[p] == '{') // {
 				{
-					infos.filter = puDLGFilters.substr(lp, p - lp);
-					infos.filter_optimized = Utils::LowerCaseString(infos.filter);
+					infos.filterTxt = puDLGFilters.substr(lp, p - lp);
+					infos.filter_optimized = Utils::LowerCaseString(infos.filterTxt);
 					p++;
 					lp = puDLGFilters.find('}', p);
 					if (lp != nan)
@@ -948,20 +948,20 @@ namespace IGFD
 				}
 				else // ,
 				{
-					infos.filter = puDLGFilters.substr(lp, p - lp);
-					infos.filter_optimized = Utils::LowerCaseString(infos.filter);
+					infos.filterTxt = puDLGFilters.substr(lp, p - lp);
+					infos.filter_optimized = Utils::LowerCaseString(infos.filterTxt);
 
 					// a regex
-					if (infos.filter.find('(') != std::string::npos) {
-						if (infos.filter.find(')') != std::string::npos) {
-							infos.filter_regex = std::regex(infos.filter);
+					if (infos.filterTxt.find('(') != std::string::npos) {
+						if (infos.filterTxt.find(')') != std::string::npos) {
+							infos.filter_regex = std::regex(infos.filterTxt);
 						}
 					}
 
 					p++;
 				}
 
-				if (!currentFilterFound && prSelectedFilter.filter == infos.filter)
+				if (!currentFilterFound && prSelectedFilter.filterTxt == infos.filterTxt)
 				{
 					currentFilterFound = true;
 					prSelectedFilter = infos;
@@ -976,7 +976,7 @@ namespace IGFD
 			if (!token.empty())
 			{
 				FilterInfos infos;
-				infos.filter = std::move(token);
+				infos.filterTxt = std::move(token);
 				prParsedFilters.emplace_back(infos);
 			}
 
@@ -995,7 +995,7 @@ namespace IGFD
 				// std::map<std::string, FilterInfos>
 				for (const auto& infos : prParsedFilters)
 				{
-					if (vFilter == infos.filter)
+					if (vFilter == infos.filterTxt)
 					{
 						prSelectedFilter = infos;
 					}
@@ -1003,9 +1003,9 @@ namespace IGFD
 					{
 						// maybe this ext is in an extention so we will
 						// explore the collections is they are existing
-						for (const auto& filter : infos.collectionfilters)
+						for (const auto& filterTxt : infos.collectionfilters)
 						{
-							if (vFilter == filter)
+							if (vFilter == filterTxt)
 							{
 								prSelectedFilter = infos;
 							}
@@ -1222,7 +1222,7 @@ namespace IGFD
 				prSelectedFilter.exist(vExt, vIsCaseInsensitive) ||
 				prSelectedFilter.exist(".*", vIsCaseInsensitive) ||
 				prSelectedFilter.exist("*.*", vIsCaseInsensitive) ||
-				prSelectedFilter.filter == ".*" ||
+				prSelectedFilter.filterTxt == ".*" ||
 				prSelectedFilter.regex_exist(vNameExt));
 		}
 
@@ -1239,16 +1239,16 @@ namespace IGFD
 			bool needToApllyNewFilter = false;
 
 			ImGui::PushItemWidth(FILTER_COMBO_WIDTH);
-			if (IMGUI_BEGIN_COMBO("##Filters", prSelectedFilter.filter.c_str(), ImGuiComboFlags_None))
+			if (IMGUI_BEGIN_COMBO("##Filters", prSelectedFilter.filterTxt.c_str(), ImGuiComboFlags_None))
 			{
 				intptr_t i = 0;
-				for (const auto& filter : prParsedFilters)
+				for (const auto& filterTxt : prParsedFilters)
 				{
-					const bool item_selected = (filter.filter == prSelectedFilter.filter);
+					const bool item_selected = (filterTxt.filterTxt == prSelectedFilter.filterTxt);
 					ImGui::PushID((void*)(intptr_t)i++);
-					if (ImGui::Selectable(filter.filter.c_str(), item_selected))
+					if (ImGui::Selectable(filterTxt.filterTxt.c_str(), item_selected))
 					{
-						prSelectedFilter = filter;
+						prSelectedFilter = filterTxt;
 						needToApllyNewFilter = true;
 					}
 					ImGui::PopID();
@@ -1282,8 +1282,8 @@ namespace IGFD
 		{
 			// if not a collection we can replace the filter by the extention we want
 			if (prSelectedFilter.collectionfilters.empty() &&
-				prSelectedFilter.filter != ".*" &&
-				prSelectedFilter.filter != "*.*")
+				prSelectedFilter.filterTxt != ".*" &&
+				prSelectedFilter.filterTxt != "*.*")
 			{
 				size_t lastPoint = vFile.find_last_of('.');
 				if (lastPoint != std::string::npos)
@@ -1291,7 +1291,7 @@ namespace IGFD
 					result = result.substr(0, lastPoint);
 				}
 
-				result += prSelectedFilter.filter;
+				result += prSelectedFilter.filterTxt;
 			}
 		}
 
@@ -4884,7 +4884,7 @@ namespace IGFD
 		ImGui::BeginChild("##FileTypes", ImVec2(0, vHeight));
 
 		prFileDialogInternal.puDLGoptionsPane(
-			prFileDialogInternal.puFilterManager.GetSelectedFilter().filter.c_str(),
+			prFileDialogInternal.puFilterManager.GetSelectedFilter().filterTxt.c_str(),
 			prFileDialogInternal.puDLGuserDatas, &prFileDialogInternal.puCanWeContinue);
 
 		ImGui::EndChild();
@@ -4952,7 +4952,7 @@ namespace IGFD
 
 	std::string IGFD::FileDialog::GetCurrentFilter()
 	{
-		return prFileDialogInternal.puFilterManager.GetSelectedFilter().filter;
+		return prFileDialogInternal.puFilterManager.GetSelectedFilter().filterTxt;
 	}
 
 	std::map<std::string, std::string> IGFD::FileDialog::GetSelection()

@@ -4704,9 +4704,9 @@ static int stbi__create_png_image_raw(stbi__png* a, stbi_uc* raw, stbi__uint32 r
 	for (j = 0; j < y; ++j) {
 		stbi_uc* cur = a->out + stride * j;
 		stbi_uc* prior;
-		int filter = *raw++;
+		int filterTxt = *raw++;
 
-		if (filter > 4)
+		if (filterTxt > 4)
 			return stbi__err("invalid filter", "Corrupt PNG");
 
 		if (depth < 8) {
@@ -4718,11 +4718,11 @@ static int stbi__create_png_image_raw(stbi__png* a, stbi_uc* raw, stbi__uint32 r
 		prior = cur - stride; // bugfix: need to compute this after 'cur +=' computation above
 
 		// if first row, use special filter that doesn't sample previous row
-		if (j == 0) filter = first_row_filter[filter];
+		if (j == 0) filterTxt = first_row_filter[filterTxt];
 
 		// handle first byte explicitly
 		for (k = 0; k < filter_bytes; ++k) {
-			switch (filter) {
+			switch (filterTxt) {
 			case STBI__F_none: cur[k] = raw[k]; break;
 			case STBI__F_sub: cur[k] = raw[k]; break;
 			case STBI__F_up: cur[k] = STBI__BYTECAST(raw[k] + prior[k]); break;
@@ -4761,7 +4761,7 @@ static int stbi__create_png_image_raw(stbi__png* a, stbi_uc* raw, stbi__uint32 r
 #define STBI__CASE(f) \
              case f:     \
                 for (k=0; k < nk; ++k)
-			switch (filter) {
+			switch (filterTxt) {
 				// "none" filter turns into a memcpy here; make that explicit.
 			case STBI__F_none:         memcpy(cur, raw, nk); break;
 				STBI__CASE(STBI__F_sub) { cur[k] = STBI__BYTECAST(raw[k] + cur[k - filter_bytes]); } break;
@@ -4780,7 +4780,7 @@ static int stbi__create_png_image_raw(stbi__png* a, stbi_uc* raw, stbi__uint32 r
              case f:     \
                 for (i=x-1; i >= 1; --i, cur[filter_bytes]=255,raw+=filter_bytes,cur+=output_bytes,prior+=output_bytes) \
                    for (k=0; k < filter_bytes; ++k)
-			switch (filter) {
+			switch (filterTxt) {
 				STBI__CASE(STBI__F_none) { cur[k] = raw[k]; } break;
 				STBI__CASE(STBI__F_sub) { cur[k] = STBI__BYTECAST(raw[k] + cur[k - output_bytes]); } break;
 				STBI__CASE(STBI__F_up) { cur[k] = STBI__BYTECAST(raw[k] + prior[k]); } break;
@@ -5142,7 +5142,7 @@ static int stbi__parse_png_file(stbi__png* z, int scan, int req_comp)
 			stbi__skip(s, c.length);
 			break;
 		case STBI__PNG_TYPE('I', 'H', 'D', 'R'): {
-			int comp, filter;
+			int comp, filterTxt;
 			if (!first) return stbi__err("multiple IHDR", "Corrupt PNG");
 			first = 0;
 			if (c.length != 13) return stbi__err("bad IHDR len", "Corrupt PNG");
@@ -5155,7 +5155,7 @@ static int stbi__parse_png_file(stbi__png* z, int scan, int req_comp)
 			if (color == 3 && z->depth == 16)                  return stbi__err("bad ctype", "Corrupt PNG");
 			if (color == 3) pal_img_n = 3; else if (color & 1) return stbi__err("bad ctype", "Corrupt PNG");
 			comp = stbi__get8(s);  if (comp) return stbi__err("bad comp method", "Corrupt PNG");
-			filter = stbi__get8(s);  if (filter) return stbi__err("bad filter method", "Corrupt PNG");
+			filterTxt = stbi__get8(s);  if (filterTxt) return stbi__err("bad filter method", "Corrupt PNG");
 			interlace = stbi__get8(s); if (interlace > 1) return stbi__err("bad interlace method", "Corrupt PNG");
 			if (!s->img_x || !s->img_y) return stbi__err("0-pixel image", "Corrupt PNG");
 			if (!pal_img_n) {

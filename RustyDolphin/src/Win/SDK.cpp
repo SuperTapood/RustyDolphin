@@ -17,7 +17,6 @@
 #include <IcmpAPI.h>
 #include <fstream>
 #include <cstring>
-// #include "../base/Structs.h"
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
 std::map<DWORD, std::string> SDK::PID2PROC;
@@ -250,11 +249,11 @@ DWORD SDK::getPIDFromPort(DWORD port) {
 		return PORT2PID.at(port);
 	}
 
-	refreshTables();
+	/*refreshTables();
 
 	if (PORT2PID.contains(port)) {
 		return PORT2PID.at(port);
-	}
+	}*/
 
 	return MAXDWORD;
 }
@@ -318,9 +317,6 @@ std::vector<std::string> SDK::traceRoute(std::string addr) {
 			PICMP_ECHO_REPLY pEchoReply = (PICMP_ECHO_REPLY)ReplyBuffer;
 			struct in_addr ReplyAddr;
 			ReplyAddr.S_un.S_addr = pEchoReply->Address;
-			/*printf("Received %ld ICMP echo replies from %s\n", dwRetVal, inet_ntoa(ReplyAddr));
-			printf("Status: %ld\n", pEchoReply->Status);
-			printf("Round trip time: %ld milliseconds\n", pEchoReply->RoundTripTime);*/
 			addrs.emplace_back(inet_ntoa(ReplyAddr));
 
 			if (pEchoReply->Status == 0) {
@@ -364,12 +360,13 @@ std::vector<json> SDK::geoTrace(std::string addr) {
 }
 
 std::string SDK::lookupMAC(std::string addr) {
-	std::transform(addr.begin(), addr.end(), addr.begin(),
+	std::ranges::transform(addr.begin(), addr.end(), addr.begin(),
 		[](unsigned char c) { return std::toupper(c); });
+
 	if (MACS.contains(addr)) {
 		return std::format("{}_", MACS.at(addr));
 	}
-	std::transform(addr.begin(), addr.end(), addr.begin(),
+	std::ranges::transform(addr.begin(), addr.end(), addr.begin(),
 		[](unsigned char c) { return std::tolower(c); });
 
 	return std::format("{}:", addr);

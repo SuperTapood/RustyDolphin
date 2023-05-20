@@ -305,19 +305,19 @@ typedef enum
 STBIRDEF int stbir_resize_uint8_generic(const unsigned char* input_pixels, int input_w, int input_h, int input_stride_in_bytes,
 	unsigned char* output_pixels, int output_w, int output_h, int output_stride_in_bytes,
 	int num_channels, int alpha_channel, int flags,
-	stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+	stbir_edge edge_wrap_mode, stbir_filter filterTxt, stbir_colorspace space,
 	void* alloc_context);
 
 STBIRDEF int stbir_resize_uint16_generic(const stbir_uint16* input_pixels, int input_w, int input_h, int input_stride_in_bytes,
 	stbir_uint16* output_pixels, int output_w, int output_h, int output_stride_in_bytes,
 	int num_channels, int alpha_channel, int flags,
-	stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+	stbir_edge edge_wrap_mode, stbir_filter filterTxt, stbir_colorspace space,
 	void* alloc_context);
 
 STBIRDEF int stbir_resize_float_generic(const float* input_pixels, int input_w, int input_h, int input_stride_in_bytes,
 	float* output_pixels, int output_w, int output_h, int output_stride_in_bytes,
 	int num_channels, int alpha_channel, int flags,
-	stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+	stbir_edge edge_wrap_mode, stbir_filter filterTxt, stbir_colorspace space,
 	void* alloc_context);
 
 //////////////////////////////////////////////////////////////////////////////

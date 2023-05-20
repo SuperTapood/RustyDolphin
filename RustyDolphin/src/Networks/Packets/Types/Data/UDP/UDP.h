@@ -57,6 +57,11 @@ public:
 		Packet::m_description = ss.str();
 
 		Packet::m_expands.insert({ "UDP Title", false });
+
+		Packet::m_properties.insert({ "proto", "udp" });
+		Packet::m_properties.insert({ "sport", std::to_string(m_srcPort)});
+		Packet::m_properties.insert({ "dport", std::to_string(m_destPort) });
+		Packet::m_properties.insert({ "proc", m_process });
 	}
 
 	std::string toString() override {

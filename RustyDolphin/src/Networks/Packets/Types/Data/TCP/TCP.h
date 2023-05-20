@@ -121,6 +121,11 @@ public:
 		Packet::m_expands.insert({ "TCP Title", false });
 		Packet::m_expands.insert({ "TCP Flags", false });
 		Packet::m_expands.insert({ "TCP Options", false });
+
+		Packet::m_properties.insert({ "proto", "tcp" });
+		Packet::m_properties.insert({ "sport", std::to_string(m_srcPort) });
+		Packet::m_properties.insert({ "dport", std::to_string(m_destPort) });
+		Packet::m_properties.insert({ "proc", m_process });
 	}
 
 	std::string toString() override {

@@ -3,6 +3,7 @@
 
 #include <ws2def.h>
 #include "../../Base/Logger.h"
+#include "../capture.h"
 
 constexpr auto ETHERTYPE_IPV4 = 0x0800;
 constexpr auto ETHERTYPE_ARP = 0x0806;
@@ -76,6 +77,7 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 		return new ARP(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
+		Capture::dump(header, pkt_data);
 		std::stringstream ss;
 		ss << "unknown packet type: " << type << " at position " << idx;
 		Logger::log(ss.str());

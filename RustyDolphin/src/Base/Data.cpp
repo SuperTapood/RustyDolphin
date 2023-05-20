@@ -1,4 +1,5 @@
 #include "Data.h"
+#include <iostream>
 
 std::vector<Packet*> Data::captured;
 int Data::selected = -1;
@@ -55,6 +56,14 @@ std::array<const char*, 10> Data::TCPFlags = {
 	"RES", "ACN", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"
 };
 
+char Data::filterTxt[1024];
+std::set<std::string> Data::filterKeys = {
+	"ip", "sport", "dport", "saddr", "daddr", "proto", "num", "len", "proc"
+};
+std::map<std::string, std::string> Data::filter;
+std::string Data::filterIssue;
+bool Data::showBadFilter;
+bool Data::newFilter = true;
 
 void Data::init() {
 	dscpMap[0] = "Default";
@@ -148,4 +157,72 @@ void Data::init() {
 
 void Data::addPacket(Packet* p) {
 	captured.push_back(p);
+}
+
+void Data::processFilter() {
+	// filter is empty
+	if (Data::filterTxt[0] == '\0') {
+		return;
+	}
+	std::vector<std::string> args;
+	std::stringstream ss(filterTxt);
+	std::string current;
+	std::size_t first, last;
+
+	while (std::getline(ss, current, ',')) {
+		auto eq = current.find_first_of('=');
+		if (eq != current.find_last_of('=')) {
+			showBadFilter = true;
+			filterIssue = std::format("{} is not a valid filter", current);
+			return;
+		}
+		auto key = current.substr(0, eq);
+		first = key.find_first_not_of(' ');
+		last = key.find_last_not_of(' ');
+		key = key.substr(first, last - first + 1);
+
+		auto value = current.substr(eq + 1);
+		first = value.find_first_not_of(' ');
+		last = value.find_last_not_of(' ');
+		value = value.substr(first, last - first + 1);
+
+		args.push_back(key);
+		args.push_back(value);
+	}
+
+	if (args.size() % 2 == 1) {
+		showBadFilter = true;
+		filterIssue = "the number of arguments isn't even.";
+		return;
+	}
+
+	filter["ip"] = "";
+	filter["sport"] = "";
+	filter["dport"] = "";
+	filter["saddr"] = "";
+	filter["daddr"] = "";
+	filter["proto"] = "";
+	filter["num"] = "";
+	filter["len"] = "";
+	filter["proc"] = "";
+
+	for (int idx = 0; idx < args.size(); idx += 2) {
+		auto key = args.at(idx);
+		auto value = args.at(idx + 1);
+		//std::cout << key << " - " << value << std::endl;
+
+		if (!filterKeys.contains(key)) {
+			showBadFilter = true;
+			filterIssue = std::format("'{}' isn't a valid filter flag.", key);
+			return;
+		}
+
+		filter[key] = value;
+	}
+
+	Data::newFilter = true;
+
+	/*for (auto key : filter) {
+		std::cout << key.first << ":" << key.second << std::endl;
+	}*/
 }

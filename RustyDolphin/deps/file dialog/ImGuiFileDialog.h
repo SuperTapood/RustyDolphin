@@ -1039,7 +1039,7 @@ namespace IGFD
 		class FilterInfos
 		{
 		public:
-			std::string filter;																				// simple filter
+			std::string filterTxt;																				// simple filter
 			std::regex filter_regex;																		// filter fo type regex
 			std::set<std::string> collectionfilters;														// collections of filters
 			std::string filter_optimized;																	// opitmized for case insensitive search

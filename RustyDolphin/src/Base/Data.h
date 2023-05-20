@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <set>
 
 class Data {
 public:
@@ -30,7 +31,15 @@ public:
 	static bool doneLoading;
 	static bool showSave;
 	static bool showLoad;
+	static char filterTxt[1024];
+	static bool showBadFilter;
+	static std::string filterIssue;
+	static std::set<std::string> filterKeys;
+	static std::map<std::string, std::string> filter;
+	static bool newFilter;
+
 
 	static void addPacket(Packet* p);
 	static void init();
+	static void processFilter();
 };

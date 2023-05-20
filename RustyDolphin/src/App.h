@@ -1,6 +1,5 @@
 #pragma once
 
-
 class App {
 public:
 	static void init();
@@ -22,4 +21,6 @@ private:
 	static void handleLoadCapture();
 	static void handleLoad();
 	static void renderAdapterMenuBar();
+	static void renderFilterBox();
+	static void alertFilter();
 };

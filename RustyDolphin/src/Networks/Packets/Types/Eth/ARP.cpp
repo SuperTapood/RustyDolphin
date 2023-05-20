@@ -44,6 +44,10 @@ ARP::ARP(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet
 	m_description = ss.str();
 
 	m_expands.insert({ "ARP Title", false });
+
+	m_properties.insert({ "ip", "arp" });
+	m_properties.insert({ "saddr", m_sendMAC });
+	m_properties.insert({ "daddr", m_targetMAC });
 }
 
 std::string ARP::toString() {

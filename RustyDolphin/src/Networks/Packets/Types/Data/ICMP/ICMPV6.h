@@ -27,6 +27,7 @@ public:
 		Packet::m_description = std::format("{} of code = {} len = {} hop limit = {}", m_ICMPV6Type->m_typeStr, m_ICMPV6Type->m_codeStr, m_messageLength, (int)IPV6::m_hopLimit);
 
 		m_expands.insert({ "ICMPV6 Title", false });
+		Packet::m_properties.insert({ "proto", "icmpv6" });
 	}
 
 	std::string toString() override {

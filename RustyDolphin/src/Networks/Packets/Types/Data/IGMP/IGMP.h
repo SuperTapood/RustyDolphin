@@ -45,6 +45,8 @@ public:
 		Packet::m_description = ss.str();
 
 		Packet::m_expands.insert({ "IGMP Title", false });
+
+		Packet::m_properties.insert({ "proto", "igmp" });
 	}
 
 	std::string toString() override {

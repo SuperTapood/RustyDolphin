@@ -30,6 +30,10 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 	m_expands.insert({ "Traffic Class", false });
 
 	Packet::m_strType = "IPV6";
+
+	m_properties.insert({ "ip", "v6" });
+	m_properties.insert({ "saddr", m_srcAddr });
+	m_properties.insert({ "daddr", m_destAddr });
 }
 
 std::string IPV6::toString() {

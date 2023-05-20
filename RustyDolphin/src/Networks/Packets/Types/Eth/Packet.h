@@ -13,6 +13,12 @@
 
 using json = nlohmann::ordered_json;
 
+enum class FilterFlag{
+	Unfiltered,
+	Passed,
+	Failed
+};
+
 // *slaps roof of class* this bad boy can fit so many members in it
 class Packet {
 public:
@@ -32,6 +38,9 @@ public:
 	std::string m_strType;
 	u_char* m_pktData;
 	pcap_pkthdr* m_header;
+	std::map<std::string, std::string> m_properties;
+
+	FilterFlag m_flag = FilterFlag::Unfiltered;
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	virtual ~Packet() = default;

@@ -71,6 +71,10 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 	m_expands.insert({ "DifferServ", false });
 	m_expands.insert({ "Flags", false });
 	m_expands.insert({ "Options General", false });
+
+	m_properties.insert({ "ip", "v4" });
+	m_properties.insert({ "saddr", m_srcAddr });
+	m_properties.insert({ "daddr", m_destAddr });
 }
 
 std::string IPV4::toString() {

@@ -54,6 +54,8 @@ public:
 
 		m_expands.insert({ "ICMP Title", false });
 		m_expands.insert({ "ICMP Data", false });
+
+		Packet::m_properties.insert({ "proto", "icmp" });
 	}
 
 	std::string toString() override {

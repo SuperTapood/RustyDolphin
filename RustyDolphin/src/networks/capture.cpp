@@ -162,36 +162,6 @@ void Capture::capturePackets() {
 
 	m_dumpfile = pcap_dump_open(adapter, "captures/capture.pcap");
 
-#ifdef _DEBUG
-	auto d = Capture::getDev(3);
-	auto filter = FILTER;
-	struct bpf_program fcode;
-
-	int netmask;
-	if (d->addresses != NULL)
-		/* Retrieve the mask of the first address of the interface */
-		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
-	else
-		/* If the interface is without an address
-		 * we suppose to be in a C class network */
-		netmask = 0xffffff;
-
-	//compile the filter
-	if (pcap_compile(adapter, &fcode, filter, 1, netmask) < 0)
-	{
-		fprintf(stderr,
-			"\nUnable to compile the packet filter. Check the syntax.\n");
-		exit(-1);
-	}
-
-	//set the filter
-	if (pcap_setfilter(adapter, &fcode) < 0)
-	{
-		fprintf(stderr, "\nError setting the filter.\n");
-		exit(-1);
-	}
-#endif
-
 	if (Data::doneLoading) {
 		return;
 	}
