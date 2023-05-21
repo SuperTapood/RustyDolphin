@@ -2,6 +2,8 @@
 
 #include <sstream>
 #include "../../../../GUI/Renderer.h"
+#include "../../../../Base/Data.h"
+#include <iostream>
 
 constexpr auto ETHERTYPE_IPV4 = 0x0800;
 constexpr auto ETHERTYPE_IPV6 = 0x86DD;
@@ -91,21 +93,31 @@ std::map<std::string, std::string> ARP::getTexts() {
 	if (m_texts.empty()) {
 		Packet::getTexts();
 
-		if (m_opcode == 1) {
-			m_texts["opcode"] = "request";
-		}
-		else if (m_opcode == 2) {
-			m_texts["opcode"] = "reply";
+		if (m_opcode < Data::arpCodes.size()) {
+			m_texts["opcode"] = Data::arpCodes.at(m_opcode);
 		}
 		else {
 			m_texts["opcode"] = "unknown";
 		}
-
+ 
 		m_texts["arpTitle"] = std::format("Address Resolution Protocol ({})", m_texts["opcode"]);
 
 		// DO NOT LEAVE THIS IN YOU SILLY GOOSE
 		// todo: actually figure out the type of the hardware
 		m_texts["hardType"] = std::format("Ethernet ({})", std::to_string(m_hardType));
+
+		if (m_hardType < Data::arpHard.size()) {
+			m_texts["hardType"] = std::format("{} ({})", Data::arpHard.at(m_hardType), std::to_string(m_hardType));
+		}
+		else if (m_hardType == 256){
+			m_texts["hardType"] = "HW_EXP2 (256)";
+		}
+		else if (m_hardType == 257) {
+			m_texts["hardType"] = "AEthernet (257)";
+		}
+		else {
+			m_texts["hardType"] = std::format("Unknown {}", m_hardType);
+		}
 
 		switch (m_protoType) {
 		case (ETHERTYPE_IPV4):

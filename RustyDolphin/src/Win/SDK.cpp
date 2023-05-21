@@ -236,7 +236,6 @@ void SDK::findIP(char* adName) {
 }
 
 void SDK::initICMP() {
-	// Initialize variables
 	dwRetVal = 0;
 	std::string temp = "Data Buffer";
 	SendData = new char[temp.size() + 1];

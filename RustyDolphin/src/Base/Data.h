@@ -48,9 +48,8 @@ public:
 	static bool geoAlert;
 	static bool geoTerminate;
 	static int geoState;
-
-
-
+	static std::array<std::string, 26> arpCodes;
+	static std::array<std::string, 39> arpHard;
 
 	static void addPacket(Packet* p);
 	static void init();
