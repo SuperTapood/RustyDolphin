@@ -175,7 +175,7 @@ void Renderer::renderExpanded(IPV4* p) {
 				}
 			}
 		}
-		
+
 		if (ImGui::Button("   Geo Trace this Packet? (will open a pop up with the info)")) {
 			Data::showGeoTrace = p->m_idx;
 			Data::geoLocThread = std::jthread(SDK::geoTrace, p->getAlienAddr());

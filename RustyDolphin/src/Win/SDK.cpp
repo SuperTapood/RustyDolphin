@@ -399,6 +399,7 @@ std::vector<std::string> SDK::traceRoute(std::string addr) {
 }
 
 void SDK::geoTrace(std::string addr) {
+	Data::hopAddr = addr;
 	Data::geoDone = false;
 	Data::geoState = 1;
 	auto vec = traceRoute(addr);

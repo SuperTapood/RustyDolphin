@@ -99,7 +99,7 @@ std::map<std::string, std::string> ARP::getTexts() {
 		else {
 			m_texts["opcode"] = "unknown";
 		}
- 
+
 		m_texts["arpTitle"] = std::format("Address Resolution Protocol ({})", m_texts["opcode"]);
 
 		// DO NOT LEAVE THIS IN YOU SILLY GOOSE
@@ -109,7 +109,7 @@ std::map<std::string, std::string> ARP::getTexts() {
 		if (m_hardType < Data::arpHard.size()) {
 			m_texts["hardType"] = std::format("{} ({})", Data::arpHard.at(m_hardType), std::to_string(m_hardType));
 		}
-		else if (m_hardType == 256){
+		else if (m_hardType == 256) {
 			m_texts["hardType"] = "HW_EXP2 (256)";
 		}
 		else if (m_hardType == 257) {

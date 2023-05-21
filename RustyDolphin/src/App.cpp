@@ -534,7 +534,6 @@ void App::renderTable() {
 
 		for (int row = 0; row < Data::capIdx; row++)
 		{
-
 			auto p = Data::captured.at(row);
 			{
 				std::lock_guard<std::mutex> guard(Data::guard);
@@ -544,10 +543,6 @@ void App::renderTable() {
 			if (row == Data::selected)
 			{
 				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
-			}
-
-			if (row == 15) {
-				
 			}
 		}
 
@@ -652,12 +647,12 @@ void App::geoTable() {
 		GUI::pushFont("regular");
 		ImGui::TableSetupScrollFreeze(0, 1);
 		ImGui::TableSetupColumn("Hop Number", ImGuiTableColumnFlags_WidthFixed, 90.0f);
-		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed, 120.0f);
 		ImGui::TableSetupColumn("reverse DNS", ImGuiTableColumnFlags_WidthFixed, 320.0f);
 		ImGui::TableSetupColumn("ISP", ImGuiTableColumnFlags_WidthFixed, 300.0f);
 		ImGui::TableSetupColumn("Latitude", ImGuiTableColumnFlags_WidthFixed, 110.0f);
 		ImGui::TableSetupColumn("Longitude", ImGuiTableColumnFlags_WidthFixed, 110.0f);
-		ImGui::TableSetupColumn("Timezone", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+		ImGui::TableSetupColumn("Timezone", ImGuiTableColumnFlags_WidthFixed, 180.0f);
 		ImGui::TableHeadersRow();
 
 		for (int row = 0; row < Data::locs.size(); row++) {
@@ -718,7 +713,7 @@ void App::showHops() {
 		auto [x, y] = Data::mercatorProjection(longitude, latitude);
 
 		ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
-		ImVec2 circle_pos = ImVec2(cursor_pos.x + xShift + x, cursor_pos.y + y - 794 - (r));
+		ImVec2 circle_pos = ImVec2(cursor_pos.x + xShift + x - r, cursor_pos.y + y - 794 - r);
 		draw_list->AddCircleFilled(circle_pos, r, IM_COL32(255, 0, 0, 255));
 
 		if (lastCoords.first != -1) {
@@ -726,7 +721,7 @@ void App::showHops() {
 		}
 
 		lastCoords.first = circle_pos.x;
-		lastCoords.second = circle_pos.y; 
+		lastCoords.second = circle_pos.y;
 	}
 }
 
@@ -737,7 +732,7 @@ void App::showGeoTrace() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	if (ImGui::BeginPopupModal("GeoLoc", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
 	{
-		GUI::centerText("Hopping Map");
+		GUI::centerText(std::format("Hopping Map for address {}", Data::hopAddr).c_str());
 		if (Data::geoState == 1) {
 			GUI::centerText("Querying Address...");
 		}

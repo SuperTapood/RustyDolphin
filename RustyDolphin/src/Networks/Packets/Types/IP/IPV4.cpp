@@ -218,6 +218,6 @@ std::string IPV4::getAlienAddr() {
 	if (m_srcAddr == SDK::ipAddress) {
 		return m_destAddr;
 	}
-	
+
 	return m_srcAddr;
 }

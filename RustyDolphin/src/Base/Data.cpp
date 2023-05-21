@@ -143,6 +143,54 @@ std::array<std::string, 39> Data::arpHard{
 	"HFI",
 	"Unified Bus (UB)",
 };
+std::string Data::hopAddr;
+
+std::array<std::string, 44> Data::icmpTypes = {
+	"Echo (ping) Reply",
+	"Unassigned",
+	"Unassigned",
+	"Destination Unreachable",
+	"Source Quench (Deprecated)",
+	"Redirect",
+	"Alternate Host Address (Deprecated)",
+	"Unassigned",
+	"Echo (ping) Request",
+	"Router Advertisement",
+	"Router Solicitation",
+	"Time-to-live Exceeded",
+	"Parameter Problem",
+	"Timestamp",
+	"Timestamp Reply",
+	"Information Request (Deprecated)",
+	"Information Reply (Deprecated)",
+	"Address Mask Request (Deprecated)",
+	"Reserved (for Security)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Reserved (for Robustness Experiment)",
+	"Traceroute (Deprecated)",
+	"Datagram Conversion Error (Deprecated)",
+	"Mobile Host Redirect (Deprecated)",
+	"IPv6 Where-Are-You (Deprecated)",
+	"IPv6 I-Am-Here (Deprecated)",
+	"Mobile Registration Request (Deprecated)",
+	"Mobile Registration Reply (Deprecated)",
+	"Domain Name Request (Deprecated)",
+	"Domain Name Reply (Deprecated)",
+	"SKIP (Deprecated)",
+	"Photuris",
+	"ICMP messages utilized by experimental mobility protocols such as Seamoby",
+	"Extended Echo Request",
+	"Extended Echo Reply",
+};
 
 void Data::init() {
 	dscpMap[0] = "Default";
@@ -249,7 +297,7 @@ void Data::processFilter() {
 	filter["len"] = "";
 	filter["proc"] = "";
 	Data::newFilter = true;
-	
+
 	// filter is empty
 	if (Data::filterTxt[0] == '\0') {
 		return;
@@ -314,7 +362,6 @@ void Data::processFilter() {
 	}*/
 }
 
-
 std::pair<double, double> Data::mercatorProjection(double longitude, double latitude) {
 	constexpr double mapWidth = 1024;
 	constexpr double mapHeight = 794;
@@ -323,7 +370,7 @@ std::pair<double, double> Data::mercatorProjection(double longitude, double lati
 	// get x value
 	double x = (longitude + 180) * (mapWidth / 360);
 
-		// convert from degrees to radians
+	// convert from degrees to radians
 	double latRad = latitude * PI / 180;
 
 	// get y value

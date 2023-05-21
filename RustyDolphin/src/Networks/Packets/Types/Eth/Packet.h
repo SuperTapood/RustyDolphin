@@ -13,7 +13,7 @@
 
 using json = nlohmann::ordered_json;
 
-enum class FilterFlag{
+enum class FilterFlag {
 	Unfiltered,
 	Passed,
 	Failed

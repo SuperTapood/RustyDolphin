@@ -5,6 +5,7 @@
 #include <pcap.h>
 #include <uchar.h>
 #include "../../../../../GUI/Renderer.h"
+#include "../../../../../Base/Data.h"
 #include <type_traits>
 
 class ICMP : public IPV4 {
@@ -34,21 +35,16 @@ public:
 		Packet::m_strType = "ICMP (" + Packet::m_strType + ")";
 		std::stringstream ss;
 
-		switch (m_ICMPtype) {
-		case 0:
-			ss << "Echo (ping) reply";
-			break;
-		case 8:
-			ss << "Echo (ping) request";
-			break;
-		default:
-			ss << "Unknown code " << m_ICMPtype;
-			break;
+		if (m_ICMPtype < Data::icmpTypes.size()) {
+			ss << Data::icmpTypes.at(m_ICMPtype);
+		}
+		else {
+			ss << "Uknown code " << m_ICMPtype << " (Possibly Reserved)";
 		}
 
 		m_typeDesc = ss.str();
 
-		ss << " len = " << m_ROHLength << " TTL = " << (int)IPV4::m_ttl;
+		ss << ", len = " << m_ROHLength << ", ttl = " << (int)IPV4::m_ttl;
 
 		m_description = ss.str();
 

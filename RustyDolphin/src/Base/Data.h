@@ -50,6 +50,8 @@ public:
 	static int geoState;
 	static std::array<std::string, 26> arpCodes;
 	static std::array<std::string, 39> arpHard;
+	static std::string hopAddr;
+	static std::array<std::string, 44> icmpTypes;
 
 	static void addPacket(Packet* p);
 	static void init();
