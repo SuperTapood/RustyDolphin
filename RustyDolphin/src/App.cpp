@@ -469,7 +469,8 @@ void App::filterHelp() {
 		ImGui::Text("-in order to chain multiple filters together, use commas to sepearte them: 'proto=tcp, proc=msedge.exe, len=42'");
 		ImGui::Text("-leading and trailing spaces are trimmed from filter inputs to reduce the amount of headache :)");
 		ImGui::Text("-if a bad filter is given, no packet will be presented");
-		ImGui::Text("-each presented packet has to pass every filter. you cannot use filters to present both tcp and udp packets for example by using 'proto=tcp, proto=udp'. only udp packets will be presented as its the last filter");
+		ImGui::Text("-each presented packet has to pass every filter. you cannot use filters to present both tcp and udp packets for example by using");
+		ImGui::Text("'proto=tcp, proto=udp'. only udp packets will be presented as its the last filter");
 		GUI::popFont();
 		ImGui::Text("\n\n");
 		if (GUI::centerButton("OK")) {
@@ -543,6 +544,10 @@ void App::renderTable() {
 			if (row == Data::selected)
 			{
 				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
+			}
+
+			if (row == 15) {
+				
 			}
 		}
 

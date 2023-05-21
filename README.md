@@ -6,9 +6,6 @@ time spent making this nonsense in the best language ever made:
  
  [IP Location Finder by KeyCDN](https://tools.keycdn.com/geo)
 
- to do:
- - arp poisnoning
-
 General flow:
 
 - Init everything and caches
