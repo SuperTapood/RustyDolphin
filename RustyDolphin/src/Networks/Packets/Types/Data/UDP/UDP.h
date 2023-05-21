@@ -13,7 +13,7 @@ public:
 	unsigned short m_srcPort;
 	unsigned short m_destPort;
 	unsigned short m_length;
-	short m_UDPChecksum;
+	unsigned short m_UDPChecksum;
 	unsigned int m_payloadLength;
 	std::string m_payload;
 	std::string m_process;

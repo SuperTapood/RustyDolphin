@@ -73,6 +73,7 @@ std::mutex Data::geoGuard;
 bool Data::geoDone;
 bool Data::geoAlert;
 bool Data::geoTerminate = false;
+int Data::geoState = -1;
 
 void Data::init() {
 	dscpMap[0] = "Default";
@@ -242,4 +243,23 @@ void Data::processFilter() {
 	/*for (auto key : filter) {
 		std::cout << key.first << ":" << key.second << std::endl;
 	}*/
+}
+
+
+std::pair<double, double> Data::mercatorProjection(double longitude, double latitude) {
+	constexpr double mapWidth = 1024;
+	constexpr double mapHeight = 794;
+	static double PI = 2 * std::acos(0);
+
+	// get x value
+	double x = (longitude + 180) * (mapWidth / 360);
+
+		// convert from degrees to radians
+	double latRad = latitude * PI / 180;
+
+	// get y value
+	double mercN = std::log(std::tan((PI / 4) + (latRad / 2)));
+	double y = (mapHeight / 2) - (mapWidth * mercN / (2 * PI));
+
+	return { x, y };
 }

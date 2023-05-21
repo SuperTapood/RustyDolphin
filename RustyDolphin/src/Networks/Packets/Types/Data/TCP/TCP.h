@@ -7,6 +7,7 @@
 #include "../../../../../GUI/Renderer.h"
 #include "../../../.././../Base/Data.h"
 #include "../../../.././../Base/Logger.h"
+#include "../../../../../Networks/capture.h"
 
 #include <iostream>
 #include <bitset>
@@ -18,11 +19,11 @@ public:
 	unsigned short m_destPort;
 	unsigned int m_seqNum;
 	unsigned int m_ackNum;
-	char m_TCPLength;
-	short m_TCPflags;
+	unsigned char m_TCPLength;
+	unsigned short m_TCPflags;
 	unsigned short m_window;
 	unsigned short m_TCPchecksum;
-	short m_urgentPtr;
+	unsigned short m_urgentPtr;
 	unsigned short m_optSize;
 
 	std::vector<TCPOption*> m_options;
@@ -67,11 +68,11 @@ public:
 		m_optSize = 0;
 
 		while (total - Packet::getPos() > 0) {
-			int code = Packet::parseChar();
+			unsigned char code = Packet::parseChar();
 
 			TCPOption* opt;
 
-			switch (code) {
+			switch ((int)code) {
 			case NOP:
 				opt = new TCPNOP();
 				break;
@@ -92,7 +93,7 @@ public:
 				std::stringstream ss;
 				ss << "bad tcp option of code " << code << " at packet index " << idx;
 				Logger::log(ss.str());
-				// Capture::dump(header, pkt_data);
+				Capture::dump(header, pkt_data);
 				// exit(code);
 #endif
 				continue;

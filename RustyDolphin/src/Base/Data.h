@@ -47,6 +47,7 @@ public:
 	static bool geoDone;
 	static bool geoAlert;
 	static bool geoTerminate;
+	static int geoState;
 
 
 
@@ -54,4 +55,5 @@ public:
 	static void addPacket(Packet* p);
 	static void init();
 	static void processFilter();
+	static std::pair<double, double> mercatorProjection(double longitude, double latitude);
 };

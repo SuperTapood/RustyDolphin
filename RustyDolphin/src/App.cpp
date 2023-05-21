@@ -648,7 +648,7 @@ void App::geoTable() {
 		ImGui::TableSetupScrollFreeze(0, 1);
 		ImGui::TableSetupColumn("Hop Number", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed, 150.0f);
-		ImGui::TableSetupColumn("rDNS", ImGuiTableColumnFlags_WidthFixed, 320.0f);
+		ImGui::TableSetupColumn("reverse DNS", ImGuiTableColumnFlags_WidthFixed, 320.0f);
 		ImGui::TableSetupColumn("ISP", ImGuiTableColumnFlags_WidthFixed, 300.0f);
 		ImGui::TableSetupColumn("Latitude", ImGuiTableColumnFlags_WidthFixed, 110.0f);
 		ImGui::TableSetupColumn("Longitude", ImGuiTableColumnFlags_WidthFixed, 110.0f);
@@ -684,6 +684,47 @@ void App::geoTable() {
 	}
 }
 
+void App::showHops() {
+	ImVec2 window_size = ImGui::GetContentRegionAvail();
+	auto xShift = (window_size.x - 1024) * 0.5f;
+	ImGui::SetCursorPosX(xShift);
+	ImGui::Image((void*)(intptr_t)GUI::earthTex, ImVec2(1024, 794));
+	std::pair<double, double> lastCoords = { -1, -1 };
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	constexpr auto r = 4;
+	for (int row = 0; row < Data::locs.size(); row++) {
+		auto j = Data::locs.at(row);
+		double longitude;
+		double latitude;
+		{
+			auto data = j.at("data").at("geo");
+			std::lock_guard<std::mutex> guard(Data::geoGuard);
+			auto longS = data.at("longitude").dump(0);
+			if (longS == "\"\"" || longS == "null") {
+				continue;
+			}
+			longitude = std::stod(longS);
+			auto latS = data.at("latitude").dump(0);
+			if (latS == "\"\"" || latS == "null") {
+				continue;
+			}
+			latitude = std::stod(latS);
+		}
+		auto [x, y] = Data::mercatorProjection(longitude, latitude);
+
+		ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
+		ImVec2 circle_pos = ImVec2(cursor_pos.x + xShift + x, cursor_pos.y + y - 794 - (r));
+		draw_list->AddCircleFilled(circle_pos, r, IM_COL32(255, 0, 0, 255));
+
+		if (lastCoords.first != -1) {
+			draw_list->AddLine(ImVec2(lastCoords.first, lastCoords.second), circle_pos, IM_COL32(255, 0, 0, 255), r / 2);
+		}
+
+		lastCoords.first = circle_pos.x;
+		lastCoords.second = circle_pos.y; 
+	}
+}
+
 void App::showGeoTrace() {
 	GUI::pushFont("adapters");
 	ImGui::OpenPopup("GeoLoc");
@@ -691,14 +732,21 @@ void App::showGeoTrace() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	if (ImGui::BeginPopupModal("GeoLoc", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
 	{
-		
-		GUI::centerText("Filter Documentation");
-		GUI::centerText("below are the allowed filters and the values they accept:");
+		GUI::centerText("Hopping Map");
+		if (Data::geoState == 1) {
+			GUI::centerText("Querying Address...");
+		}
+		else if (Data::geoState == 2) {
+			GUI::centerText("Processing Replies...");
+		}
+		else if (Data::geoState == 3) {
+			GUI::centerText("No address could be reached :(");
+		}
+		else if (Data::geoState == 4) {
+			GUI::centerText("Processing Done");
+		}
 		geoTable();
-
-		ImVec2 window_size = ImGui::GetContentRegionAvail();
-		ImGui::SetCursorPosX((window_size.x - 1024) * 0.5f);
-		ImGui::Image((void*)(intptr_t)GUI::earthTex, ImVec2(1024, 794));
+		showHops();
 		if (GUI::centerButton("OK")) {
 			if (!Data::geoDone) {
 				Data::geoAlert = true;
@@ -706,6 +754,7 @@ void App::showGeoTrace() {
 			else {
 				Data::geoLocThread.join();
 				Data::showGeoTrace = -1;
+				Data::locs.clear();
 			}
 		}
 

@@ -343,7 +343,6 @@ std::string SDK::getProcFromPort(DWORD port) {
 }
 
 std::vector<std::string> SDK::traceRoute(std::string addr) {
-	std::cout << addr << std::endl;
 	unsigned long ipaddr = INADDR_NONE;
 	// Convert IP address string to binary
 	ipaddr = inet_addr(addr.c_str());
@@ -372,6 +371,10 @@ std::vector<std::string> SDK::traceRoute(std::string addr) {
 			if (pEchoReply->Status == 0) {
 				break;
 			}
+
+			if (inet_ntoa(ReplyAddr) == addr) {
+				break;
+			}
 		}
 		else {
 			//DWORD errorMessageID = GetLastError();
@@ -398,9 +401,9 @@ std::vector<std::string> SDK::traceRoute(std::string addr) {
 
 void SDK::geoTrace(std::string addr) {
 	Data::geoDone = false;
+	Data::geoState = 1;
 	auto vec = traceRoute(addr);
-
-	std::cout << "out\n";
+	Data::geoState = 2;
 
 	for (const auto& add : vec) {
 		if (Data::geoTerminate) {
@@ -410,8 +413,14 @@ void SDK::geoTrace(std::string addr) {
 		{
 			std::lock_guard<std::mutex> guard(Data::geoGuard);
 			Data::locs.emplace_back(j);
-			std::cout << j.dump(4) << std::endl;
 		}
+	}
+
+	if (Data::locs.size() == 0) {
+		Data::geoState = 3;
+	}
+	else {
+		Data::geoState = 4;
 	}
 	Data::geoDone = true;
 }

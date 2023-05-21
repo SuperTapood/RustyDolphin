@@ -26,4 +26,5 @@ private:
 	static void filterHelp();
 	static void showGeoTrace();
 	static void geoTable();
+	static void showHops();
 };
