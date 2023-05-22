@@ -471,7 +471,8 @@
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 -in order to chain multiple filters together, use commas to sepearte them: 'proto=tcp, proc=msedge.exe, len=42'}{\cf15 "});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 -leading and trailing spaces are trimmed from filter inputs to reduce the amount of headache :)}{\cf15 "});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 -if a bad filter is given, no packet will be presented}{\cf15 "});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 -each presented packet has to pass every filter. you cannot use filters to present both tcp and udp packets for example by using 'proto=tcp, proto=udp'. only udp packets will be presented as its the last filter}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 -each presented packet has to pass every filter. you cannot use filters to present both tcp and udp packets for example by using}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf15 'proto=tcp, proto=udp'. only udp packets will be presented as its the last filter}{\cf15 "});{\cf1 \par
 }{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}popFont();{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text({\cf15 "}{\cf17\b \\n}{\cf17\b \\n}{\cf15 "});{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b GUI}{\cf6 :}{\cf6 :}centerButton({\cf15 "}{\cf15 OK}{\cf15 "})){\cf1  }\{{\cf1 \par
@@ -535,7 +536,6 @@
 }{\cf1 \par
 }{\cf1 		}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }row{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }row{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx;{\cf1  }row{\cf6 +}{\cf6 +}){\cf1 \par
 }{\cf1 		}\{{\cf1 \par
-}{\cf1 \par
 }{\cf1 			}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at(row);{\cf1 \par
 }{\cf1 			}\{{\cf1 \par
 }{\cf1 				}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
@@ -649,12 +649,12 @@
 }{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}pushFont({\cf15 "}{\cf15 regular}{\cf15 "});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupScrollFreeze({\cf6 0},{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Hop Number}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 90.0f});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Address}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 150.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Address}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 120.0f});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 reverse DNS}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 320.0f});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 ISP}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 300.0f});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Latitude}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 110.0f});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Longitude}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 110.0f});{\cf1 \par
-}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Timezone}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 150.0f});{\cf1 \par
+}{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetupColumn({\cf15 "}{\cf15 Timezone}{\cf15 "},{\cf1  }ImGuiTableColumnFlags_WidthFixed,{\cf1  }{\cf6 180.0f});{\cf1 \par
 }{\cf1 		}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableHeadersRow();{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }row{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }row{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}locs.size();{\cf1  }row{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
@@ -715,7 +715,7 @@
 }{\cf1 		}{\cf4\b auto}{\cf1  }[x,{\cf1  }y]{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}mercatorProjection(longitude,{\cf1  }latitude);{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}ImVec2{\cf1  }cursor_pos{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetCursorScreenPos();{\cf1 \par
-}{\cf1 		}ImVec2{\cf1  }circle_pos{\cf1  }{\cf6 =}{\cf1  }ImVec2(cursor_pos.x{\cf1  }{\cf6 +}{\cf1  }xShift{\cf1  }{\cf6 +}{\cf1  }x,{\cf1  }cursor_pos.y{\cf1  }{\cf6 +}{\cf1  }y{\cf1  }{\cf6 -}{\cf1  }{\cf6 794}{\cf1  }{\cf6 -}{\cf1  }(r));{\cf1 \par
+}{\cf1 		}ImVec2{\cf1  }circle_pos{\cf1  }{\cf6 =}{\cf1  }ImVec2(cursor_pos.x{\cf1  }{\cf6 +}{\cf1  }xShift{\cf1  }{\cf6 +}{\cf1  }x{\cf1  }{\cf6 -}{\cf1  }r,{\cf1  }cursor_pos.y{\cf1  }{\cf6 +}{\cf1  }y{\cf1  }{\cf6 -}{\cf1  }{\cf6 794}{\cf1  }{\cf6 -}{\cf1  }r);{\cf1 \par
 }{\cf1 		}draw_list{\cf6 -}{\cf6 >}AddCircleFilled(circle_pos,{\cf1  }r,{\cf1  }IM_COL32({\cf6 255},{\cf1  }{\cf6 0},{\cf1  }{\cf6 0},{\cf1  }{\cf6 255}));{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(lastCoords.first{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1  }\{{\cf1 \par
@@ -723,7 +723,7 @@
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}lastCoords.first{\cf1  }{\cf6 =}{\cf1  }circle_pos.x;{\cf1 \par
-}{\cf1 		}lastCoords.second{\cf1  }{\cf6 =}{\cf1  }circle_pos.y;{\cf1  }{\cf1 \par
+}{\cf1 		}lastCoords.second{\cf1  }{\cf6 =}{\cf1  }circle_pos.y;{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -734,7 +734,7 @@
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 0}));{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}BeginPopupModal({\cf15 "}{\cf15 GeoLoc}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }ImGuiWindowFlags_NoResize{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoMove{\cf1  }{\cf6 |}{\cf1  }ImGuiWindowFlags_NoTitleBar)){\cf1 \par
 }{\cf1 	}\{{\cf1 \par
-}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Hopping Map}{\cf15 "});{\cf1 \par
+}{\cf1 		}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText(std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 Hopping Map for address \{\}}{\cf15 "},{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}hopAddr).c_str());{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}geoState{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 1}){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b GUI}{\cf6 :}{\cf6 :}centerText({\cf15 "}{\cf15 Querying Address...}{\cf15 "});{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
@@ -957,6 +957,123 @@
 }{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}geoAlert;{\cf1 \par
 }{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}geoTerminate{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf5 int}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}geoState{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
+}std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 26}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpCodes\{{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 REQUEST}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 REPLY}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 request Reverse}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 reply Reverse}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 DRARP-Request}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 DRARP-Reply}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 DRARP-Error}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 InARP-Request}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 InARP-Reply}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 ARP-NAK}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Request}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Multi}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-MServ}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Join}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Leave}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-NAK}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Unserv}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-SJoin}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-SLeave}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Grouplist-Request}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Grouplist-Reply}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MARS-Redirect-Map}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MAPOS-UNARP}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 OP_EXP1}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 OP_EXP2}{\cf15 "},{\cf1 \par
+}\};{\cf1 \par
+}std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 39}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpHard\{{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Ethernet}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Experimental Ethernet}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Amateur Radio AX.25}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Proteon ProNET Token Ring}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Chaos}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 IEEE 802 Networks}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 ARCNET}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Hyperchannel}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Lanstar}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Autonet Short Address}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 LocalTalk}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 LocalNet (IBM PCNet or SYTEK LocalNET)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Ultra link}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 SMDS}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Frame Relay}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 HDLC}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Fibre Channel}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Serial Line}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MIL-STD-188-220}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Metricom}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 IEEE 1394.1995}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 MAPOS}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Twinaxial}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 EUI-64}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 HIPARP}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 IP and ARP over ISO 7816-3}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 ARPSec}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 IPsec tunnel}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 InfiniBand (TM)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 TIA-102 Project 25 Common Air Interface (CAI)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Wiegand Interface}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Pure IP}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 HW_EXP1}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 HFI}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Unified Bus (UB)}{\cf15 "},{\cf1 \par
+}\};{\cf1 \par
+}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}hopAddr;{\cf1 \par
+}{\cf1 \par
+}std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 44}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}icmpTypes{\cf1  }{\cf6 =}{\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Echo (ping) Reply}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Unassigned}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Unassigned}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Destination Unreachable}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Source Quench (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Redirect}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Alternate Host Address (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Unassigned}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Echo (ping) Request}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Router Advertisement}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Router Solicitation}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Time-to-live Exceeded}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Parameter Problem}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Timestamp}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Timestamp Reply}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Information Request (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Information Reply (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Address Mask Request (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Security)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Reserved (for Robustness Experiment)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Traceroute (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Datagram Conversion Error (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Mobile Host Redirect (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 IPv6 Where-Are-You (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 IPv6 I-Am-Here (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Mobile Registration Request (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Mobile Registration Reply (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Domain Name Request (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Domain Name Reply (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 SKIP (Deprecated)}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Photuris}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 ICMP messages utilized by experimental mobility protocols such as Seamoby}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Extended Echo Request}{\cf15 "},{\cf1 \par
+}{\cf1 	}{\cf15 "}{\cf15 Extended Echo Reply}{\cf15 "},{\cf1 \par
+}\};{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 Data::init}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}dscpMap[{\cf6 0}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 Default}{\cf15 "};{\cf1 \par
@@ -1063,7 +1180,7 @@
 }{\cf1 	}filter[{\cf15 "}{\cf15 len}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
 }{\cf1 	}filter[{\cf15 "}{\cf15 proc}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}newFilter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
-}{\cf1 	}{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf2\i // filter is empty\par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}filterTxt[{\cf6 0}]{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 \\0}{\cf15 '}){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b return};{\cf1 \par
@@ -1128,7 +1245,6 @@
 	\}*/}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 \par
 }std{\cf6 :}{\cf6 :}pair{\cf6 <}{\cf5 double},{\cf1  }{\cf5 double}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}mercatorProjection({\cf5 double}{\cf1  }longitude,{\cf1  }{\cf5 double}{\cf1  }latitude){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b constexpr}{\cf1  }{\cf5 double}{\cf1  }mapWidth{\cf1  }{\cf6 =}{\cf1  }{\cf6 1024};{\cf1 \par
 }{\cf1 	}{\cf4\b constexpr}{\cf1  }{\cf5 double}{\cf1  }mapHeight{\cf1  }{\cf6 =}{\cf1  }{\cf6 794};{\cf1 \par
@@ -1137,7 +1253,7 @@
 }{\cf1 	}{\cf2\i // get x value\par
 }{\cf1 	}{\cf5 double}{\cf1  }x{\cf1  }{\cf6 =}{\cf1  }(longitude{\cf1  }{\cf6 +}{\cf1  }{\cf6 180}){\cf1  }{\cf6 *}{\cf1  }(mapWidth{\cf1  }{\cf6 /}{\cf1  }{\cf6 360});{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf2\i // convert from degrees to radians\par
+}{\cf1 	}{\cf2\i // convert from degrees to radians\par
 }{\cf1 	}{\cf5 double}{\cf1  }latRad{\cf1  }{\cf6 =}{\cf1  }latitude{\cf1  }{\cf6 *}{\cf1  }PI{\cf1  }{\cf6 /}{\cf1  }{\cf6 180};{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf2\i // get y value\par
@@ -1199,9 +1315,10 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }geoAlert;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }geoTerminate;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 int}{\cf1  }geoState;{\cf1 \par
-}{\cf1 \par
-}{\cf1 \par
-}{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 26}{\cf6 >}{\cf1  }arpCodes;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 39}{\cf6 >}{\cf1  }arpHard;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }hopAddr;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 44}{\cf6 >}{\cf1  }icmpTypes;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 addPacket}({\cf4 Packet}{\cf6 *}{\cf1  }p);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 init}();{\cf1 \par
@@ -1639,7 +1756,7 @@
 }{\cf1 				}\}{\cf1 \par
 }{\cf1 			}\}{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf1 \par
+}{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Button({\cf15 "}{\cf15    Geo Trace this Packet? (will open a pop up with the info)}{\cf15 "})){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showGeoTrace{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}m_idx;{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}geoLocThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}jthread({\cf4\b SDK}{\cf6 :}{\cf6 :}geoTrace,{\cf1  }p{\cf6 -}{\cf6 >}getAlienAddr());{\cf1 \par
@@ -2359,6 +2476,7 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <pcap.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <uchar.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../../GUI/Renderer.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../../Base/Data.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <type_traits>}{\cf3 \par
 }{\cf1 \par
 }{\cf4\b class}{\cf1  }{\cf8\b ICMP}{\cf1  }{\cf6 :}{\cf1  }{\cf4\b public}{\cf1  }{\cf4 IPV4}{\cf1  }\{{\cf1 \par
@@ -2388,21 +2506,16 @@
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_strType{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 ICMP (}{\cf15 "}{\cf1  }{\cf6 +}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}m_strType{\cf1  }{\cf6 +}{\cf1  }{\cf15 "}{\cf15 )}{\cf15 "};{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf4\b switch}{\cf1  }(m_ICMPtype){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf4\b case}{\cf1  }{\cf6 0}:{\cf1 \par
-}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Echo (ping) reply}{\cf15 "};{\cf1 \par
-}{\cf1 			}{\cf4\b break};{\cf1 \par
-}{\cf1 		}{\cf4\b case}{\cf1  }{\cf6 8}:{\cf1 \par
-}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Echo (ping) request}{\cf15 "};{\cf1 \par
-}{\cf1 			}{\cf4\b break};{\cf1 \par
-}{\cf1 		}{\cf4\b default}{\cf6 :}{\cf1 \par
-}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Unknown code }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_ICMPtype;{\cf1 \par
-}{\cf1 			}{\cf4\b break};{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(m_ICMPtype{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}icmpTypes.size()){\cf1  }\{{\cf1 \par
+}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}icmpTypes.at(m_ICMPtype);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }\{{\cf1 \par
+}{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Uknown code }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_ICMPtype{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  (Possibly Reserved)}{\cf15 "};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_typeDesc{\cf1  }{\cf6 =}{\cf1  }ss.str();{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  len = }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_ROHLength{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  TTL = }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }({\cf5 int}){\cf4 IPV4}{\cf6 :}{\cf6 :}m_ttl;{\cf1 \par
+}{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 , len = }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_ROHLength{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 , ttl = }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }({\cf5 int}){\cf4 IPV4}{\cf6 :}{\cf6 :}m_ttl;{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_description{\cf1  }{\cf6 =}{\cf1  }ss.str();{\cf1 \par
 }{\cf1 \par
@@ -3414,7 +3527,7 @@
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_expands.insert(\{{\cf1  }{\cf15 "}{\cf15 UDP Title}{\cf15 "},{\cf1  }{\cf4 false}{\cf1  }\});{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proto}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 udp}{\cf15 "}{\cf1  }\});{\cf1 \par
-}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 sport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_srcPort)\});{\cf1 \par
+}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 sport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_srcPort){\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 dport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_destPort){\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proc}{\cf15 "},{\cf1  }m_process{\cf1  }\});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
@@ -3480,6 +3593,8 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <sstream>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../GUI/Renderer.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Base/Data.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf1 \par
 }{\cf4\b constexpr}{\cf1  }{\cf4\b auto}{\cf1  }ETHERTYPE_IPV4{\cf1  }{\cf6 =}{\cf1  }{\cf6 0x0800};{\cf1 \par
 }{\cf4\b constexpr}{\cf1  }{\cf4\b auto}{\cf1  }ETHERTYPE_IPV6{\cf1  }{\cf6 =}{\cf1  }{\cf6 0x86DD};{\cf1 \par
@@ -3569,11 +3684,8 @@
 }{\cf1 	}{\cf4\b if}{\cf1  }(m_texts.empty()){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}getTexts();{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(m_opcode{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 1}){\cf1  }\{{\cf1 \par
-}{\cf1 			}m_texts[{\cf15 "}{\cf15 opcode}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 request}{\cf15 "};{\cf1 \par
-}{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }(m_opcode{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 2}){\cf1  }\{{\cf1 \par
-}{\cf1 			}m_texts[{\cf15 "}{\cf15 opcode}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 reply}{\cf15 "};{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(m_opcode{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpCodes.size()){\cf1  }\{{\cf1 \par
+}{\cf1 			}m_texts[{\cf15 "}{\cf15 opcode}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpCodes.at(m_opcode);{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 		}{\cf4\b else}{\cf1  }\{{\cf1 \par
 }{\cf1 			}m_texts[{\cf15 "}{\cf15 opcode}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 unknown}{\cf15 "};{\cf1 \par
@@ -3584,6 +3696,19 @@
 }{\cf1 		}{\cf2\i // DO NOT LEAVE THIS IN YOU SILLY GOOSE\par
 }{\cf1 		}{\cf2\i // todo: actually figure out the type of the hardware\par
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 hardType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 Ethernet (\{\})}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_hardType));{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(m_hardType{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpHard.size()){\cf1  }\{{\cf1 \par
+}{\cf1 			}m_texts[{\cf15 "}{\cf15 hardType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 \{\} (\{\})}{\cf15 "},{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpHard.at(m_hardType),{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_hardType));{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }(m_hardType{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 256}){\cf1  }\{{\cf1 \par
+}{\cf1 			}m_texts[{\cf15 "}{\cf15 hardType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 HW_EXP2 (256)}{\cf15 "};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }(m_hardType{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 257}){\cf1  }\{{\cf1 \par
+}{\cf1 			}m_texts[{\cf15 "}{\cf15 hardType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 AEthernet (257)}{\cf15 "};{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }\{{\cf1 \par
+}{\cf1 			}m_texts[{\cf15 "}{\cf15 hardType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 Unknown \{\}}{\cf15 "},{\cf1  }m_hardType);{\cf1 \par
+}{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b switch}{\cf1  }(m_protoType){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b case}{\cf1  }({\cf11 ETHERTYPE_IPV4}):{\cf1 \par
@@ -3930,7 +4055,7 @@
 }{\cf1 \par
 }{\cf4\b using}{\cf1  }json{\cf1  }{\cf6 =}{\cf1  }nlohmann{\cf6 :}{\cf6 :}ordered_json;{\cf1 \par
 }{\cf1 \par
-}{\cf4\b enum}{\cf1  }{\cf4\b class}{\cf1  }{\cf8\b FilterFlag}\{{\cf1 \par
+}{\cf4\b enum}{\cf1  }{\cf4\b class}{\cf1  }{\cf8\b FilterFlag}{\cf1  }\{{\cf1 \par
 }{\cf1 	}Unfiltered,{\cf1 \par
 }{\cf1 	}Passed,{\cf1 \par
 }{\cf1 	}Failed{\cf1 \par
@@ -4229,7 +4354,7 @@
 }{\cf1 	}{\cf4\b if}{\cf1  }(m_srcAddr{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ipAddress){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }m_destAddr;{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
-}{\cf1 	}{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }m_srcAddr;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -4960,7 +5085,6 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 SDK::initICMP}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf2\i // Initialize variables\par
 }{\cf1 	}dwRetVal{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }temp{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 Data Buffer}{\cf15 "};{\cf1 \par
 }{\cf1 	}SendData{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }{\cf5 char}[temp.size(){\cf1  }{\cf6 +}{\cf1  }{\cf6 1}];{\cf1 \par
@@ -5124,6 +5248,7 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}geoTrace(std{\cf6 :}{\cf6 :}string{\cf1  }addr){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}hopAddr{\cf1  }{\cf6 =}{\cf1  }addr;{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}geoDone{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}geoState{\cf1  }{\cf6 =}{\cf1  }{\cf6 1};{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }vec{\cf1  }{\cf6 =}{\cf1  }traceRoute(addr);{\cf1 \par

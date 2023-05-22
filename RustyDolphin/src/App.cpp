@@ -282,6 +282,9 @@ void App::handleStart() {
 			Data::selected = -1;
 			Data::showStart = false;
 			Data::captureThread.join();
+			for (auto p : Data::captured) {
+				delete p;
+			}
 			Data::captured.clear();
 			Data::capIdx = 0;
 			Data::doneCapturing = false;
@@ -313,6 +316,9 @@ void App::handleStartFile() {
 			Data::selected = -1;
 			Data::showStart = false;
 			Data::captureThread.join();
+			for (auto p : Data::captured) {
+				delete p;
+			}
 			Data::captured.clear();
 			Data::capIdx = 0;
 			Data::doneCapturing = false;
@@ -392,6 +398,9 @@ void App::handleLoadCapture() {
 			Data::selected = -1;
 			Data::showStart = false;
 			Data::captureThread.join();
+			for (auto p : Data::captured) {
+				delete p;
+			}
 			Data::captured.clear();
 			Data::capIdx = 0;
 			Data::doneCapturing = false;

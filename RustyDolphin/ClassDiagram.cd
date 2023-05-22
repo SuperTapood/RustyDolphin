@@ -1,184 +1,184 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ClassDiagram MajorVersion="1" MinorVersion="1">
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
   <Class Name="ARP" Collapsed="true">
-    <Position X="3" Y="2.25" Width="1.5" />
+    <Position X="5" Y="12.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAEAAQAACAAAAAAEAAAABAUABAAAIgAMMAIAAAAQEAI=</HashCode>
+      <HashCode>AAEAAQAACAAAAAAAAAAABAUABAAAIgEIEAIAAAAQAAI=</HashCode>
       <FileName>src\Networks\Packets\Types\Eth\ARP.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="ICMP" Collapsed="true">
-    <Position X="5" Y="2" Width="1.5" />
+    <Position X="2.75" Y="14" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>QAAAAAAACABhAAAAAAAABAAAAAACAAAgAAAAAgAQBBA=</HashCode>
+      <HashCode>QAAAAAAACABhAAAAAAAABAAAAAACAAEoAAAAAgAQBBA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\ICMP\ICMP.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="ICMPV6" Collapsed="true">
-    <Position X="3.75" Y="4.75" Width="1.5" />
+    <Position X="0.5" Y="14" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAACAIAAAAQAAAABAAAAAAEAAAgAAAABAAQAAA=</HashCode>
+      <HashCode>AAAAAAAACAIAAAAQAAAABAAAAAAEAAEIAAAABAAQAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\ICMP\ICMPV6.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IPV6" Collapsed="true">
-    <Position X="1" Y="0.5" Width="1.5" />
+    <Position X="0.5" Y="12.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CIAAAAAACAAAACAAAAAABJAAAAgAAIAAAAAQAAKYACA=</HashCode>
+      <HashCode>CIAAAAAACAAAACAAAAAABJgAAAgAAIEIAAAQAAKYACA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV6.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Capture" Collapsed="true">
-    <Position X="4" Y="0.75" Width="1.5" />
+    <Position X="13" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>UAAQAAAAAIAIAICAAAAAAAAAABAAAAIAABAAoQAAAAA=</HashCode>
+      <HashCode>UAAQAIAAAIAIAICAAAAAAAAAABAAAAIAABAAoQBAAAA=</HashCode>
       <FileName>src\Networks\Capture.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Data" Collapsed="true">
-    <Position X="6.5" Y="3.25" Width="1.5" />
+    <Position X="14.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAABAAABAAABAACAAAAAAAAAAAIAAAAAAgCAAAg=</HashCode>
+      <HashCode>QAAAAAABAAgTFWEJEMCQFAiCEEAAAgKAAUAAEgGYTIo=</HashCode>
       <FileName>src\Base\Data.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GUI" Collapsed="true">
-    <Position X="1" Y="5.25" Width="1.5" />
+    <Position X="16.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EEAAAAAAACABAAAAAAAAgAAAAAAAAAIIAAAAAAAQAAA=</HashCode>
+      <HashCode>EEgAAAAAgCABAAAAAAAAgIAAAAAAAAIIAAAAAAAQAAA=</HashCode>
       <FileName>src\GUI\GUI.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="HopByHop" Collapsed="true">
-    <Position X="3.75" Y="5.5" Width="1.5" />
+    <Position X="8.25" Y="10.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV6Options\HopByHop.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="HopOption" Collapsed="true">
-    <Position X="5.25" Y="4.25" Width="1.5" />
+    <Position X="18.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAIAAAAAAAAAAAAIAQAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV6Options\HopOptions\HopOption.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IGMP&lt;IPVersion&gt;" Collapsed="true">
-    <Position X="6.5" Y="5.5" Width="1.5" />
+    <Position X="13" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAgAEAQACAAEAAAAQEAABBAAAAAAAAAJAgAAAAAQAIA=</HashCode>
+      <HashCode>AAAAEAAACAAEAAAAQEAABAAAAAAAAAEIAgAAAAAQAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\IGMP\IGMP.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IPV4" Collapsed="true">
-    <Position X="1.75" Y="3" Width="1.5" />
+    <Position X="2.75" Y="12.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>UoQACCIACEAAAAAMAAAARJIQoAgABCgMEAkAQAYQCII=</HashCode>
+      <HashCode>QoAAACAACEAAAAAAAQAARJgAoAgABCkIAAAAAAYQAIA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV4.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IPV4Option" Collapsed="true">
-    <Position X="1" Y="4" Width="1.5" />
+    <Position X="7.5" Y="4.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAAAAAIAEAAAAAAAAAAABAAAAAwAAAABAAAQAAAAAAA=</HashCode>
+      <HashCode>EAAAAAIAAAAAAAAAAAAABAAAAAwAAAABAAAQAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV4Options\IPV4Option.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IPV6Option" Collapsed="true">
-    <Position X="2.25" Y="3.5" Width="1.5" />
+    <Position X="8.25" Y="9.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAAACAAAAAAEAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAgAAAAAAAACAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV6Options\IPV6Option.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Logger" Collapsed="true">
-    <Position X="0.5" Y="2" Width="1.5" />
+    <Position X="14.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EAAAAAAAAAIAAAAAAAAACACAAAAAAAIAAAAAAAAAAAA=</HashCode>
       <FileName>src\Base\Logger.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Packet">
-    <Position X="11.25" Y="0.5" Width="1.5" />
+    <Position X="1.25" Y="3.5" Width="4.5" />
     <TypeIdentifier>
-      <HashCode>ABAAIACAGBQBBIAkBIQAFIAABACAgAAIACAAQABQMCg=</HashCode>
+      <HashCode>AAAAYAGAGBABBYAkBIAAFAAYBACIgAUIACAAQABQMCk=</HashCode>
       <FileName>src\Networks\Packets\Types\Eth\Packet.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Renderer">
-    <Position X="7.75" Y="1" Width="1.5" />
+  <Class Name="Renderer" Collapsed="true">
+    <Position X="16.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAQAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAEAAgAAAAAAAIAAAAAAAQAAA=</HashCode>
       <FileName>src\GUI\Renderer.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RouterAlert">
-    <Position X="7" Y="1.75" Width="1.5" />
+    <Position X="7.25" Y="5.75" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAIAAACAAABAAAgAAAAAAgQAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\IP\IPV4Options\RouterAlert.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="SDK" Collapsed="true">
-    <Position X="7.25" Y="4.25" Width="1.5" />
+    <Position X="18.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAECAiCAAIAAgIABCAAIBQCEgAAAAA4AARAQAAAAEEA=</HashCode>
+      <HashCode>EAECAiCAAIAAgIIBCAAIBQCEgAgAAA4AARAQAAAAEEA=</HashCode>
       <FileName>src\Win\SDK.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCP&lt;IPVersion&gt;" Collapsed="true">
-    <Position X="6" Y="0.5" Width="1.5" />
+    <Position X="13" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CAgQAIAACQAAAEIAAAAAJAAEQAAAAIIIiAAwAAAQAAA=</HashCode>
+      <HashCode>CAAQAIAACQAAAEIAAAAAJAAEYAAAAIMIgAAwAAAQAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCP.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCPMSS" Collapsed="true">
-    <Position X="2.25" Y="0.5" Width="1.5" />
+    <Position X="3" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>IAAAAACAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCPOptions\TCPMSS.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCPNOP" Collapsed="true">
-    <Position X="1.25" Y="1.25" Width="1.5" />
+    <Position X="0.75" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAAABAAAAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCPOptions\TCPNOP.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCPOption" Collapsed="true">
-    <Position X="2.75" Y="1.25" Width="1.5" />
+    <Position X="5.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAEAgAEAAAAAAABAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAgAEAAAAAAABAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCPOptions\TCPOption.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCPSACK" Collapsed="true">
-    <Position X="4" Y="1.25" Width="1.5" />
+    <Position X="5.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAAAAAAAAABAAAAAAAAAAAAACAAAAQAQA=</HashCode>
+      <HashCode>AAAAAACAAAAAAAAAAAAABAAAAAAAAIAAAAAAAAAQAQA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCPOptions\TCPSACK.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCPSACKPerm" Collapsed="true">
-    <Position X="4" Y="2.5" Width="1.5" />
+    <Position X="7.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAAAAABAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCPOptions\TCPSACKPerm.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TCPWScale">
-    <Position X="9" Y="1.5" Width="1.5" />
+    <Position X="9.75" Y="1.75" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAQAAAABAAACAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\TCP\TCPOptions\TCPWScale.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="UDP&lt;IPVersion&gt;" Collapsed="true">
-    <Position X="4.75" Y="3.25" Width="1.5" />
+    <Position X="14.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAQAIAACQAACAAAAAAAJAAAAAgAAAAAAEAQAAAQAAA=</HashCode>
+      <HashCode>AAAQAIAACQAACAAAAAAAJAAAAAgAAAEIAEAQAAAQAAA=</HashCode>
       <FileName>src\Networks\Packets\Types\Data\UDP\UDP.h</FileName>
     </TypeIdentifier>
   </Class>

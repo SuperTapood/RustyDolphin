@@ -43,7 +43,7 @@ public:
 	FilterFlag m_flag = FilterFlag::Unfiltered;
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
-	virtual ~Packet() = default;
+	virtual ~Packet();
 
 	virtual void render() {
 		Renderer::render(this);

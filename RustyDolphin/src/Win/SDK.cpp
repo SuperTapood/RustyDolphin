@@ -146,6 +146,8 @@ void SDK::refreshTCP() {
 		DWORD pid = row.dwOwningPid;
 		PORT2PID.insert({ port, pid });
 	}
+
+	free(table);
 }
 
 PMIB_UDPTABLE_OWNER_PID SDK::getUDPTable() {
@@ -184,6 +186,8 @@ void SDK::refreshUDP() {
 		DWORD pid = row.dwOwningPid;
 		PORT2PID.insert({ port, pid });
 	}
+
+	free(table);
 }
 
 void SDK::refreshTables() {
@@ -294,11 +298,11 @@ DWORD SDK::getPIDFromPort(DWORD port) {
 		return PORT2PID.at(port);
 	}
 
-	refreshTables();
+	/*refreshTables();
 
 	if (PORT2PID.contains(port)) {
 		return PORT2PID.at(port);
-	}
+	}*/
 
 	return MAXDWORD;
 }

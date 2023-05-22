@@ -30,7 +30,7 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 
 	m_header = new pcap_pkthdr(*header);
 
-	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0);
+	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1e6);
 
 	m_phyDst = parseMAC();
 
@@ -44,6 +44,12 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 
 	m_properties.insert({ "len", std::to_string(m_len) });
 	m_properties.insert({ "num", m_idxStr });
+}
+
+Packet::~Packet() {
+	delete[] m_pktData;
+	delete m_header;
+	m_properties.clear();
 }
 
 std::string Packet::toString() {
