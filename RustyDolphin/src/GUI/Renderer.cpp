@@ -4,32 +4,39 @@
 #include "../Networks/Packets/Types/Types.h"
 
 bool Renderer::filter(Packet* p) {
+	using enum FilterFlag;
+
+	// filter isn't new, we can use the flag on the packet
 	if (!Data::newFilter) {
-		if (p->m_flag == FilterFlag::Passed) {
+		if (p->m_flag == Passed) {
 			return true;
 		}
-		else if (p->m_flag == FilterFlag::Failed) {
+		else if (p->m_flag == Failed) {
 			return false;
 		}
 	}
 
+	// we need to filter if its either a new filter, or the packet is yet to be filtered
 	for (auto pair : Data::filter) {
 		if (pair.second == "") {
+			// filter wasn't selected
 			continue;
 		}
 
 		if (!p->m_properties.contains(pair.first)) {
-			p->m_flag = FilterFlag::Failed;
+			// the packet doesn't contain the filter given
+			p->m_flag = Failed;
 			return false;
 		}
 
 		if (p->m_properties.at(pair.first) != pair.second) {
-			p->m_flag = FilterFlag::Failed;
+			// the values don't match
+			p->m_flag = Failed;
 			return false;
 		}
 	}
 
-	p->m_flag = FilterFlag::Passed;
+	p->m_flag = Passed;
 	return true;
 }
 

@@ -1,5 +1,9 @@
 #pragma once
 
+// file used to modify the behvior of the program easily
+// used for debug
+// would get deleted, but compiler preprocessors are optimized away at compilation anyway
+
 #define ENABLE_IN_RELEASE 0
 
 #ifdef NDEBUG

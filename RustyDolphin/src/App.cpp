@@ -28,6 +28,7 @@ void App::init() {
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
 	remove("imgui.ini");
+	// make sure resources are always released
 	atexit(App::release);
 	Data::init();
 	Logger::init();
@@ -45,6 +46,7 @@ void App::adapterScreen() {
 }
 
 void App::captureScreen() {
+	// jthread just because they join by default when they go out of scope
 	Data::captureThread = std::jthread(Capture::capturePackets);
 
 	render();
@@ -70,13 +72,10 @@ void App::renderAdapterMenuBar() {
 void App::handleLoad() {
 	ImGui::SetNextWindowPos(ImVec2(100, 100));
 	ImGui::SetNextWindowSize(ImVec2(1080, 480));
-	// open Dialog Simple
 	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".");
 
-	// display
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	{
-		// action if OK
 		if (ImGuiFileDialog::Instance()->IsOk())
 		{
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
@@ -354,13 +353,10 @@ void App::handleSaveGoing() {
 void App::handleSave() {
 	ImGui::SetNextWindowPos(ImVec2(100, 100));
 	ImGui::SetNextWindowSize(ImVec2(1080, 480));
-	// open Dialog Simple
 	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
 
-	// display
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	{
-		// action if OK
 		if (ImGuiFileDialog::Instance()->IsOk())
 		{
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
@@ -374,7 +370,6 @@ void App::handleSave() {
 			Data::showSave = false;
 		}
 
-		// close
 		ImGuiFileDialog::Instance()->Close();
 	}
 }
@@ -545,7 +540,7 @@ void App::renderTable() {
 		{
 			auto p = Data::captured.at(row);
 			{
-				std::lock_guard<std::mutex> guard(Data::guard);
+				std::scoped_lock guard(Data::guard);
 				Renderer::filterPacket(p);
 			}
 
@@ -707,7 +702,7 @@ void App::showHops() {
 		double latitude;
 		{
 			auto data = j.at("data").at("geo");
-			std::lock_guard<std::mutex> guard(Data::geoGuard);
+			std::scoped_lock guard(Data::geoGuard);
 			auto longS = data.at("longitude").dump(0);
 			if (longS == "\"\"" || longS == "null") {
 				continue;

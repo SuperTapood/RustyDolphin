@@ -30,6 +30,7 @@
 }{\cf1 	}remove({\cf15 "}{\cf15 captures/output.pcap}{\cf15 "});{\cf1 \par
 }{\cf1 	}remove({\cf15 "}{\cf15 captures/output.txt}{\cf15 "});{\cf1 \par
 }{\cf1 	}remove({\cf15 "}{\cf15 imgui.ini}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf2\i // make sure resources are always released\par
 }{\cf1 	}atexit(App{\cf6 :}{\cf6 :}release);{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}init();{\cf1 \par
 }{\cf1 	}{\cf4\b Logger}{\cf6 :}{\cf6 :}init();{\cf1 \par
@@ -47,6 +48,7 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 App::captureScreen}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // jthread just because they join by default when they go out of scope\par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}jthread({\cf4\b Capture}{\cf6 :}{\cf6 :}capturePackets);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}render();{\cf1 \par
@@ -72,13 +74,10 @@
 }{\cf5 void}{\cf1  }{\cf8 App::handleLoad}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
-}{\cf1 	}{\cf2\i // open Dialog Simple\par
 }{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "});{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // display\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
 }{\cf1 	}\{{\cf1 \par
-}{\cf1 		}{\cf2\i // action if OK\par
 }{\cf1 		}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}IsOk()){\cf1 \par
 }{\cf1 		}\{{\cf1 \par
 }{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePathName{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetFilePathName();{\cf1 \par
@@ -284,6 +283,9 @@
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}{\cf1 			}{\cf4\b for}{\cf1  }({\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 :}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b delete}{\cf1  }p;{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
@@ -315,6 +317,9 @@
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}{\cf1 			}{\cf4\b for}{\cf1  }({\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 :}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b delete}{\cf1  }p;{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
@@ -350,13 +355,10 @@
 }{\cf5 void}{\cf1  }{\cf8 App::handleSave}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
-}{\cf1 	}{\cf2\i // open Dialog Simple\par
 }{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "},{\cf1  }{\cf6 1},{\cf1  }{\cf4\b nullptr},{\cf1  }ImGuiFileDialogFlags_ConfirmOverwrite);{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // display\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
 }{\cf1 	}\{{\cf1 \par
-}{\cf1 		}{\cf2\i // action if OK\par
 }{\cf1 		}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}IsOk()){\cf1 \par
 }{\cf1 		}\{{\cf1 \par
 }{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePathName{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetFilePathName();{\cf1 \par
@@ -370,7 +372,6 @@
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showSave{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf2\i // close\par
 }{\cf1 		}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Close();{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
@@ -394,6 +395,9 @@
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showStart{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captureThread.join();{\cf1 \par
+}{\cf1 			}{\cf4\b for}{\cf1  }({\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 :}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured){\cf1  }\{{\cf1 \par
+}{\cf1 				}{\cf4\b delete}{\cf1  }p;{\cf1 \par
+}{\cf1 			}\}{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.clear();{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
@@ -538,7 +542,7 @@
 }{\cf1 		}\{{\cf1 \par
 }{\cf1 			}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured.at(row);{\cf1 \par
 }{\cf1 			}\{{\cf1 \par
-}{\cf1 				}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
+}{\cf1 				}std{\cf6 :}{\cf6 :}scoped_lock{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
 }{\cf1 				}Renderer{\cf6 :}{\cf6 :}filterPacket(p);{\cf1 \par
 }{\cf1 			}\}{\cf1 \par
 }{\cf1 \par
@@ -700,7 +704,7 @@
 }{\cf1 		}{\cf5 double}{\cf1  }latitude;{\cf1 \par
 }{\cf1 		}\{{\cf1 \par
 }{\cf1 			}{\cf4\b auto}{\cf1  }data{\cf1  }{\cf6 =}{\cf1  }j.at({\cf15 "}{\cf15 data}{\cf15 "}).at({\cf15 "}{\cf15 geo}{\cf15 "});{\cf1 \par
-}{\cf1 			}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}geoGuard);{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}scoped_lock{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}geoGuard);{\cf1 \par
 }{\cf1 			}{\cf4\b auto}{\cf1  }longS{\cf1  }{\cf6 =}{\cf1  }data.at({\cf15 "}{\cf15 longitude}{\cf15 "}).dump({\cf6 0});{\cf1 \par
 }{\cf1 			}{\cf4\b if}{\cf1  }(longS{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 "}{\cf17\b \\"}{\cf17\b \\"}{\cf15 "}{\cf1  }{\cf6 |}{\cf6 |}{\cf1  }longS{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 "}{\cf15 null}{\cf15 "}){\cf1  }\{{\cf1 \par
 }{\cf1 				}{\cf4\b continue};{\cf1 \par
@@ -884,6 +888,7 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Data.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf1 \par
+}{\cf2\i // define global static variables needed to manage this program\par
 }std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf4 Packet}{\cf6 *}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}captured;{\cf1 \par
 }{\cf5 int}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
 }{\cf5 bool}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}doneCounting{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
@@ -1170,6 +1175,7 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 Data::processFilter}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // set defaults to prevent filter retention\par
 }{\cf1 	}filter[{\cf15 "}{\cf15 ip}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
 }{\cf1 	}filter[{\cf15 "}{\cf15 sport}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
 }{\cf1 	}filter[{\cf15 "}{\cf15 dport}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
@@ -1179,6 +1185,7 @@
 }{\cf1 	}filter[{\cf15 "}{\cf15 num}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
 }{\cf1 	}filter[{\cf15 "}{\cf15 len}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
 }{\cf1 	}filter[{\cf15 "}{\cf15 proc}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "};{\cf1 \par
+}{\cf1 	}{\cf2\i // we need to refilter every packet\par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}newFilter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf2\i // filter is empty\par
@@ -1190,30 +1197,39 @@
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }current;{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}size_t{\cf1  }first,{\cf1  }last;{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // for every comma seperated expression\par
 }{\cf1 	}{\cf4\b while}{\cf1  }(std{\cf6 :}{\cf6 :}getline(ss,{\cf1  }current,{\cf1  }{\cf15 '}{\cf15 ,}{\cf15 '})){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf2\i // find where the two values seperate\par
 }{\cf1 		}{\cf4\b auto}{\cf1  }eq{\cf1  }{\cf6 =}{\cf1  }current.find_first_of({\cf15 '}{\cf15 =}{\cf15 '});{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(eq{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }current.find_last_of({\cf15 '}{\cf15 =}{\cf15 '})){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf2\i // there is more than one =, invalid input\par
 }{\cf1 			}showBadFilter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
 }{\cf1 			}filterIssue{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 \{\} is not a valid filter}{\cf15 "},{\cf1  }current);{\cf1 \par
+}{\cf1 			}{\cf2\i // show no packet\par
 }{\cf1 			}filter[{\cf15 "}{\cf15 num}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 -1}{\cf15 "};{\cf1 \par
 }{\cf1 			}{\cf4\b return};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf2\i // substring out the key\par
 }{\cf1 		}{\cf4\b auto}{\cf1  }key{\cf1  }{\cf6 =}{\cf1  }current.substr({\cf6 0},{\cf1  }eq);{\cf1 \par
 }{\cf1 		}first{\cf1  }{\cf6 =}{\cf1  }key.find_first_not_of({\cf15 '}{\cf15  }{\cf15 '});{\cf1 \par
 }{\cf1 		}last{\cf1  }{\cf6 =}{\cf1  }key.find_last_not_of({\cf15 '}{\cf15  }{\cf15 '});{\cf1 \par
+}{\cf1 		}{\cf2\i // removing trailing and leading spaces\par
 }{\cf1 		}key{\cf1  }{\cf6 =}{\cf1  }key.substr(first,{\cf1  }last{\cf1  }{\cf6 -}{\cf1  }first{\cf1  }{\cf6 +}{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 \par
+}{\cf1 		}{\cf2\i // same thing for the value\par
 }{\cf1 		}{\cf4\b auto}{\cf1  }value{\cf1  }{\cf6 =}{\cf1  }current.substr(eq{\cf1  }{\cf6 +}{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 		}first{\cf1  }{\cf6 =}{\cf1  }value.find_first_not_of({\cf15 '}{\cf15  }{\cf15 '});{\cf1 \par
 }{\cf1 		}last{\cf1  }{\cf6 =}{\cf1  }value.find_last_not_of({\cf15 '}{\cf15  }{\cf15 '});{\cf1 \par
 }{\cf1 		}value{\cf1  }{\cf6 =}{\cf1  }value.substr(first,{\cf1  }last{\cf1  }{\cf6 -}{\cf1  }first{\cf1  }{\cf6 +}{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 \par
+}{\cf1 		}{\cf2\i // lowercase both the key and the value\par
 }{\cf1 		}std{\cf6 :}{\cf6 :}ranges{\cf6 :}{\cf6 :}transform(key.begin(),{\cf1  }key.end(),{\cf1  }key.begin(),{\cf1 \par
 }{\cf1 			}[]({\cf5 unsigned}{\cf1  }{\cf5 char}{\cf1  }c){\cf1  }\{{\cf1  }{\cf4\b return}{\cf1  }std{\cf6 :}{\cf6 :}tolower(c);{\cf1  }\});{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}ranges{\cf6 :}{\cf6 :}transform(value.begin(),{\cf1  }value.end(),{\cf1  }value.begin(),{\cf1 \par
 }{\cf1 			}[]({\cf5 unsigned}{\cf1  }{\cf5 char}{\cf1  }c){\cf1  }\{{\cf1  }{\cf4\b return}{\cf1  }std{\cf6 :}{\cf6 :}tolower(c);{\cf1  }\});{\cf1 \par
 }{\cf1 \par
+}{\cf1 		}{\cf2\i // add them as arguments\par
 }{\cf1 		}args.push_back(key);{\cf1 \par
 }{\cf1 		}args.push_back(value);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
@@ -1228,8 +1244,8 @@
 }{\cf1 	}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }idx{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }idx{\cf1  }{\cf6 <}{\cf1  }args.size();{\cf1  }idx{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }{\cf6 2}){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b auto}{\cf1  }key{\cf1  }{\cf6 =}{\cf1  }args.at(idx);{\cf1 \par
 }{\cf1 		}{\cf4\b auto}{\cf1  }value{\cf1  }{\cf6 =}{\cf1  }args.at(idx{\cf1  }{\cf6 +}{\cf1  }{\cf6 1});{\cf1 \par
-}{\cf1 		}{\cf2\i //std::cout << key << " - " << value << std::endl;\par
 }{\cf1 \par
+}{\cf1 		}{\cf2\i // check if a valid filter was given\par
 }{\cf1 		}{\cf4\b if}{\cf1  }({\cf6 !}filterKeys.contains(key)){\cf1  }\{{\cf1 \par
 }{\cf1 			}showBadFilter{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
 }{\cf1 			}filterIssue{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 '\{\}' isn't a valid filter flag.}{\cf15 "},{\cf1  }key);{\cf1 \par
@@ -1239,10 +1255,6 @@
 }{\cf1 \par
 }{\cf1 		}filter[key]{\cf1  }{\cf6 =}{\cf1  }value;{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i /*for (auto key : filter) \{\par
-		std::cout << key.first << ":" << key.second << std::endl;\par
-	\}*/}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}pair{\cf6 <}{\cf5 double},{\cf1  }{\cf5 double}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}mercatorProjection({\cf5 double}{\cf1  }longitude,{\cf1  }{\cf5 double}{\cf1  }latitude){\cf1  }\{{\cf1 \par
@@ -1254,12 +1266,14 @@
 }{\cf1 	}{\cf5 double}{\cf1  }x{\cf1  }{\cf6 =}{\cf1  }(longitude{\cf1  }{\cf6 +}{\cf1  }{\cf6 180}){\cf1  }{\cf6 *}{\cf1  }(mapWidth{\cf1  }{\cf6 /}{\cf1  }{\cf6 360});{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf2\i // convert from degrees to radians\par
-}{\cf1 	}{\cf5 double}{\cf1  }latRad{\cf1  }{\cf6 =}{\cf1  }latitude{\cf1  }{\cf6 *}{\cf1  }PI{\cf1  }{\cf6 /}{\cf1  }{\cf6 180};{\cf1 \par
+}{\cf1 	}{\cf5 double}{\cf1  }latRad{\cf1  }{\cf6 =}{\cf1  }latitude{\cf1  }{\cf6 *}{\cf1  }(PI{\cf1  }{\cf6 /}{\cf1  }{\cf6 180});{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf2\i // get y value\par
 }{\cf1 	}{\cf5 double}{\cf1  }mercN{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}log(std{\cf6 :}{\cf6 :}tan((PI{\cf1  }{\cf6 /}{\cf1  }{\cf6 4}){\cf1  }{\cf6 +}{\cf1  }(latRad{\cf1  }{\cf6 /}{\cf1  }{\cf6 2})));{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf5 double}{\cf1  }y{\cf1  }{\cf6 =}{\cf1  }(mapHeight{\cf1  }{\cf6 /}{\cf1  }{\cf6 2}){\cf1  }{\cf6 -}{\cf1  }(mapWidth{\cf1  }{\cf6 *}{\cf1  }mercN{\cf1  }{\cf6 /}{\cf1  }({\cf6 2}{\cf1  }{\cf6 *}{\cf1  }PI));{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // return results as pair bc i do not want to have TWO of this function\par
 }{\cf1 	}{\cf4\b return}{\cf1  }\{{\cf1  }x,{\cf1  }y{\cf1  }\};{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -1274,9 +1288,10 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <mutex>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <set>}{\cf3 \par
 }{\cf1 \par
-}{\cf2\i // please no more global variables i beg thee\par
+}{\cf2\i // please no more global variables please i beg thee\par
 }{\cf4\b class}{\cf1  }{\cf8\b Data}{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
+}{\cf1 	}{\cf2\i // a bunch of global variables needed for the program's threads to communicate\par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf4 Packet}{\cf6 *}{\cf6 >}{\cf1               }captured;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 int}{\cf1                                }selected;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1                               }doneCounting;{\cf1 \par
@@ -1331,7 +1346,8 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Logger.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <cassert>}{\cf3 \par
+}{\cf1 \par
+}{\cf2\i // average logger class\par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}ofstream{\cf1  }{\cf4\b Logger}{\cf6 :}{\cf6 :}m_file;{\cf1 \par
 }{\cf1 \par
@@ -1340,8 +1356,6 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 Logger::log}(std{\cf6 :}{\cf6 :}string{\cf1  }str){\cf1  }\{{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}cout{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 log: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }str{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
-}{\cf1 	}{\cf2\i //assert(false);\par
 }{\cf1 	}m_file{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }str{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -1388,6 +1402,10 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
 }{\cf1 \par
+}{\cf2\i // file used to modify the behvior of the program easily\par
+}{\cf2\i // used for debug\par
+}{\cf2\i // would get deleted, but compiler preprocessors are optimized away at compilation anyway\par
+}{\cf1 \par
 }{\cf3 #}{\cf3 define ENABLE_IN_RELEASE 0}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 ifdef NDEBUG}{\cf3 \par
@@ -1423,8 +1441,8 @@
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf6 !}glfwInit()){\cf1 \par
 }{\cf1 		}exit({\cf6 -1});{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // make the window non resizable\par
 }{\cf1 	}glfwWindowHint(GLFW_RESIZABLE,{\cf1  }GLFW_FALSE);{\cf1 \par
-}{\cf1 	}glfwWindowHint(GLFW_REFRESH_RATE,{\cf1  }{\cf6 1000});{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}window{\cf1  }{\cf6 =}{\cf1  }glfwCreateWindow({\cf6 1280},{\cf1  }{\cf6 720},{\cf1  }{\cf15 "}{\cf15 RustyDolphin}{\cf15 "},{\cf1  }{\cf4 NULL},{\cf1  }{\cf4 NULL});{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf6 !}window){\cf1 \par
@@ -1435,54 +1453,46 @@
 }{\cf1 \par
 }{\cf1 	}glfwMakeContextCurrent(window);{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // load and set the icon image\par
 }{\cf1 	}GLFWimage{\cf1  }images[{\cf6 1}]\{\};{\cf1 \par
-}{\cf1 	}images[{\cf6 0}].pixels{\cf1  }{\cf6 =}{\cf1  }stbi_load({\cf15 "}{\cf15 deps/assets/icon.png}{\cf15 "},{\cf1  }{\cf6 &}images[{\cf6 0}].width,{\cf1  }{\cf6 &}images[{\cf6 0}].height,{\cf1  }{\cf6 0},{\cf1  }{\cf6 4});{\cf1  }{\cf2\i //rgba channels\par
+}{\cf1 	}images[{\cf6 0}].pixels{\cf1  }{\cf6 =}{\cf1  }stbi_load({\cf15 "}{\cf15 deps/assets/icon.png}{\cf15 "},{\cf1  }{\cf6 &}images[{\cf6 0}].width,{\cf1  }{\cf6 &}images[{\cf6 0}].height,{\cf1  }{\cf4\b nullptr},{\cf1  }{\cf6 4});{\cf1 \par
 }{\cf1 	}glfwSetWindowIcon(window,{\cf1  }{\cf6 1},{\cf1  }images);{\cf1 \par
 }{\cf1 	}stbi_image_free(images[{\cf6 0}].pixels);{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Initialize Dear ImGui\par
+}{\cf1 	}{\cf2\i // ImGui initialization\par
 }{\cf1 	}IMGUI_CHECKVERSION();{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}CreateContext();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Set Dear ImGui style\par
+}{\cf1 	}{\cf2\i // dark mode fr fr im just like that og\par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}StyleColorsDark();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Initialize Dear ImGui backends\par
+}{\cf1 	}{\cf2\i // init imgui for opengl\par
 }{\cf1 	}ImGui_ImplGlfw_InitForOpenGL(window,{\cf1  }{\cf4 true});{\cf1 \par
 }{\cf1 	}ImGui_ImplOpenGL3_Init();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i //// Get the font atlas\par
-}{\cf1 	}{\cf2\i //ImGuiIO& io = ImGui::GetIO();\par
-}{\cf1 	}{\cf2\i //ImFontAtlas* atlas = io.Fonts;\par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i //// Clear the current fonts\par
-}{\cf1 	}{\cf2\i //atlas->Clear();\par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i //// Add a single font\par
-}{\cf1 	}{\cf2\i //atlas->AddFontDefault();\par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i //atlas->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;\par
-}{\cf1 \par
-}{\cf1 	}{\cf2\i //// Build the font atlas\par
-}{\cf1 	}{\cf2\i //atlas->Build();\par
-}{\cf1 \par
 }{\cf1 	}ImGuiIO{\cf6 &}{\cf1  }io{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetIO();{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // create le fonts\par
 }{\cf1 	}fonts.insert(\{{\cf1  }{\cf15 "}{\cf15 title}{\cf15 "},{\cf1  }io.Fonts{\cf6 -}{\cf6 >}AddFontFromFileTTF({\cf15 "}{\cf15 deps/fonts/arial.ttf}{\cf15 "},{\cf1  }{\cf6 60}){\cf1  }\});{\cf1 \par
 }{\cf1 	}fonts.insert(\{{\cf1  }{\cf15 "}{\cf15 quote}{\cf15 "},{\cf1  }io.Fonts{\cf6 -}{\cf6 >}AddFontFromFileTTF({\cf15 "}{\cf15 deps/fonts/arial.ttf}{\cf15 "},{\cf1  }{\cf6 25}){\cf1  }\});{\cf1 \par
 }{\cf1 	}fonts.insert(\{{\cf1  }{\cf15 "}{\cf15 adapters}{\cf15 "},{\cf1  }io.Fonts{\cf6 -}{\cf6 >}AddFontFromFileTTF({\cf15 "}{\cf15 deps/fonts/arial.ttf}{\cf15 "},{\cf1  }{\cf6 30}){\cf1  }\});{\cf1 \par
 }{\cf1 	}fonts.insert(\{{\cf1  }{\cf15 "}{\cf15 regular}{\cf15 "},{\cf1  }io.Fonts{\cf6 -}{\cf6 >}AddFontFromFileTTF({\cf15 "}{\cf15 deps/fonts/arial.ttf}{\cf15 "},{\cf1  }{\cf6 16}){\cf1  }\});{\cf1 \par
 }{\cf1 	}fonts.insert(\{{\cf1  }{\cf15 "}{\cf15 hexView}{\cf15 "},{\cf1  }io.Fonts{\cf6 -}{\cf6 >}AddFontFromFileTTF({\cf15 "}{\cf15 deps/fonts/consola.ttf}{\cf15 "},{\cf1  }{\cf6 16}){\cf1  }\});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // build the font altas\par
 }{\cf1 	}io.Fonts{\cf6 -}{\cf6 >}Build();{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}glfwSwapInterval({\cf6 1});{\cf1 \par
-}{\cf1 \par
+}{\cf1 	}{\cf1 \par
+}{\cf1 	}{\cf2\i // set button hovered colors (like on the table)\par
 }{\cf1 	}ImGuiStyle{\cf6 &}{\cf1  }style{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetStyle();{\cf1 \par
 }{\cf1 	}style.Colors[ImGuiCol_Button]{\cf1  }{\cf6 =}{\cf1  }ImVec4({\cf6 0.0f},{\cf1  }{\cf6 0.0f},{\cf1  }{\cf6 0.0f},{\cf1  }{\cf6 0.0f});{\cf1 \par
 }{\cf1 	}style.Colors[ImGuiCol_ButtonHovered]{\cf1  }{\cf6 =}{\cf1  }ImVec4({\cf6 0.5f},{\cf1  }{\cf6 0.5f},{\cf1  }{\cf6 0.5f},{\cf1  }{\cf6 0.5f});{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}images[{\cf6 0}].pixels{\cf1  }{\cf6 =}{\cf1  }stbi_load({\cf15 "}{\cf15 deps/assets/earth.jpeg}{\cf15 "},{\cf1  }{\cf6 &}images[{\cf6 0}].width,{\cf1  }{\cf6 &}images[{\cf6 0}].height,{\cf1  }{\cf6 0},{\cf1  }{\cf6 4});{\cf1  }{\cf2\i //rgba channels\par
+}{\cf1 	}{\cf2\i // load the earth image we need for the hopping map\par
+}{\cf1 	}images[{\cf6 0}].pixels{\cf1  }{\cf6 =}{\cf1  }stbi_load({\cf15 "}{\cf15 deps/assets/earth.jpeg}{\cf15 "},{\cf1  }{\cf6 &}images[{\cf6 0}].width,{\cf1  }{\cf6 &}images[{\cf6 0}].height,{\cf1  }{\cf4\b nullptr},{\cf1  }{\cf6 4});{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // bind the earth image to a texture we can render\par
 }{\cf1 	}glGenTextures({\cf6 1},{\cf1  }{\cf6 &}earthTex);{\cf1 \par
 }{\cf1 	}glBindTexture(GL_TEXTURE_2D,{\cf1  }earthTex);{\cf1 \par
 }{\cf1 	}glTexParameteri(GL_TEXTURE_2D,{\cf1  }GL_TEXTURE_MIN_FILTER,{\cf1  }GL_LINEAR);{\cf1 \par
@@ -1490,13 +1500,16 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 GUI::release}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf2\i // Cleanup\par
+}{\cf1 	}{\cf2\i // clean up clean up\par
 }{\cf1 	}ImGui_ImplOpenGL3_Shutdown();{\cf1 \par
 }{\cf1 	}ImGui_ImplGlfw_Shutdown();{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}DestroyContext();{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // it always comes back\par
 }{\cf1 	}glfwTerminate();{\cf1 \par
 }\}{\cf1 \par
+}{\cf1 \par
+}{\cf2\i // two wrapper functions to make using fonts a little easier and consistent\par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 GUI::pushFont}(std{\cf6 :}{\cf6 :}string{\cf1  }name){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}PushFont(fonts.at(name));{\cf1 \par
@@ -1521,20 +1534,22 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 GUI::startFrame}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf2\i // Poll and handle events\par
+}{\cf1 	}{\cf2\i // handle events\par
 }{\cf1 	}glfwPollEvents();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Start the Dear ImGui frame\par
+}{\cf1 	}{\cf2\i // actually start the frame\par
 }{\cf1 	}ImGui_ImplOpenGL3_NewFrame();{\cf1 \par
 }{\cf1 	}ImGui_ImplGlfw_NewFrame();{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}NewFrame();{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 GUI::endFrame}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf2\i // Rendering\par
+}{\cf1 	}{\cf2\i // clear the frame\par
 }{\cf1 	}glClear(GL_COLOR_BUFFER_BIT);{\cf1 \par
+}{\cf1 	}{\cf2\i // render the frame\par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Render();{\cf1 \par
 }{\cf1 	}ImGui_ImplOpenGL3_RenderDrawData({\cf4\b ImGui}{\cf6 :}{\cf6 :}GetDrawData());{\cf1 \par
+}{\cf1 	}{\cf2\i // swap le buffers\par
 }{\cf1 	}glfwSwapBuffers({\cf4\b GUI}{\cf6 :}{\cf6 :}window);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -1574,6 +1589,9 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
 }{\cf1 \par
+}{\cf2\i // stb said that including this header in an empty header files was recommended\par
+}{\cf2\i // and here we are\par
+}{\cf1 \par
 }{\cf3 #}{\cf3 define STB_IMAGE_IMPLEMENTATION}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "stb_image.h"}{\cf3 \par
 }{\cf1 \par
@@ -1585,32 +1603,39 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../Networks/Packets/Types/Types.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf5 bool}{\cf1  }{\cf8 Renderer::filter}({\cf4 Packet}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b using}{\cf1  }{\cf4\b enum}{\cf1  }{\cf8\b FilterFlag};{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // filter isn't new, we can use the flag on the packet\par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}newFilter){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf4\b if}{\cf1  }(p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }FilterFlag{\cf6 :}{\cf6 :}Passed){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b if}{\cf1  }(p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }Passed){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b return}{\cf1  }{\cf4 true};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }(p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }FilterFlag{\cf6 :}{\cf6 :}Failed){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }(p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }Failed){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b return}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // we need to filter if its either a new filter, or the packet is yet to be filtered\par
 }{\cf1 	}{\cf4\b for}{\cf1  }({\cf4\b auto}{\cf1  }pair{\cf1  }{\cf6 :}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}filter){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(pair.second{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 "}{\cf15 "}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf2\i // filter wasn't selected\par
 }{\cf1 			}{\cf4\b continue};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }({\cf6 !}p{\cf6 -}{\cf6 >}m_properties.contains(pair.first)){\cf1  }\{{\cf1 \par
-}{\cf1 			}p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf1  }FilterFlag{\cf6 :}{\cf6 :}Failed;{\cf1 \par
+}{\cf1 			}{\cf2\i // the packet doesn't contain the filter given\par
+}{\cf1 			}p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf1  }Failed;{\cf1 \par
 }{\cf1 			}{\cf4\b return}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(p{\cf6 -}{\cf6 >}m_properties.at(pair.first){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }pair.second){\cf1  }\{{\cf1 \par
-}{\cf1 			}p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf1  }FilterFlag{\cf6 :}{\cf6 :}Failed;{\cf1 \par
+}{\cf1 			}{\cf2\i // the values don't match\par
+}{\cf1 			}p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf1  }Failed;{\cf1 \par
 }{\cf1 			}{\cf4\b return}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf1  }FilterFlag{\cf6 :}{\cf6 :}Passed;{\cf1 \par
+}{\cf1 	}p{\cf6 -}{\cf6 >}m_flag{\cf1  }{\cf6 =}{\cf1  }Passed;{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }{\cf4 true};{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -1764,7 +1789,7 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::render}(IPV6{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::render}({\cf4 IPV6}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}TableSetColumnIndex({\cf6 0});{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Selectable(p{\cf6 -}{\cf6 >}m_idxStr.c_str(),{\cf1  }{\cf4 false},{\cf1  }ImGuiSelectableFlags_SpanAllColumns)){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b Data}{\cf6 :}{\cf6 :}selected{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}m_idx;{\cf1 \par
@@ -1783,7 +1808,7 @@
 }{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}Text(p{\cf6 -}{\cf6 >}m_description.c_str());{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(IPV6{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 IPV6}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}renderExpanded(({\cf4 Packet}{\cf6 *})p);{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Button(m.at({\cf15 "}{\cf15 IPV6 Title}{\cf15 "}).c_str())){\cf1  }\{{\cf1 \par
@@ -1824,7 +1849,7 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(TCP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 TCP}{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}renderExpanded(({\cf4 IPV4}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
@@ -1865,8 +1890,8 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(TCP{\cf6 <}IPV6{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
-}{\cf1 	}renderExpanded((IPV6{\cf6 *})p);{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 TCP}{\cf6 <}{\cf4 IPV6}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf1 	}renderExpanded(({\cf4 IPV6}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
 }{\cf1 \par
@@ -1906,7 +1931,7 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(UDP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 UDP}{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}renderExpanded(({\cf4 IPV4}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }{\cf4 map}{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
@@ -1924,8 +1949,8 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(UDP{\cf6 <}IPV6{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
-}{\cf1 	}renderExpanded((IPV6{\cf6 *})p);{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 UDP}{\cf6 <}{\cf4 IPV6}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf1 	}renderExpanded(({\cf4 IPV6}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }{\cf4 map}{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b ImGui}{\cf6 :}{\cf6 :}Button({\cf4 map}.at({\cf15 "}{\cf15 UDP Title}{\cf15 "}).c_str())){\cf1  }\{{\cf1 \par
@@ -1942,7 +1967,7 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(ICMP{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 ICMP}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}renderExpanded(({\cf4 IPV4}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
@@ -1969,8 +1994,8 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(ICMPV6{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
-}{\cf1 	}renderExpanded((IPV6{\cf6 *})p);{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 ICMPV6}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf1 	}renderExpanded(({\cf4 IPV6}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
 }{\cf1 \par
@@ -1987,7 +2012,7 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(IGMP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 IGMP}{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
 }{\cf1 	}renderExpanded(({\cf4 IPV4}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
@@ -2004,8 +2029,8 @@
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}(IGMP{\cf6 <}IPV6{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
-}{\cf1 	}renderExpanded((IPV6{\cf6 *})p);{\cf1 \par
+}{\cf5 void}{\cf1  }{\cf8 Renderer::renderExpanded}({\cf4 IGMP}{\cf6 <}{\cf4 IPV6}{\cf6 >}{\cf6 *}{\cf1  }p){\cf1  }\{{\cf1 \par
+}{\cf1 	}renderExpanded(({\cf4 IPV6}{\cf6 *})p);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }m{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}getTexts();{\cf1 \par
 }{\cf1 \par
@@ -2042,6 +2067,12 @@
 }{\cf4\b template}{\cf1  }{\cf6 <}{\cf4\b typename}{\cf1  }{\cf8\b T}{\cf6 >}{\cf1 \par
 }{\cf4\b class}{\cf1  }{\cf8\b IGMP};{\cf1 \par
 }{\cf1 \par
+}{\cf2\i // this class handles all of the rendering\par
+}{\cf2\i // each `render` function renders a packet on the table (only the packet which need special treatment are implemented)\par
+}{\cf2\i // each `renderExpanded` is specific for each type as it presents a lot more specific data\par
+}{\cf2\i // renderExpanded also call the father class's renderExpanded\par
+}{\cf2\i // for example, renderExpanded for tcp<IPV4> also calls renderExpanded for IPV4 which calls renderExpanded for Packet\par
+}{\cf1 \par
 }{\cf4\b class}{\cf1  }{\cf8\b Renderer}{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }filterPacket({\cf4 Packet}{\cf6 *}{\cf1  }p);{\cf1 \par
@@ -2050,16 +2081,16 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 ARP}{\cf6 *}{\cf1  }p);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 render}({\cf4 IPV4}{\cf6 *}{\cf1  }p);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 IPV4}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(IGMP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(IGMP{\cf6 <}IPV6{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(TCP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(TCP{\cf6 <}IPV6{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(UDP{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(ICMP{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(UDP{\cf6 <}IPV6{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 render}(IPV6{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(IPV6{\cf6 *}{\cf1  }p);{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}(ICMPV6{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 IGMP}{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 IGMP}{\cf6 <}{\cf4 IPV6}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 TCP}{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 TCP}{\cf6 <}{\cf4 IPV6}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 UDP}{\cf6 <}{\cf4 IPV4}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 ICMP}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 UDP}{\cf6 <}{\cf4 IPV6}{\cf6 >}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 render}({\cf4 IPV6}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 IPV6}{\cf6 *}{\cf1  }p);{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 renderExpanded}({\cf4 ICMPV6}{\cf6 *}{\cf1  }p);{\cf1 \par
 }{\cf1 \par
 }{\cf4\b private}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }filter({\cf4 Packet}{\cf6 *}{\cf1  }p);{\cf1 \par
@@ -2081,7 +2112,8 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 ifdef NDEBUG}{\cf3 \par
 }{\cf1 \par
-}{\cf2\i // because nothing can ever be simple in this goddamn operating system\par
+}{\cf2\i // this entry point is needed to compile the program into a command promptless executable\par
+}{\cf2\i // because nothing can ever be simple in this operating system\par
 }{\cf5 int}{\cf1  }WINAPI{\cf1  }{\cf8 WinMain}(HINSTANCE{\cf1  }hInstance,{\cf1  }HINSTANCE{\cf1  }hPrevInstance,{\cf1  }LPSTR{\cf1  }lpCmdLine,{\cf1  }{\cf5 int}{\cf1  }nCmdShow){\cf1 \par
 }\{{\cf1 \par
 }{\cf1 	}main();{\cf1 \par
@@ -2107,7 +2139,6 @@
 }pcap_if_t{\cf6 *}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}m_alldevs;{\cf1 \par
 }{\cf5 int}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}m_devs;{\cf1 \par
 }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}m_devNames;{\cf1 \par
-}pcap_dumper_t{\cf6 *}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}m_dumpfile;{\cf1 \par
 }{\cf1 \par
 }{\cf5 bool}{\cf1  }{\cf8 Capture::LoadNpcapDlls}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}_TCHAR{\cf1  }npcap_dir[{\cf6 512}];{\cf1 \par
@@ -2140,7 +2171,7 @@
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // get the stupid devices and put  them into the stupid variable\par
+}{\cf1 	}{\cf2\i // get the stupid devices and put them into the stupid variable\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(pcap_findalldevs({\cf6 &}m_alldevs,{\cf1  }errbuf){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 -1}){\cf1 \par
 }{\cf1 	}\{{\cf1 \par
 }{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }errbuf;{\cf1 \par
@@ -2166,9 +2197,6 @@
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 Capture::release}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}pcap_freealldevs(m_alldevs);{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }(m_dumpfile{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
-}{\cf1 		}pcap_dump_close(m_dumpfile);{\cf1 \par
-}{\cf1 	}\}{\cf1 \par
 }{\cf1 	}WSACleanup();{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -2231,10 +2259,6 @@
 }{\cf1 	}{\cf4\b return}{\cf1  }adhandle;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}{\cf5 void}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}dump({\cf4\b struct}{\cf1  }{\cf8\b pcap_pkthdr}{\cf6 *}{\cf1  }h,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt){\cf1  }\{{\cf1 \par
-}{\cf1 	}pcap_dump((u_char{\cf6 *})m_dumpfile,{\cf1  }h,{\cf1  }pkt);{\cf1 \par
-}\}{\cf1 \par
-}{\cf1 \par
 }{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf4\b Capture}{\cf6 :}{\cf6 :}load(std{\cf6 :}{\cf6 :}string{\cf1  }name){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf5 char}{\cf1  }errbuf[PCAP_ERRBUF_SIZE];{\cf1 \par
 }{\cf1 \par
@@ -2254,24 +2278,22 @@
 }{\cf1 	}{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data;{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }r;{\cf1 \par
 }{\cf1 \par
-}{\cf3 #}{\cf3 if _DEBUG}{\cf3 \par
-}{\cf1 	}m_dumpfile{\cf1  }{\cf6 =}{\cf1  }pcap_dump_open(adapter,{\cf1  }{\cf15 "}{\cf15 captures/capture.pcap}{\cf15 "});{\cf1 \par
-}{\cf3 #}{\cf3 endif}{\cf3 \par
-}{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}doneLoading){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b return};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b while}{\cf1  }(pcap_next_ex(adapter,{\cf1  }{\cf6 &}header,{\cf1  }{\cf6 &}pkt_data){\cf1  }{\cf6 <}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}epochStart{\cf1  }{\cf6 =}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_sec{\cf1  }{\cf6 +}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_usec{\cf1  }{\cf6 /}{\cf1  }{\cf6 1000000.0};{\cf1 \par
+}{\cf1 	}{\cf2\i // find the first good packet pls\par
+}{\cf1 	}{\cf4\b while}{\cf1  }(pcap_next_ex(adapter,{\cf1  }{\cf6 &}header,{\cf1  }{\cf6 &}pkt_data){\cf1  }{\cf6 <}{\cf6 =}{\cf1  }{\cf6 0});{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }fromRaw(header,{\cf1  }pkt_data,{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx);{\cf1 \par
 }{\cf1 	}\{{\cf1 \par
-}{\cf1 		}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
+}{\cf1 		}{\cf2\i // vector is not thread safe apparently\par
+}{\cf1 		}{\cf2\i // so whenever we interact with an element from it we need to do so with atomics\par
+}{\cf1 		}std{\cf6 :}{\cf6 :}scoped_lock{\cf1  }{\cf8 guard}({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
 }{\cf1 		}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.push_back(p);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
+}{\cf1 	}{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}epochStart{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}m_epoch;{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf6 +}{\cf6 +};{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b while}{\cf1  }({\cf4 true}){\cf1  }\{{\cf1 \par
@@ -2281,6 +2303,7 @@
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(r{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 -2}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf2\i // done reading\par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneCapturing{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}doneLoading{\cf1  }{\cf6 =}{\cf1  }{\cf4 true};{\cf1 \par
 }{\cf1 			}{\cf4\b return};{\cf1 \par
@@ -2293,11 +2316,9 @@
 }{\cf1 		}{\cf4\b auto}{\cf1  }p{\cf1  }{\cf6 =}{\cf1  }fromRaw(header,{\cf1  }pkt_data,{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx);{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}\{{\cf1 \par
-}{\cf1 			}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}scoped_lock{\cf1  }{\cf8 guard}({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.push_back(p);{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf2\i //dump(header, pkt_data);\par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf6 +}{\cf6 +};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
@@ -2344,8 +2365,7 @@
 }{\cf1 \par
 }{\cf4\b class}{\cf1  }{\cf8\b Capture}{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
-}{\cf1 	}{\cf2\i // club pinguin is kil\par
-}{\cf1 	}{\cf2\i // no\par
+}{\cf1 	}{\cf2\i // everyone remembers where they were when they got the news\par
 }{\cf1 	}{\cf4\b Capture}(){\cf1  }{\cf6 =}{\cf1  }{\cf4\b delete};{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 init}();{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 release}();{\cf1 \par
@@ -2353,7 +2373,6 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }getDeviceNames({\cf5 bool}{\cf1  }verbose{\cf1  }{\cf6 =}{\cf1  }{\cf4 false});{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf8 createAdapter}({\cf5 int}{\cf1  }devIndex,{\cf1  }{\cf5 bool}{\cf1  }promiscuous{\cf1  }{\cf6 =}{\cf1  }{\cf4 false});{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 capturePackets}();{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 dump}({\cf4\b struct}{\cf1  }{\cf8\b pcap_pkthdr}{\cf6 *}{\cf1  }h,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf4 pcap_t}{\cf6 *}{\cf1  }{\cf8 load}(std{\cf6 :}{\cf6 :}string{\cf1  }name);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 countPackets}(std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 int}{\cf6 >}{\cf6 *}{\cf1  }counts,{\cf1  }{\cf5 int}{\cf1  }adapterIdx);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 dumpAll}(std{\cf6 :}{\cf6 :}string{\cf1  }filename);{\cf1 \par
@@ -2362,7 +2381,6 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }pcap_if_t{\cf6 *}{\cf1  }m_alldevs;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 int}{\cf1  }m_devs;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }m_devNames;{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }pcap_dumper_t{\cf6 *}{\cf1  }m_dumpfile;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 bool}{\cf1  }{\cf8 LoadNpcapDlls}();{\cf1 \par
 }\};{\cf1 \par
@@ -2388,13 +2406,13 @@
 }{\cf1 \par
 }{\cf1 	}{\cf4\b switch}{\cf1  }(proto){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_TCP}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }TCP{\cf6 <}{\cf4 IPV4}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 TCP}{\cf6 <}{\cf4 IPV4}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_UDP}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }UDP{\cf6 <}{\cf4 IPV4}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 UDP}{\cf6 <}{\cf4 IPV4}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_IGMP}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }IGMP{\cf6 <}{\cf4 IPV4}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 IGMP}{\cf6 <}{\cf4 IPV4}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_ICMP}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }ICMP(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 ICMP}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b default}{\cf6 :}{\cf1 \par
 }{\cf3 #}{\cf3 ifdef _DEBUG}{\cf3 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
@@ -2403,9 +2421,6 @@
 }{\cf3 #}{\cf3 endif}{\cf3 \par
 }{\cf1 		}{\cf4\b break};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 	}{\cf4\b Logger}{\cf6 :}{\cf6 :}log({\cf15 "}{\cf15 unknown v4 protocol: }{\cf15 "});{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}cout{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 bad proto }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }proto{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 IPV4}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }\}{\cf1 \par
@@ -2417,11 +2432,11 @@
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_HOPOPTS}:{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }fromIPV6(header,{\cf1  }pkt_data,{\cf1  }idx,{\cf1  }{\cf6 54});{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_TCP}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }TCP{\cf6 <}IPV6{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 TCP}{\cf6 <}{\cf4 IPV6}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_UDP}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }UDP{\cf6 <}IPV6{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 UDP}{\cf6 <}{\cf4 IPV6}{\cf6 >}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b case}{\cf1  }{\cf11 IPPROTO_ICMPV6}:{\cf1 \par
-}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }ICMPV6(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 ICMPV6}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b default}{\cf6 :}{\cf1 \par
 }{\cf3 #}{\cf3 ifdef _DEBUG}{\cf3 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
@@ -2431,7 +2446,7 @@
 }{\cf1 		}{\cf4\b break};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }IPV6(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
+}{\cf1 	}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 IPV6}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }PKT{\cf1  }{\cf8 fromRaw}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }\{{\cf1 \par
@@ -2448,7 +2463,6 @@
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b new}{\cf1  }{\cf4 ARP}(header,{\cf1  }pkt_data,{\cf1  }idx);{\cf1 \par
 }{\cf1 	}{\cf4\b default}{\cf6 :}{\cf1 \par
 }{\cf3 #}{\cf3 ifdef _DEBUG}{\cf3 \par
-}{\cf1 		}{\cf4\b Capture}{\cf6 :}{\cf6 :}dump(header,{\cf1  }pkt_data);{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
 }{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 unknown packet type: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }type{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  at position }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }idx;{\cf1 \par
 }{\cf1 		}{\cf4\b Logger}{\cf6 :}{\cf6 :}log(ss.str());{\cf1 \par
@@ -2465,6 +2479,7 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Types/Types.h"}{\cf3 \par
 }{\cf1 \par
+}{\cf2\i // think of this function as the sorting hat for packets\par
 }PKT{\cf1  }{\cf8 fromRaw}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx);{\cf1 \par
 }{\cf1 \par
 }{\cf2\i //ICMP.h\par
@@ -2492,7 +2507,7 @@
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_typeDesc;{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_restOfHeader;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}ICMP(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }{\cf4 IPV4}(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4 ICMP}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }{\cf4 IPV4}(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 		}m_ICMPtype{\cf1  }{\cf6 =}{\cf1  }parseChar();{\cf1 \par
 }{\cf1 		}m_code{\cf1  }{\cf6 =}{\cf1  }parseChar();{\cf1 \par
 }{\cf1 		}m_ICMPChecksum{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
@@ -2598,22 +2613,22 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "ICMPV6Types/ICMPV6Types.h"}{\cf3 \par
 }{\cf1 \par
-}{\cf4\b class}{\cf1  }{\cf8\b ICMPV6}{\cf1  }{\cf6 :}{\cf1  }{\cf4\b public}{\cf1  }IPV6{\cf1  }\{{\cf1 \par
+}{\cf4\b class}{\cf1  }{\cf8\b ICMPV6}{\cf1  }{\cf6 :}{\cf1  }{\cf4\b public}{\cf1  }{\cf4 IPV6}{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
 }{\cf1 	}ICMPV6Type{\cf6 *}{\cf1  }m_ICMPV6Type;{\cf1 \par
 }{\cf1 	}{\cf5 unsigned}{\cf1  }{\cf5 short}{\cf1  }m_ICMPV6Checksum;{\cf1 \par
 }{\cf1 	}{\cf5 unsigned}{\cf1  }{\cf5 long}{\cf1  }{\cf5 long}{\cf1  }m_messageLength;{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_messageBody;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}ICMPV6(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPV6(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4 ICMPV6}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }{\cf4 IPV6}(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 		}m_ICMPV6Type{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }ICMPV6Type({\cf4\b this});{\cf1 \par
 }{\cf1 		}m_ICMPV6Checksum{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
-}{\cf1 		}m_messageLength{\cf1  }{\cf6 =}{\cf1  }IPV6{\cf6 :}{\cf6 :}m_payloadLength{\cf1  }{\cf6 -}{\cf1  }{\cf6 4};{\cf1 \par
+}{\cf1 		}m_messageLength{\cf1  }{\cf6 =}{\cf1  }{\cf4 IPV6}{\cf6 :}{\cf6 :}m_payloadLength{\cf1  }{\cf6 -}{\cf1  }{\cf6 4};{\cf1 \par
 }{\cf1 		}m_messageBody{\cf1  }{\cf6 =}{\cf1  }parse(m_messageLength);{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_strType{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 ICMPV6}{\cf15 "};{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_description{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 \{\} of code = \{\} len = \{\} hop limit = \{\}}{\cf15 "},{\cf1  }m_ICMPV6Type{\cf6 -}{\cf6 >}m_typeStr,{\cf1  }m_ICMPV6Type{\cf6 -}{\cf6 >}m_codeStr,{\cf1  }m_messageLength,{\cf1  }({\cf5 int})IPV6{\cf6 :}{\cf6 :}m_hopLimit);{\cf1 \par
+}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_description{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 \{\} of code = \{\} len = \{\} hop limit = \{\}}{\cf15 "},{\cf1  }m_ICMPV6Type{\cf6 -}{\cf6 >}m_typeStr,{\cf1  }m_ICMPV6Type{\cf6 -}{\cf6 >}m_codeStr,{\cf1  }m_messageLength,{\cf1  }({\cf5 int}){\cf4 IPV6}{\cf6 :}{\cf6 :}m_hopLimit);{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_expands.insert(\{{\cf1  }{\cf15 "}{\cf15 ICMPV6 Title}{\cf15 "},{\cf1  }{\cf4 false}{\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proto}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 icmpv6}{\cf15 "}{\cf1  }\});{\cf1 \par
@@ -2628,7 +2643,7 @@
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}json{\cf1  }jsonify(){\cf1  }{\cf4\b override}{\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf4\b auto}{\cf1  }j{\cf1  }{\cf6 =}{\cf1  }IPV6{\cf6 :}{\cf6 :}jsonify();{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }j{\cf1  }{\cf6 =}{\cf1  }{\cf4 IPV6}{\cf6 :}{\cf6 :}jsonify();{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}j[{\cf15 "}{\cf15 ICMP}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 start}{\cf15 "};{\cf1 \par
 }{\cf1 		}j[{\cf15 "}{\cf15 Type}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }({\cf5 int})m_ICMPV6Type{\cf6 -}{\cf6 >}m_type;{\cf1 \par
@@ -2650,7 +2665,7 @@
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }getTexts(){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(m_texts.empty()){\cf1  }\{{\cf1 \par
-}{\cf1 			}IPV6{\cf6 :}{\cf6 :}getTexts();{\cf1 \par
+}{\cf1 			}{\cf4 IPV6}{\cf6 :}{\cf6 :}getTexts();{\cf1 \par
 }{\cf1 \par
 }{\cf1 			}m_texts[{\cf15 "}{\cf15 ICMPV6Type}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf17\b \\t}{\cf15 Type: \{\} (\{\})}{\cf15 "},{\cf1  }m_ICMPV6Type{\cf6 -}{\cf6 >}m_typeStr,{\cf1  }m_ICMPV6Type{\cf6 -}{\cf6 >}m_type);{\cf1 \par
 }{\cf1 \par
@@ -2904,7 +2919,7 @@
 }{\cf1 	}{\cf5 short}{\cf1  }m_checksum;{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_multicastAddr;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}IGMP(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4 IGMP}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 		}m_groupType{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseChar();{\cf1 \par
 }{\cf1 		}m_maxResp{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseChar();{\cf1 \par
 }{\cf1 		}m_checksum{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
@@ -2959,7 +2974,7 @@
 }{\cf1 		}Renderer{\cf6 :}{\cf6 :}render({\cf4\b this});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b virtual}{\cf1  }{\cf5 void}{\cf1  }renderExpanded(){\cf1  }{\cf4\b override}{\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf5 void}{\cf1  }renderExpanded(){\cf1  }{\cf4\b override}{\cf1  }\{{\cf1 \par
 }{\cf1 		}Renderer{\cf6 :}{\cf6 :}renderExpanded({\cf4\b this});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
@@ -3033,7 +3048,7 @@
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_process;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}TCP(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4 TCP}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 		}m_srcPort{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_destPort{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
@@ -3089,12 +3104,12 @@
 }{\cf1 				}opt{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }TCPSACK({\cf4\b this});{\cf1 \par
 }{\cf1 				}{\cf4\b break};{\cf1 \par
 }{\cf1 			}{\cf4\b default}{\cf6 :}{\cf1 \par
+}{\cf1 				}{\cf2\i // this gets compiled out anyway, but i felt i should keep it in\par
+}{\cf1 				}{\cf2\i // like a battle scar ;)\par
 }{\cf3 #}{\cf3 ifdef _DEBUG}{\cf3 \par
 }{\cf1 				}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
 }{\cf1 				}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 bad tcp option of code }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }code{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  at packet index }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }idx;{\cf1 \par
 }{\cf1 				}{\cf4\b Logger}{\cf6 :}{\cf6 :}log(ss.str());{\cf1 \par
-}{\cf1 				}{\cf4\b Capture}{\cf6 :}{\cf6 :}dump(header,{\cf1  }pkt_data);{\cf1 \par
-}{\cf1 				}{\cf2\i // exit(code);\par
 }{\cf3 #}{\cf3 endif}{\cf3 \par
 }{\cf1 				}{\cf4\b continue};{\cf1 \par
 }{\cf1 			}\}{\cf1 \par
@@ -3111,6 +3126,7 @@
 }{\cf1 \par
 }{\cf1 		}m_process{\cf1  }{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}getProcFromPort(m_srcPort);{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(m_process.at({\cf6 0}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 <}{\cf15 '}{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }m_process.at(m_process.size(){\cf1  }{\cf6 -}{\cf1  }{\cf6 1}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 >}{\cf15 '}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf2\i // bad process try again\par
 }{\cf1 			}m_process{\cf1  }{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}getProcFromPort(m_destPort);{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
@@ -3126,7 +3142,7 @@
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proto}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 tcp}{\cf15 "}{\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 sport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_srcPort){\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 dport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_destPort){\cf1  }\});{\cf1 \par
-}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proc}{\cf15 "},{\cf1  }m_process{\cf1  }\});{\cf1 \par
+}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proc}{\cf15 "},{\cf1  }m_process.c_str()\});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }toString(){\cf1  }{\cf4\b override}{\cf1  }\{{\cf1 \par
@@ -3227,7 +3243,7 @@
 }{\cf1 				}{\cf4 Packet}{\cf6 :}{\cf6 :}m_texts[{\cf4\b Data}{\cf6 :}{\cf6 :}TCPFlags[i{\cf1  }{\cf6 +}{\cf1  }{\cf6 1}]]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf17\b \\t}{\cf17\b \\t}{\cf15 \{\} = \{\}: \{\}}{\cf15 "},{\cf1  }base,{\cf1  }flagNames[i],{\cf1  }flagBits[idx]{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 1}{\cf15 '}{\cf1  }{\cf6 ?}{\cf1  }{\cf15 "}{\cf15 Set}{\cf15 "}{\cf1  }{\cf6 :}{\cf1  }{\cf15 "}{\cf15 Not Set}{\cf15 "});{\cf1 \par
 }{\cf1 			}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 			}{\cf4 Packet}{\cf6 :}{\cf6 :}m_texts[{\cf15 "}{\cf15 RES}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf17\b \\t}{\cf17\b \\t}{\cf15 \{\} .  . . . .  . . . . = Reserved: \{\}}{\cf15 "},{\cf1  }flagBits.substr({\cf6 0},{\cf1  }{\cf6 3}),{\cf1  }flagBits.substr({\cf6 0},{\cf1  }{\cf6 3}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 "}{\cf15 000}{\cf15 "}{\cf1  }{\cf6 ?}{\cf1  }{\cf15 "}{\cf15 Not Set}{\cf15 "}{\cf1  }{\cf6 :}{\cf1  }{\cf15 "}{\cf15 Set}{\cf15 "});{\cf1 \par
+}{\cf1 			}{\cf4 Packet}{\cf6 :}{\cf6 :}m_texts[{\cf15 "}{\cf15 RES}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf17\b \\t}{\cf17\b \\t}{\cf15 \{\} .  . . . .  . . . . = Reserved: \{\}}{\cf15 "},{\cf1  }flagBits.substr({\cf6 0},{\cf1  }{\cf6 3}),{\cf1  }flagBits.starts_with({\cf15 "}{\cf15 000}{\cf15 "}){\cf1  }{\cf6 ?}{\cf1  }{\cf15 "}{\cf15 Not Set}{\cf15 "}{\cf1  }{\cf6 :}{\cf1  }{\cf15 "}{\cf15 Set}{\cf15 "});{\cf1 \par
 }{\cf1 \par
 }{\cf1 			}{\cf4 Packet}{\cf6 :}{\cf6 :}m_texts[{\cf15 "}{\cf15 TCPFlags}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15    Flags: 0x\{:03x\} (\{\})}{\cf15 "},{\cf1  }m_TCPflags,{\cf1  }ss.str());{\cf1 \par
 }{\cf1 \par
@@ -3486,7 +3502,7 @@
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_payload;{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }m_process;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}UDP(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4 UDP}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }IPVersion(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 		}m_srcPort{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_destPort{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parseShort();{\cf1 \par
@@ -3499,23 +3515,9 @@
 }{\cf1 \par
 }{\cf1 		}m_payload{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parse(m_payloadLength);{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf2\i /*if constexpr (std::is_same_v<IPVersion, IPV4>) \{\par
-			if (IPVersion::m_srcAddr == SDK::ipAddress) \{\par
-				m_process = SDK::getProcFromPort(m_srcPort);\par
-			\}\par
-			else \{\par
-				m_process = SDK::getProcFromPort(m_destPort);\par
-			\}\par
-		\}\par
-		else if constexpr (std::is_same_v<IPVersion, IPV6>) \{\par
-			m_process = SDK::getProcFromPort(m_srcPort);\par
-			if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') \{\par
-				m_process = SDK::getProcFromPort(m_destPort);\par
-			\}\par
-		\}*/}{\cf1 \par
-}{\cf1 \par
 }{\cf1 		}m_process{\cf1  }{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}getProcFromPort(m_srcPort);{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(m_process.at({\cf6 0}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 <}{\cf15 '}{\cf1  }{\cf6 &}{\cf6 &}{\cf1  }m_process.at(m_process.size(){\cf1  }{\cf6 -}{\cf1  }{\cf6 1}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf15 '}{\cf15 >}{\cf15 '}){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf2\i // bad process try again\par
 }{\cf1 			}m_process{\cf1  }{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}getProcFromPort(m_destPort);{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
@@ -3649,7 +3651,7 @@
 }{\cf1 	}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 ARP Packet at }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_texts[{\cf15 "}{\cf15 time}{\cf15 "}];{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(m_opcode{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 1}){\cf1  }\{{\cf1 \par
-}{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  who tf is }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_targetAddr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 ? Tell }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_sendAddr;{\cf1 \par
+}{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  who is }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_targetAddr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 ? Tell }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_sendAddr;{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 	}{\cf4\b else}{\cf1  }{\cf4\b if}{\cf1  }(m_opcode{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 2}){\cf1  }\{{\cf1 \par
 }{\cf1 		}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_sendAddr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  is at physical address }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_sendMAC;{\cf1 \par
@@ -3693,8 +3695,6 @@
 }{\cf1 \par
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 arpTitle}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 Address Resolution Protocol (\{\})}{\cf15 "},{\cf1  }m_texts[{\cf15 "}{\cf15 opcode}{\cf15 "}]);{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf2\i // DO NOT LEAVE THIS IN YOU SILLY GOOSE\par
-}{\cf1 		}{\cf2\i // todo: actually figure out the type of the hardware\par
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 hardType}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 Ethernet (\{\})}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_hardType));{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(m_hardType{\cf1  }{\cf6 <}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpHard.size()){\cf1  }\{{\cf1 \par
@@ -3770,7 +3770,6 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <memory>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <string>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <json.hpp>}{\cf3 \par
-}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <type_traits>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <pcap.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <iostream>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <sstream>}{\cf3 \par
@@ -3778,25 +3777,41 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <WinSock2.h>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <regex>}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <format>}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <chrono>}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Win/SDK.h"}{\cf3 \par
+}{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Base/Data.h"}{\cf3 \par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf5 bool}{\cf6 >}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}m_expands;{\cf1 \par
 }{\cf1 \par
 }{\cf4 Packet}{\cf6 :}{\cf6 :}{\cf4 Packet}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b this}{\cf6 -}{\cf6 >}m_idx{\cf1  }{\cf6 =}{\cf1  }idx;{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // table indices are 1 indexed\par
 }{\cf1 	}m_idxStr{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}to_string(idx{\cf1  }{\cf6 +}{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}m_len{\cf1  }{\cf6 =}{\cf1  }header{\cf6 -}{\cf6 >}caplen;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}m_pktData{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }u_char[m_len];{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // we need a copy of the packet data for the hex data view (and need to do this like this because pkt_data isn't really _ours_)\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}copy(pkt_data,{\cf1  }pkt_data{\cf1  }{\cf6 +}{\cf1  }m_len,{\cf1  }m_pktData);{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // same with the header, we just borrow them for a hot sec\par
 }{\cf1 	}m_header{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }pcap_pkthdr({\cf6 *}header);{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}m_epoch{\cf1  }{\cf6 =}{\cf1  }(({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_sec{\cf1  }{\cf6 +}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_usec{\cf1  }{\cf6 /}{\cf1  }{\cf6 1000000.0});{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf6 !}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }now{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}system_clock{\cf6 :}{\cf6 :}now();{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }duration{\cf1  }{\cf6 =}{\cf1  }now.time_since_epoch();{\cf1 \par
+}{\cf1 		}{\cf4\b auto}{\cf1  }nanoseconds{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}duration_cast{\cf6 <}std{\cf6 :}{\cf6 :}chrono{\cf6 :}{\cf6 :}nanoseconds{\cf6 >}(duration);{\cf1 \par
+}{\cf1 		}m_epoch{\cf1  }{\cf6 =}{\cf1  }({\cf5 long}{\cf1  }{\cf5 double})nanoseconds.count(){\cf1  }{\cf6 /}{\cf1  }{\cf6 1e9};{\cf1 \par
+}{\cf1 \par
+}{\cf1 		}header{\cf6 -}{\cf6 >}ts.tv_sec{\cf1  }{\cf6 =}{\cf1  }({\cf5 int})m_epoch;{\cf1 \par
+}{\cf1 		}header{\cf6 -}{\cf6 >}ts.tv_usec{\cf1  }{\cf6 =}{\cf1  }({\cf5 long})(m_epoch{\cf1  }{\cf6 -}{\cf1  }(({\cf5 int})m_epoch)){\cf1  }{\cf6 *}{\cf1  }{\cf6 1e6};{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
+}{\cf1 	}{\cf4\b else}{\cf1  }\{{\cf1 \par
+}{\cf1 		}m_epoch{\cf1  }{\cf6 =}{\cf1  }(({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_sec{\cf1  }{\cf6 +}{\cf1  }({\cf5 double})header{\cf6 -}{\cf6 >}ts.tv_usec{\cf1  }{\cf6 /}{\cf1  }{\cf6 1e6});{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}m_phyDst{\cf1  }{\cf6 =}{\cf1  }parseMAC();{\cf1 \par
 }{\cf1 \par
@@ -3810,6 +3825,12 @@
 }{\cf1 \par
 }{\cf1 	}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 len}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_len){\cf1  }\});{\cf1 \par
 }{\cf1 	}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 num}{\cf15 "},{\cf1  }m_idxStr{\cf1  }\});{\cf1 \par
+}\}{\cf1 \par
+}{\cf1 \par
+}{\cf4 Packet}{\cf6 :}{\cf6 :}{\cf6 ~}{\cf4 Packet}(){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b delete}[]{\cf1  }m_pktData;{\cf1 \par
+}{\cf1 	}{\cf4\b delete}{\cf1  }m_header;{\cf1 \par
+}{\cf1 	}m_properties.clear();{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}toString(){\cf1  }\{{\cf1 \par
@@ -3898,11 +3919,11 @@
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}parse({\cf5 unsigned}{\cf1  }{\cf5 long}{\cf1  }{\cf5 long}{\cf1  }size){\cf1  }\{{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }result;{\cf1 \par
-}{\cf1 	}result.reserve(size{\cf1  }{\cf6 *}{\cf1  }{\cf6 2});{\cf1  }{\cf2\i // Each byte will be represented by 2 hexadecimal characters\par
+}{\cf1 	}result.reserve(size{\cf1  }{\cf6 *}{\cf1  }{\cf6 2});{\cf1  }{\cf2\i // each byte is 2 hex\par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }end{\cf1  }{\cf6 =}{\cf1  }m_pos{\cf1  }{\cf6 +}{\cf1  }size;{\cf1  }m_pos{\cf1  }{\cf6 <}{\cf1  }end;{\cf1  }m_pos{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf5 char}{\cf1  }buf[{\cf6 3}];{\cf1 \par
-}{\cf1 		}sprintf_s(buf,{\cf1  }{\cf15 "}{\cf15 %02x}{\cf15 "},{\cf1  }({\cf5 int})m_pktData[m_pos]);{\cf1 \par
+}{\cf1 		}sprintf_s(buf,{\cf1  }{\cf15 "}{\cf15 %02x}{\cf15 "},{\cf1  }({\cf5 int})m_pktData[m_pos]);{\cf1  }{\cf2\i // fun isn't it\par
 }{\cf1 		}result.append(buf);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
@@ -3936,6 +3957,7 @@
 }{\cf1 \par
 }{\cf1 	}{\cf4\b constexpr}{\cf1  }{\cf4\b auto}{\cf1  }len{\cf1  }{\cf6 =}{\cf1  }{\cf6 8};{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // using memcpy and converting the network host byte order headache is just faster than using bitshifts\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}memcpy({\cf6 &}out,{\cf1  }m_pktData{\cf1  }{\cf6 +}{\cf1  }m_pos,{\cf1  }len);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}m_pos{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }len;{\cf1 \par
@@ -4009,7 +4031,7 @@
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 title}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf15 Frame \{\}: \{\} bytes on wire (\{\} bits)}{\cf15 "},{\cf1  }m_idx{\cf1  }{\cf6 +}{\cf1  }{\cf6 1},{\cf1  }m_len,{\cf1  }(m_len{\cf1  }{\cf6 *}{\cf1  }{\cf6 8}));{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}string{\cf1  }result;{\cf1 \par
-}{\cf1 		}result.reserve(m_len{\cf1  }{\cf6 *}{\cf1  }{\cf6 2});{\cf1  }{\cf2\i // Each byte will be represented by 2 hexadecimal characters\par
+}{\cf1 		}result.reserve(m_len{\cf1  }{\cf6 *}{\cf1  }{\cf6 2});{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}{\cf4\b for}{\cf1  }({\cf5 int}{\cf1  }i{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1  }i{\cf1  }{\cf6 <}{\cf1  }m_len;{\cf1  }i{\cf6 +}{\cf6 +}){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf5 char}{\cf1  }buf[{\cf6 3}];{\cf1 \par
@@ -4034,7 +4056,9 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}formatBitSet(std{\cf6 :}{\cf6 :}string{\cf1  }bits){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // this regex just divides the bits to groups of four\par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}regex{\cf1  }r({\cf15 "}{\cf15 (.\{4\})}{\cf15 "});{\cf1 \par
+}{\cf1 	}{\cf2\i // and then we put a space between them\par
 }{\cf1 	}{\cf4\b return}{\cf1  }std{\cf6 :}{\cf6 :}regex_replace(bits,{\cf1  }r,{\cf1  }{\cf15 "}{\cf15 $1 }{\cf15 "});{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
@@ -4085,7 +4109,7 @@
 }{\cf1 	}FilterFlag{\cf1  }m_flag{\cf1  }{\cf6 =}{\cf1  }FilterFlag{\cf6 :}{\cf6 :}Unfiltered;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4 Packet}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx);{\cf1 \par
-}{\cf1 	}{\cf4\b virtual}{\cf1  }{\cf6 ~}{\cf4 Packet}(){\cf1  }{\cf6 =}{\cf1  }{\cf4\b default};{\cf1 \par
+}{\cf1 	}{\cf4\b virtual}{\cf1  }{\cf6 ~}{\cf4 Packet}();{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b virtual}{\cf1  }{\cf5 void}{\cf1  }{\cf8 render}(){\cf1  }\{{\cf1 \par
 }{\cf1 		}Renderer{\cf6 :}{\cf6 :}render({\cf4\b this});{\cf1 \par
@@ -4095,11 +4119,15 @@
 }{\cf1 		}Renderer{\cf6 :}{\cf6 :}renderExpanded({\cf4\b this});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // these aren't really used for anything other than debugging and hopefully compiled out :)\par
 }{\cf1 	}{\cf4\b virtual}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 toString}();{\cf1 \par
 }{\cf1 	}{\cf4\b virtual}{\cf1  }json{\cf1  }{\cf8 jsonify}();{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // this is used to generate the texts needed for renderExpanded when they are needed, not when the packet is created\par
+}{\cf1 	}{\cf2\i // this saves A LOT of time when processing packets\par
 }{\cf1 	}{\cf4\b virtual}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }getTexts();{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // functions to hopefully both optimize and obfuscate the way data is parsed from the packet data\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 parseMAC}();{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 parseIPV4}();{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 parseIPV6}();{\cf1 \par
@@ -4109,6 +4137,8 @@
 }{\cf1 	}{\cf5 int}{\cf1  }{\cf8 parseInt}();{\cf1 \par
 }{\cf1 	}{\cf5 short}{\cf1  }{\cf8 parseShort}();{\cf1 \par
 }{\cf1 	}{\cf5 char}{\cf1  }{\cf8 parseChar}();{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // helper function to seperate the bits in a more nice looking way (groups of 4)\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 formatBitSet}(std{\cf6 :}{\cf6 :}string{\cf1  }bits);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }{\cf8 getPos}(){\cf1  }{\cf4\b const}{\cf1  }\{{\cf1 \par
@@ -4120,6 +4150,8 @@
 }{\cf1 \par
 }{\cf4\b private}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }m_pos{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf2\i // packet-only helper functions\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 padDate}({\cf5 int}{\cf1  }t);{\cf1 \par
 }{\cf1 	}uint64_t{\cf1  }{\cf8 htonll}(uint64_t{\cf1  }x);{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }{\cf8 htoni}({\cf5 int}{\cf1  }x);{\cf1 \par
@@ -4128,6 +4160,8 @@
 }{\cf2\i //IP.h\par
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
+}{\cf1 \par
+}{\cf2\i // easier include for the data packets :)\par
 }{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "IPV4.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "IPV6.h"}{\cf3 \par
@@ -4191,7 +4225,6 @@
 }{\cf1 			}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
 }{\cf1 			}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 bad ip option of packet data: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }code;{\cf1 \par
 }{\cf1 			}{\cf4\b Logger}{\cf6 :}{\cf6 :}log(ss.str());{\cf1 \par
-}{\cf1 			}{\cf4\b Capture}{\cf6 :}{\cf6 :}dump(header,{\cf1  }pkt_data);{\cf1 \par
 }{\cf1 			}parse(diff);{\cf1 \par
 }{\cf1 			}diff{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf3 #}{\cf3 endif}{\cf3 \par
@@ -4350,6 +4383,8 @@
 }{\cf1 	}{\cf4\b return}{\cf1  }m_texts;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
+}{\cf2\i // used for the hop map\par
+}{\cf2\i // just gets the packet address that isn't the user's ip\par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4 IPV4}{\cf6 :}{\cf6 :}getAlienAddr(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(m_srcAddr{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ipAddress){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }m_destAddr;{\cf1 \par
@@ -4531,7 +4566,7 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "../../../../Base/Data.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i <format>}{\cf3 \par
 }{\cf1 \par
-}IPV6{\cf6 :}{\cf6 :}IPV6(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }{\cf4 Packet}(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
+}{\cf4 IPV6}{\cf6 :}{\cf6 :}{\cf4 IPV6}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx){\cf1  }{\cf6 :}{\cf1  }{\cf4 Packet}(header,{\cf1  }pkt_data,{\cf1  }idx){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }thingy{\cf1  }{\cf6 =}{\cf1  }parseLong();{\cf1 \par
 }{\cf1 	}m_trafficCls{\cf1  }{\cf6 =}{\cf1  }(({\cf5 short})(thingy{\cf1  }{\cf6 >}{\cf6 >}{\cf1  }{\cf6 30}){\cf1  }{\cf6 &}{\cf1  }{\cf6 4080});{\cf1 \par
 }{\cf1 \par
@@ -4561,7 +4596,7 @@
 }{\cf1 	}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 daddr}{\cf15 "},{\cf1  }m_destAddr{\cf1  }\});{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}std{\cf6 :}{\cf6 :}string{\cf1  }IPV6{\cf6 :}{\cf6 :}toString(){\cf1  }\{{\cf1 \par
+}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4 IPV6}{\cf6 :}{\cf6 :}toString(){\cf1  }\{{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}stringstream{\cf1  }ss;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}ss{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 IPV6 Packet at }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_texts[{\cf15 "}{\cf15 time}{\cf15 "}]{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  of length }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_payloadLength{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  from }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_srcAddr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  to }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_destAddr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 of payload length: }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_payloadLength{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15  transfer protocol is }{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }m_nextHeader{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf17\b \\n}{\cf15 "};{\cf1 \par
@@ -4569,7 +4604,7 @@
 }{\cf1 	}{\cf4\b return}{\cf1  }ss.str();{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}json{\cf1  }IPV6{\cf6 :}{\cf6 :}jsonify(){\cf1  }\{{\cf1 \par
+}json{\cf1  }{\cf4 IPV6}{\cf6 :}{\cf6 :}jsonify(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }j{\cf1  }{\cf6 =}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}jsonify();{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}j[{\cf15 "}{\cf15 IPV6}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 start}{\cf15 "};{\cf1 \par
@@ -4583,14 +4618,10 @@
 }{\cf1 	}j[{\cf15 "}{\cf15 Destination Address}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }m_destAddr;{\cf1 \par
 }{\cf1 	}j[{\cf15 "}{\cf15 Header Length}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }m_headerLength;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i /*if (m_options.size() > 0) \{\par
-		j["option"] = m_options.at(0).toString();\par
-	\}*/}{\cf1 \par
-}{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }j;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
-}std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }IPV6{\cf6 :}{\cf6 :}getTexts(){\cf1  }\{{\cf1 \par
+}std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }{\cf4 IPV6}{\cf6 :}{\cf6 :}getTexts(){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(m_texts.empty()){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}getTexts();{\cf1 \par
 }{\cf1 \par
@@ -4607,11 +4638,6 @@
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 DSCP}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf17\b \\t}{\cf17\b \\t}{\cf15 . . . .  \{\} . .  . . . .  . . . .  . . . .  . . . .  . . . . = Differentiated Services Codepoint: \{\} (\{\})}{\cf15 "},{\cf1  }formatBitSet(dscpBits.to_string()),{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}dscpMap[dscpBits.to_ulong()],{\cf1  }dscpBits.to_ulong());{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}m_texts[{\cf15 "}{\cf15 ECN}{\cf15 "}]{\cf1  }{\cf6 =}{\cf1  }std{\cf6 :}{\cf6 :}format({\cf15 "}{\cf17\b \\t}{\cf17\b \\t}{\cf15 . . . .  . . . .  . . \{\}  . . . .  . . . .  . . . .  . . . . = Explicit Congestion Notification: \{\} (\{\})}{\cf15 "},{\cf1  }ecnBits.to_string(),{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}ecnMap[ecnBits.to_ulong()],{\cf1  }ecnBits.to_ulong());{\cf1 \par
-}{\cf1 \par
-}{\cf1 		}{\cf2\i /*std::bitset<20> flowBits;\par
-		for (int i = 0; i < 2; i++) \{\par
-			flowBits[i] = (m_flowLabel >> i) & 1;\par
-		\}*/}{\cf1 \par
 }{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}bitset{\cf6 <}{\cf6 20}{\cf6 >}{\cf1  }flowBits(m_flowLabel);{\cf1 \par
 }{\cf1 \par
@@ -4706,8 +4732,8 @@
 }{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }m_headerLength{\cf1  }{\cf6 =}{\cf1  }{\cf6 40};{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}IPV6(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx);{\cf1 \par
-}{\cf1 	}{\cf6 ~}IPV6(){\cf1  }{\cf4\b override}{\cf1  }{\cf6 =}{\cf1  }{\cf4\b default};{\cf1 \par
+}{\cf1 	}{\cf4 IPV6}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx);{\cf1 \par
+}{\cf1 	}{\cf6 ~}{\cf4 IPV6}(){\cf1  }{\cf4\b override}{\cf1  }{\cf6 =}{\cf1  }{\cf4\b default};{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 toString}(){\cf1  }{\cf4\b override};{\cf1 \par
 }{\cf1 	}json{\cf1  }{\cf8 jsonify}(){\cf1  }{\cf4\b override};{\cf1 \par
@@ -4823,6 +4849,9 @@
 }{\cf1 \par
 }{\cf3 #}{\cf3 pragma once}{\cf3 \par
 }{\cf1 \par
+}{\cf2\i // easier to type\par
+}{\cf2\i // easier to include\par
+}{\cf1 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Eth/Packet.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Eth/ARP.h"}{\cf3 \par
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "IP/IP.h"}{\cf3 \par
@@ -4870,11 +4899,11 @@
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}DWORD,{\cf1  }DWORD{\cf6 >}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}PORT2PID;{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}DWORD,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}PID2PROC;{\cf1 \par
-}HANDLE{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}hIcmpFile;{\cf1 \par
+}HANDLE{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}icmpHandle;{\cf1 \par
 }DWORD{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}dwRetVal;{\cf1 \par
-}{\cf5 char}{\cf6 *}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}SendData;{\cf1 \par
-}LPVOID{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ReplyBuffer;{\cf1 \par
-}DWORD{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ReplySize;{\cf1 \par
+}{\cf5 char}{\cf6 *}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}sendData;{\cf1 \par
+}LPVOID{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}replyBuffer;{\cf1 \par
+}DWORD{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}replySize;{\cf1 \par
 }IP_OPTION_INFORMATION{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ipOptions;{\cf1 \par
 }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}MACS;{\cf1 \par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}ipAddress;{\cf1 \par
@@ -4895,6 +4924,7 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }json{\cf1  }{\cf8 SDK::geoLocate}(std{\cf6 :}{\cf6 :}string{\cf1  }addr){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // we use curl and ask a 3rd party site to locate the address for us\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }cmd{\cf1  }{\cf6 =}{\cf1  }{\cf15 R}{\cf15 "}{\cf15 (}{\cf15 curl -s -H "User-Agent: keycdn-tools:https://amalb.iscool.co.il/" "https://tools.keycdn.com/geo.json?host="}{\cf15 )}{\cf15 "};{\cf1 \par
 }{\cf1 	}cmd{\cf1  }{\cf6 +}{\cf6 =}{\cf1  }addr;{\cf1 \par
 }{\cf1 	}{\cf4\b auto}{\cf1  }res{\cf1  }{\cf6 =}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}exec(cmd.c_str());{\cf1 \par
@@ -4961,29 +4991,29 @@
 }{\cf1 \par
 }PMIB_TCPTABLE_OWNER_PID{\cf1  }{\cf8 SDK::getTCPTable}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}DWORD{\cf1  }dwSize{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 	}PMIB_TCPTABLE_OWNER_PID{\cf1  }pTcpTable{\cf1  }{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1 \par
+}{\cf1 	}PMIB_TCPTABLE_OWNER_PID{\cf1  }tcpTable{\cf1  }{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Get the required buffer size\par
+}{\cf1 	}{\cf2\i // get the needed size of the buffer\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(GetExtendedTcpTable({\cf4\b nullptr},{\cf1  }{\cf6 &}dwSize,{\cf1  }FALSE,{\cf1  }AF_INET,{\cf1  }TCP_TABLE_OWNER_PID_ALL,{\cf1  }{\cf6 0}){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }ERROR_INSUFFICIENT_BUFFER){\cf1  }\{{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}cerr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Failed to get required buffer size}{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Allocate memory for the TCP table\par
-}{\cf1 	}pTcpTable{\cf1  }{\cf6 =}{\cf1  }(PMIB_TCPTABLE_OWNER_PID)malloc(dwSize);{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }(pTcpTable{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // allocate memory\par
+}{\cf1 	}tcpTable{\cf1  }{\cf6 =}{\cf1  }(PMIB_TCPTABLE_OWNER_PID)malloc(dwSize);{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(tcpTable{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}cerr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Failed to allocate memory for TCP table}{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Get the TCP table\par
-}{\cf1 	}{\cf4\b if}{\cf1  }(GetExtendedTcpTable(pTcpTable,{\cf1  }{\cf6 &}dwSize,{\cf1  }FALSE,{\cf1  }AF_INET,{\cf1  }TCP_TABLE_OWNER_PID_ALL,{\cf1  }{\cf6 0}){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }NO_ERROR){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // actually fetch the table\par
+}{\cf1 	}{\cf4\b if}{\cf1  }(GetExtendedTcpTable(tcpTable,{\cf1  }{\cf6 &}dwSize,{\cf1  }FALSE,{\cf1  }AF_INET,{\cf1  }TCP_TABLE_OWNER_PID_ALL,{\cf1  }{\cf6 0}){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }NO_ERROR){\cf1  }\{{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}cerr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Failed to get TCP table}{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
-}{\cf1 		}free(pTcpTable);{\cf1 \par
+}{\cf1 		}free(tcpTable);{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }pTcpTable;{\cf1 \par
+}{\cf1 	}{\cf4\b return}{\cf1  }tcpTable;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 SDK::refreshTCP}(){\cf1  }\{{\cf1 \par
@@ -4995,33 +5025,35 @@
 }{\cf1 		}DWORD{\cf1  }pid{\cf1  }{\cf6 =}{\cf1  }row.dwOwningPid;{\cf1 \par
 }{\cf1 		}PORT2PID.insert(\{{\cf1  }port,{\cf1  }pid{\cf1  }\});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}free(table);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }PMIB_UDPTABLE_OWNER_PID{\cf1  }{\cf8 SDK::getUDPTable}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}DWORD{\cf1  }dwSize{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
-}{\cf1 	}PMIB_UDPTABLE_OWNER_PID{\cf1  }pUdpTable{\cf1  }{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1 \par
+}{\cf1 	}PMIB_UDPTABLE_OWNER_PID{\cf1  }udpTable{\cf1  }{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Get the required buffer size\par
+}{\cf1 	}{\cf2\i // get the required buffer size\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(GetExtendedUdpTable({\cf4\b nullptr},{\cf1  }{\cf6 &}dwSize,{\cf1  }FALSE,{\cf1  }AF_INET,{\cf1  }UDP_TABLE_OWNER_PID,{\cf1  }{\cf6 0}){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }ERROR_INSUFFICIENT_BUFFER){\cf1  }\{{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}cerr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Failed to get required buffer size}{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Allocate memory for the TCP table\par
-}{\cf1 	}pUdpTable{\cf1  }{\cf6 =}{\cf1  }(PMIB_UDPTABLE_OWNER_PID)malloc(dwSize);{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }(pUdpTable{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // allocate memory\par
+}{\cf1 	}udpTable{\cf1  }{\cf6 =}{\cf1  }(PMIB_UDPTABLE_OWNER_PID)malloc(dwSize);{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(udpTable{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}cerr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Failed to allocate memory for TCP table}{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Get the TCP table\par
-}{\cf1 	}{\cf4\b if}{\cf1  }(GetExtendedUdpTable(pUdpTable,{\cf1  }{\cf6 &}dwSize,{\cf1  }FALSE,{\cf1  }AF_INET,{\cf1  }UDP_TABLE_OWNER_PID,{\cf1  }{\cf6 0}){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }NO_ERROR){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // get the table\par
+}{\cf1 	}{\cf4\b if}{\cf1  }(GetExtendedUdpTable(udpTable,{\cf1  }{\cf6 &}dwSize,{\cf1  }FALSE,{\cf1  }AF_INET,{\cf1  }UDP_TABLE_OWNER_PID,{\cf1  }{\cf6 0}){\cf1  }{\cf6 !}{\cf6 =}{\cf1  }NO_ERROR){\cf1  }\{{\cf1 \par
 }{\cf1 		}std{\cf6 :}{\cf6 :}cerr{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf15 "}{\cf15 Failed to get UDP table}{\cf15 "}{\cf1  }{\cf6 <}{\cf6 <}{\cf1  }std{\cf6 :}{\cf6 :}endl;{\cf1 \par
-}{\cf1 		}free(pUdpTable);{\cf1 \par
+}{\cf1 		}free(udpTable);{\cf1 \par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf4\b nullptr};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b return}{\cf1  }pUdpTable;{\cf1 \par
+}{\cf1 	}{\cf4\b return}{\cf1  }udpTable;{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 SDK::refreshUDP}(){\cf1  }\{{\cf1 \par
@@ -5033,6 +5065,8 @@
 }{\cf1 		}DWORD{\cf1  }pid{\cf1  }{\cf6 =}{\cf1  }row.dwOwningPid;{\cf1 \par
 }{\cf1 		}PORT2PID.insert(\{{\cf1  }port,{\cf1  }pid{\cf1  }\});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}free(table);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 SDK::refreshTables}(){\cf1  }\{{\cf1 \par
@@ -5044,7 +5078,7 @@
 }{\cf1 	}ULONG{\cf1  }buffer_size{\cf1  }{\cf6 =}{\cf1  }{\cf4\b sizeof}(IP_ADAPTER_INFO);{\cf1 \par
 }{\cf1 	}IP_ADAPTER_INFO{\cf6 *}{\cf1  }adapter_info{\cf1  }{\cf6 =}{\cf1  }(IP_ADAPTER_INFO{\cf6 *})malloc(buffer_size);{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Get the adapter information\par
+}{\cf1 	}{\cf2\i // get adapter info\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(GetAdaptersInfo(adapter_info,{\cf1  }{\cf6 &}buffer_size){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }ERROR_BUFFER_OVERFLOW){\cf1  }\{{\cf1 \par
 }{\cf1 		}free(adapter_info);{\cf1 \par
 }{\cf1 		}adapter_info{\cf1  }{\cf6 =}{\cf1  }(IP_ADAPTER_INFO{\cf6 *})malloc(buffer_size);{\cf1 \par
@@ -5069,12 +5103,8 @@
 }{\cf1 \par
 }{\cf1 	}ad{\cf1  }{\cf6 =}{\cf1  }ss.str();{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Print the IP addresses\par
+}{\cf1 	}{\cf2\i // find the right ip address\par
 }{\cf1 	}{\cf4\b for}{\cf1  }(IP_ADAPTER_INFO{\cf6 *}{\cf1  }adapter{\cf1  }{\cf6 =}{\cf1  }adapter_info;{\cf1  }adapter{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1  }adapter{\cf1  }{\cf6 =}{\cf1  }adapter{\cf6 -}{\cf6 >}Next){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf2\i /*std::cout << "Adapter name: " << adapter->AdapterName << std::endl;\par
-		std::cout << "IP address: " << adapter->IpAddressList.IpAddress.String << std::endl;\par
-		std::cout << "Subnet mask: " << adapter->IpAddressList.IpMask.String << std::endl;\par
-		std::cout << std::endl;*/}{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }((adapter{\cf6 -}{\cf6 >}AdapterName){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }ad){\cf1  }\{{\cf1 \par
 }{\cf1 			}ipAddress{\cf1  }{\cf6 =}{\cf1  }adapter{\cf6 -}{\cf6 >}IpAddressList.IpAddress.String;{\cf1 \par
 }{\cf1 			}{\cf4\b break};{\cf1 \par
@@ -5087,24 +5117,24 @@
 }{\cf5 void}{\cf1  }{\cf8 SDK::initICMP}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}dwRetVal{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }temp{\cf1  }{\cf6 =}{\cf1  }{\cf15 "}{\cf15 Data Buffer}{\cf15 "};{\cf1 \par
-}{\cf1 	}SendData{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }{\cf5 char}[temp.size(){\cf1  }{\cf6 +}{\cf1  }{\cf6 1}];{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}ranges{\cf6 :}{\cf6 :}copy(temp.begin(),{\cf1  }temp.end(),{\cf1  }SendData);{\cf1 \par
-}{\cf1 	}SendData[temp.size()]{\cf1  }{\cf6 =}{\cf1  }{\cf15 '}{\cf15 \\0}{\cf15 '};{\cf1 \par
-}{\cf1 	}ReplyBuffer{\cf1  }{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1 \par
-}{\cf1 	}ReplySize{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
+}{\cf1 	}sendData{\cf1  }{\cf6 =}{\cf1  }{\cf4\b new}{\cf1  }{\cf5 char}[temp.size(){\cf1  }{\cf6 +}{\cf1  }{\cf6 1}];{\cf1 \par
+}{\cf1 	}std{\cf6 :}{\cf6 :}ranges{\cf6 :}{\cf6 :}copy(temp.begin(),{\cf1  }temp.end(),{\cf1  }sendData);{\cf1 \par
+}{\cf1 	}sendData[temp.size()]{\cf1  }{\cf6 =}{\cf1  }{\cf15 '}{\cf15 \\0}{\cf15 '};{\cf1 \par
+}{\cf1 	}replyBuffer{\cf1  }{\cf6 =}{\cf1  }{\cf4\b nullptr};{\cf1 \par
+}{\cf1 	}replySize{\cf1  }{\cf6 =}{\cf1  }{\cf6 0};{\cf1 \par
 }{\cf1 	}ipOptions{\cf1  }{\cf6 =}{\cf1  }\{{\cf1  }{\cf6 0}{\cf1  }\};{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Open ICMP handle\par
-}{\cf1 	}hIcmpFile{\cf1  }{\cf6 =}{\cf1  }IcmpCreateFile();{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }(hIcmpFile{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }INVALID_HANDLE_VALUE){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // create handle\par
+}{\cf1 	}icmpHandle{\cf1  }{\cf6 =}{\cf1  }IcmpCreateFile();{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(icmpHandle{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }INVALID_HANDLE_VALUE){\cf1  }\{{\cf1 \par
 }{\cf1 		}printf({\cf15 "}{\cf15 Unable to open ICMP handle}{\cf17\b \\n}{\cf15 "});{\cf1 \par
 }{\cf1 		}exit({\cf6 1});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // Set reply buffer size\par
-}{\cf1 	}ReplySize{\cf1  }{\cf6 =}{\cf1  }{\cf4\b sizeof}(ICMP_ECHO_REPLY){\cf1  }{\cf6 +}{\cf1  }{\cf4\b sizeof}(SendData);{\cf1 \par
-}{\cf1 	}ReplyBuffer{\cf1  }{\cf6 =}{\cf1  }(VOID{\cf6 *})malloc(ReplySize);{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }(ReplyBuffer{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf2\i // set reply buffer size\par
+}{\cf1 	}replySize{\cf1  }{\cf6 =}{\cf1  }{\cf4\b sizeof}(ICMP_ECHO_REPLY){\cf1  }{\cf6 +}{\cf1  }{\cf4\b sizeof}(sendData);{\cf1 \par
+}{\cf1 	}replyBuffer{\cf1  }{\cf6 =}{\cf1  }malloc(replySize);{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(replyBuffer{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
 }{\cf1 		}printf({\cf15 "}{\cf15 Unable to allocate memory for reply buffer}{\cf17\b \\n}{\cf15 "});{\cf1 \par
 }{\cf1 		}exit({\cf6 1});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
@@ -5115,6 +5145,7 @@
 }{\cf1 	}refreshTables();{\cf1 \par
 }{\cf1 	}initICMP();{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // load the manuf file into memory\par
 }{\cf1 	}std{\cf6 :}{\cf6 :}ifstream{\cf1  }manuf({\cf15 "}{\cf15 deps/manuf/manuf}{\cf15 "});{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }line;{\cf1 \par
 }{\cf1 \par
@@ -5124,18 +5155,17 @@
 }{\cf1 		}{\cf4\b auto}{\cf1  }secondTab{\cf1  }{\cf6 =}{\cf1  }line.rfind({\cf15 "}{\cf17\b \\t}{\cf15 "});{\cf1 \par
 }{\cf1 		}{\cf4\b auto}{\cf1  }name{\cf1  }{\cf6 =}{\cf1  }line.substr(firstTab{\cf1  }{\cf6 +}{\cf1  }{\cf6 1},{\cf1  }secondTab{\cf1  }{\cf6 -}{\cf1  }firstTab{\cf1  }{\cf6 -}{\cf1  }{\cf6 1});{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}MACS.insert(\{{\cf1  }addr,{\cf1  }std{\cf6 :}{\cf6 :}move(name){\cf1  }\});{\cf1 \par
+}{\cf1 		}MACS.try_emplace(addr,{\cf1  }name);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}MACS.insert(\{{\cf1  }{\cf15 "}{\cf15 33:33:00}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 IPV6mcast}{\cf15 "}{\cf1  }\});{\cf1 \par
+}{\cf1 	}MACS.try_emplace({\cf15 "}{\cf15 33:33:00}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 IPV6mcast}{\cf15 "});{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 SDK::release}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf2\i // Cleanup\par
-}{\cf1 	}{\cf4\b if}{\cf1  }(ReplyBuffer{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
-}{\cf1 		}free(ReplyBuffer);{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(replyBuffer{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
+}{\cf1 		}free(replyBuffer);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
-}{\cf1 	}IcmpCloseHandle(hIcmpFile);{\cf1 \par
+}{\cf1 	}IcmpCloseHandle(icmpHandle);{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }DWORD{\cf1  }{\cf8 SDK::getPIDFromPort}(DWORD{\cf1  }port){\cf1  }\{{\cf1 \par
@@ -5143,6 +5173,7 @@
 }{\cf1 		}{\cf4\b return}{\cf1  }PORT2PID.at(port);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // if we can't find the port, refresh the tables\par
 }{\cf1 	}refreshTables();{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(PORT2PID.contains(port)){\cf1  }\{{\cf1 \par
@@ -5154,33 +5185,40 @@
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 SDK::getProcFromPID}(DWORD{\cf1  }PID){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(PID{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }MAXDWORD){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf2\i // pid doesn't exist\par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf15 "}{\cf15 <UNKNOWN>}{\cf15 "};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(PID2PROC.contains(PID)){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf2\i // we figured out this pid already\par
 }{\cf1 		}{\cf4\b return}{\cf1  }PID2PROC.at(PID);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}TCHAR{\cf1  }szProcessName[MAX_PATH]{\cf1  }{\cf6 =}{\cf1  }_T({\cf15 "}{\cf15 4}{\cf15 "});{\cf1 \par
-}{\cf1 	}HANDLE{\cf1  }hProcess{\cf1  }{\cf6 =}{\cf1  }OpenProcess(PROCESS_QUERY_INFORMATION{\cf1  }{\cf6 |}{\cf1  }PROCESS_VM_READ,{\cf1  }FALSE,{\cf1  }PID);{\cf1 \par
+}{\cf1 	}TCHAR{\cf1  }procName[MAX_PATH]{\cf1  }{\cf6 =}{\cf1  }_T({\cf15 "}{\cf15 4}{\cf15 "});{\cf1 \par
+}{\cf1 	}HANDLE{\cf1  }proc{\cf1  }{\cf6 =}{\cf1  }OpenProcess(PROCESS_QUERY_INFORMATION{\cf1  }{\cf6 |}{\cf1  }PROCESS_VM_READ,{\cf1  }FALSE,{\cf1  }PID);{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }(hProcess{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4 NULL}){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }(proc{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf2\i // couldn't open the process\par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf15 "}{\cf15 <BADPROCESS>}{\cf15 "};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }({\cf6 !}GetModuleBaseName(hProcess,{\cf1  }{\cf4\b nullptr},{\cf1  }szProcessName,{\cf1  }{\cf4\b sizeof}(szProcessName))){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf6 !}GetModuleBaseName(proc,{\cf1  }{\cf4\b nullptr},{\cf1  }procName,{\cf1  }{\cf4\b sizeof}(procName))){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf2\i // process has not name\par
 }{\cf1 		}{\cf4\b return}{\cf1  }{\cf15 "}{\cf15 <NAMELESS>}{\cf15 "};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }processName;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf5 int}{\cf1  }size_needed{\cf1  }{\cf6 =}{\cf1  }WideCharToMultiByte(CP_UTF8,{\cf1  }{\cf6 0},{\cf1  }szProcessName,{\cf1  }{\cf6 -1},{\cf1  }{\cf4 NULL},{\cf1  }{\cf6 0},{\cf1  }{\cf4 NULL},{\cf1  }{\cf4 NULL});{\cf1 \par
-}{\cf1 	}std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 char}{\cf6 >}{\cf1  }buffer(size_needed);{\cf1 \par
-}{\cf1 	}WideCharToMultiByte(CP_UTF8,{\cf1  }{\cf6 0},{\cf1  }szProcessName,{\cf1  }{\cf6 -1},{\cf1  }{\cf6 &}buffer[{\cf6 0}],{\cf1  }size_needed,{\cf1  }{\cf4 NULL},{\cf1  }{\cf4 NULL});{\cf1 \par
-}{\cf1 	}processName.assign(buffer.begin(),{\cf1  }buffer.end(){\cf1  }{\cf6 -}{\cf1  }{\cf6 1});{\cf1  }{\cf2\i // -1 to remove the null terminator\par
+}{\cf1 	}{\cf2\i // comvert TCHAR to std string :)\par
+}{\cf1 	}{\cf5 int}{\cf1  }sizeNeeded{\cf1  }{\cf6 =}{\cf1  }WideCharToMultiByte(CP_UTF8,{\cf1  }{\cf6 0},{\cf1  }procName,{\cf1  }{\cf6 -1},{\cf1  }{\cf4\b nullptr},{\cf1  }{\cf6 0},{\cf1  }{\cf4\b nullptr},{\cf1  }{\cf4\b nullptr});{\cf1 \par
+}{\cf1 	}std{\cf6 :}{\cf6 :}vector{\cf6 <}{\cf5 char}{\cf6 >}{\cf1  }buffer(sizeNeeded);{\cf1 \par
+}{\cf1 	}WideCharToMultiByte(CP_UTF8,{\cf1  }{\cf6 0},{\cf1  }procName,{\cf1  }{\cf6 -1},{\cf1  }{\cf6 &}buffer[{\cf6 0}],{\cf1  }sizeNeeded,{\cf1  }{\cf4\b nullptr},{\cf1  }{\cf4\b nullptr});{\cf1 \par
+}{\cf1 	}processName.assign(buffer.begin(),{\cf1  }buffer.end(){\cf1  }{\cf6 -}{\cf1  }{\cf6 1});{\cf1  }{\cf2\i // remove the null terminator\par
 }{\cf1 \par
-}{\cf1 	}CloseHandle(hProcess);{\cf1 \par
+}{\cf1 	}{\cf2\i // close the handle we opened\par
+}{\cf1 	}CloseHandle(proc);{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // cache the results\par
 }{\cf1 	}PID2PROC.try_emplace(PID,{\cf1  }processName);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }processName;{\cf1 \par
@@ -5192,7 +5230,7 @@
 }{\cf1 \par
 }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }{\cf4\b SDK}{\cf6 :}{\cf6 :}traceRoute(std{\cf6 :}{\cf6 :}string{\cf1  }addr){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf5 unsigned}{\cf1  }{\cf5 long}{\cf1  }ipaddr{\cf1  }{\cf6 =}{\cf1  }INADDR_NONE;{\cf1 \par
-}{\cf1 	}{\cf2\i // Convert IP address string to binary\par
+}{\cf1 	}{\cf2\i // IP address string to binary\par
 }{\cf1 	}ipaddr{\cf1  }{\cf6 =}{\cf1  }inet_addr(addr.c_str());{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(ipaddr{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }INADDR_NONE){\cf1  }\{{\cf1 \par
 }{\cf1 		}printf({\cf15 "}{\cf15 Unable to parse IP address}{\cf17\b \\n}{\cf15 "});{\cf1 \par
@@ -5202,46 +5240,43 @@
 }{\cf1 	}u_char{\cf1  }ttl{\cf1  }{\cf6 =}{\cf1  }{\cf6 1};{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }addrs;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b while}{\cf1  }(ttl{\cf1  }{\cf6 <}{\cf1  }{\cf6 40}){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b while}{\cf1  }(ttl{\cf1  }{\cf6 <}{\cf1  }{\cf6 60}){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}geoTerminate){\cf1  }\{{\cf1 \par
 }{\cf1 			}{\cf4\b return}{\cf1  }addrs;{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 		}ipOptions.Ttl{\cf1  }{\cf6 =}{\cf1  }ttl{\cf6 +}{\cf6 +};{\cf1 \par
-}{\cf1 		}{\cf2\i // Send ICMP echo request\par
-}{\cf1 		}dwRetVal{\cf1  }{\cf6 =}{\cf1  }IcmpSendEcho(hIcmpFile,{\cf1  }ipaddr,{\cf1  }SendData,{\cf1  }{\cf4\b sizeof}(SendData),{\cf1 \par
-}{\cf1 			}{\cf6 &}ipOptions,{\cf1  }ReplyBuffer,{\cf1  }ReplySize,{\cf1  }{\cf6 100});{\cf1 \par
+}{\cf1 		}{\cf2\i // send ICMP echo request\par
+}{\cf1 		}dwRetVal{\cf1  }{\cf6 =}{\cf1  }IcmpSendEcho(icmpHandle,{\cf1  }ipaddr,{\cf1  }sendData,{\cf1  }{\cf4\b sizeof}(sendData),{\cf1 \par
+}{\cf1 			}{\cf6 &}ipOptions,{\cf1  }replyBuffer,{\cf1  }replySize,{\cf1  }{\cf6 100});{\cf1 \par
 }{\cf1 		}{\cf4\b if}{\cf1  }(dwRetVal{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
-}{\cf1 			}PICMP_ECHO_REPLY{\cf1  }pEchoReply{\cf1  }{\cf6 =}{\cf1  }(PICMP_ECHO_REPLY)ReplyBuffer;{\cf1 \par
-}{\cf1 			}{\cf4\b struct}{\cf1  }{\cf8\b in_addr}{\cf1  }ReplyAddr;{\cf1 \par
-}{\cf1 			}ReplyAddr.S_un.S_addr{\cf1  }{\cf6 =}{\cf1  }pEchoReply{\cf6 -}{\cf6 >}Address;{\cf1 \par
-}{\cf1 			}addrs.emplace_back(inet_ntoa(ReplyAddr));{\cf1 \par
+}{\cf1 			}PICMP_ECHO_REPLY{\cf1  }echoReply{\cf1  }{\cf6 =}{\cf1  }(PICMP_ECHO_REPLY)replyBuffer;{\cf1 \par
+}{\cf1 			}{\cf4\b struct}{\cf1  }{\cf8\b in_addr}{\cf1  }replyAddr;{\cf1 \par
+}{\cf1 			}replyAddr.S_un.S_addr{\cf1  }{\cf6 =}{\cf1  }echoReply{\cf6 -}{\cf6 >}Address;{\cf1 \par
+}{\cf1 			}addrs.emplace_back(inet_ntoa(replyAddr));{\cf1 \par
 }{\cf1 \par
-}{\cf1 			}{\cf4\b if}{\cf1  }(pEchoReply{\cf6 -}{\cf6 >}Status{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
-}{\cf1 				}{\cf4\b break};{\cf1 \par
-}{\cf1 			}\}{\cf1 \par
-}{\cf1 \par
-}{\cf1 			}{\cf4\b if}{\cf1  }(inet_ntoa(ReplyAddr){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }addr){\cf1  }\{{\cf1 \par
+}{\cf1 			}{\cf4\b if}{\cf1  }(echoReply{\cf6 -}{\cf6 >}Status{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}{\cf1  }{\cf6 |}{\cf6 |}{\cf1  }inet_ntoa(replyAddr){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }addr){\cf1  }\{{\cf1 \par
 }{\cf1 				}{\cf4\b break};{\cf1 \par
 }{\cf1 			}\}{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
-}{\cf1 		}{\cf4\b else}{\cf1  }\{{\cf1 \par
-}{\cf1 			}{\cf2\i //DWORD errorMessageID = GetLastError();\par
+}{\cf1 		}{\cf2\i // nothing to do if the icmp fails\par
+}{\cf1 		}{\cf2\i //else \{\par
+}{\cf1 		}{\cf2\i //	DWORD errorMessageID = GetLastError();\par
 }{\cf1 \par
-}{\cf1 			}{\cf2\i //LPSTR messageBuffer = NULL;\par
-}{\cf1 			}{\cf2\i //size_t size = FormatMessageA(\par
-}{\cf1 			}{\cf2\i //	FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,\par
-}{\cf1 			}{\cf2\i //	NULL,\par
-}{\cf1 			}{\cf2\i //	errorMessageID,\par
-}{\cf1 			}{\cf2\i //	MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),\par
-}{\cf1 			}{\cf2\i //	(LPSTR)&messageBuffer,\par
-}{\cf1 			}{\cf2\i //	0,\par
-}{\cf1 			}{\cf2\i //	NULL\par
-}{\cf1 			}{\cf2\i //);\par
-}{\cf1 			}{\cf2\i //std::stringstream ss;\par
-}{\cf1 			}{\cf2\i //ss << "error: " << messageBuffer;\par
-}{\cf1 			}{\cf2\i ////addrs.push_back(ss.str());\par
-}{\cf1 			}{\cf2\i //LocalFree(messageBuffer);\par
-}{\cf1 		}\}{\cf1 \par
+}{\cf1 		}{\cf2\i //	LPSTR messageBuffer = NULL;\par
+}{\cf1 		}{\cf2\i //	size_t size = FormatMessageA(\par
+}{\cf1 		}{\cf2\i //		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,\par
+}{\cf1 		}{\cf2\i //		NULL,\par
+}{\cf1 		}{\cf2\i //		errorMessageID,\par
+}{\cf1 		}{\cf2\i //		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),\par
+}{\cf1 		}{\cf2\i //		(LPSTR)&messageBuffer,\par
+}{\cf1 		}{\cf2\i //		0,\par
+}{\cf1 		}{\cf2\i //		NULL\par
+}{\cf1 		}{\cf2\i //	);\par
+}{\cf1 		}{\cf2\i //	std::stringstream ss;\par
+}{\cf1 		}{\cf2\i //	ss << "error: " << messageBuffer;\par
+}{\cf1 		}{\cf2\i //	//addrs.push_back(ss.str());\par
+}{\cf1 		}{\cf2\i //	LocalFree(messageBuffer);\par
+}{\cf1 		}{\cf2\i //\}\par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b return}{\cf1  }addrs;{\cf1 \par
@@ -5260,12 +5295,12 @@
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 		}{\cf4\b auto}{\cf1  }j{\cf1  }{\cf6 =}{\cf1  }geoLocate(add);{\cf1 \par
 }{\cf1 		}\{{\cf1 \par
-}{\cf1 			}std{\cf6 :}{\cf6 :}lock_guard{\cf6 <}std{\cf6 :}{\cf6 :}mutex{\cf6 >}{\cf1  }guard({\cf4\b Data}{\cf6 :}{\cf6 :}geoGuard);{\cf1 \par
+}{\cf1 			}std{\cf6 :}{\cf6 :}scoped_lock{\cf1  }{\cf8 guard}({\cf4\b Data}{\cf6 :}{\cf6 :}geoGuard);{\cf1 \par
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}locs.emplace_back(j);{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}locs.size(){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 0}){\cf1  }\{{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}locs.empty()){\cf1  }\{{\cf1 \par
 }{\cf1 		}{\cf4\b Data}{\cf6 :}{\cf6 :}geoState{\cf1  }{\cf6 =}{\cf1  }{\cf6 3};{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 	}{\cf4\b else}{\cf1  }\{{\cf1 \par
@@ -5302,6 +5337,7 @@
 }{\cf4\b class}{\cf1  }{\cf8\b SDK}{\cf1  }\{{\cf1 \par
 }{\cf4\b public}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }ipAddress;{\cf1 \par
+}{\cf1 	}{\cf2\i // execute cmd in the, well, cmd (when the program is compiled it will open a cmd window for a moment)\par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 exec}({\cf4\b const}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }cmd);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 findIP}({\cf5 char}{\cf6 *}{\cf1  }adName);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 init}();{\cf1 \par
@@ -5309,24 +5345,30 @@
 }{\cf1 	}{\cf4\b static}{\cf1  }DWORD{\cf1  }{\cf8 getPIDFromPort}(DWORD{\cf1  }port);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 getProcFromPID}(DWORD{\cf1  }PID);{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 getProcFromPort}(DWORD{\cf1  }port);{\cf1 \par
+}{\cf1 	}{\cf2\i // geolocate the address\par
 }{\cf1 	}{\cf4\b static}{\cf1  }json{\cf1  }{\cf8 geoLocate}(std{\cf6 :}{\cf6 :}string{\cf1  }addr);{\cf1 \par
+}{\cf1 	}{\cf2\i // find the addresses a packet heading to addr might take\par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}vector{\cf6 <}std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }traceRoute(std{\cf6 :}{\cf6 :}string{\cf1  }addr);{\cf1 \par
+}{\cf1 	}{\cf2\i // find location data for each of the hops to an address\par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 geoTrace}(std{\cf6 :}{\cf6 :}string{\cf1  }addr);{\cf1 \par
+}{\cf1 	}{\cf2\i // used to prettify the mac address\par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf8 lookupMAC}(std{\cf6 :}{\cf6 :}string{\cf1  }addr);{\cf1 \par
 }{\cf1 \par
 }{\cf4\b private}{\cf6 :}{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}DWORD,{\cf1  }DWORD{\cf6 >}{\cf1  }PORT2PID;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}DWORD,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }PID2PROC;{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf2\i // manif but in the memory\par
 }{\cf1 	}{\cf4\b static}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4 map}{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }std{\cf6 :}{\cf6 :}string{\cf6 >}{\cf1  }MACS;{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // tracert stuff\par
+}{\cf1 	}{\cf2\i // used for the hopping map\par
+}{\cf1 	}{\cf2\i // but even the packets didn't hop as much as my sanity did when implementing this\par
 }{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }HANDLE{\cf1  }hIcmpFile;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }HANDLE{\cf1  }icmpHandle;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }DWORD{\cf1  }dwRetVal;{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }SendData;{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }LPVOID{\cf1  }ReplyBuffer;{\cf1 \par
-}{\cf1 	}{\cf4\b static}{\cf1  }DWORD{\cf1  }ReplySize;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 char}{\cf6 *}{\cf1  }sendData;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }LPVOID{\cf1  }replyBuffer;{\cf1 \par
+}{\cf1 	}{\cf4\b static}{\cf1  }DWORD{\cf1  }replySize;{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }IP_OPTION_INFORMATION{\cf1  }ipOptions;{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b static}{\cf1  }{\cf5 void}{\cf1  }{\cf8 initPIDCache}();{\cf1 \par

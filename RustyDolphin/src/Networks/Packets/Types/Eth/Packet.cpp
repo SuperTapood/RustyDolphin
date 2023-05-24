@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 #include <json.hpp>
-#include <type_traits>
 #include <pcap.h>
 #include <iostream>
 #include <sstream>
@@ -12,25 +11,41 @@
 #include <WinSock2.h>
 #include <regex>
 #include <format>
+#include <chrono>
 
 #include "../../../../Win/SDK.h"
+#include "../../../../Base/Data.h"
 
 std::map<std::string, bool> Packet::m_expands;
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	this->m_idx = idx;
 
+	// table indices are 1 indexed
 	m_idxStr = std::to_string(idx + 1);
 
 	m_len = header->caplen;
 
 	m_pktData = new u_char[m_len];
 
+	// we need a copy of the packet data for the hex data view (and need to do this like this because pkt_data isn't really _ours_)
 	std::copy(pkt_data, pkt_data + m_len, m_pktData);
 
+	// same with the header, we just borrow them for a hot sec
 	m_header = new pcap_pkthdr(*header);
 
-	m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1e6);
+	if (!Data::fileAdapter) {
+		auto now = std::chrono::system_clock::now();
+		auto duration = now.time_since_epoch();
+		auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
+		m_epoch = (long double)nanoseconds.count() / 1e9;
+
+		header->ts.tv_sec = (int)m_epoch;
+		header->ts.tv_usec = (long)(m_epoch - ((int)m_epoch)) * 1e6;
+	}
+	else {
+		m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1e6);
+	}
 
 	m_phyDst = parseMAC();
 
@@ -138,11 +153,11 @@ std::string Packet::parseIPV6() {
 
 std::string Packet::parse(unsigned long long size) {
 	std::string result;
-	result.reserve(size * 2); // Each byte will be represented by 2 hexadecimal characters
+	result.reserve(size * 2); // each byte is 2 hex
 
 	for (int end = m_pos + size; m_pos < end; m_pos++) {
 		char buf[3];
-		sprintf_s(buf, "%02x", (int)m_pktData[m_pos]);
+		sprintf_s(buf, "%02x", (int)m_pktData[m_pos]); // fun isn't it
 		result.append(buf);
 	}
 
@@ -176,6 +191,7 @@ long long Packet::parseLongLong() {
 
 	constexpr auto len = 8;
 
+	// using memcpy and converting the network host byte order headache is just faster than using bitshifts
 	std::memcpy(&out, m_pktData + m_pos, len);
 
 	m_pos += len;
@@ -249,7 +265,7 @@ std::map<std::string, std::string> Packet::getTexts() {
 		m_texts["title"] = std::format("Frame {}: {} bytes on wire ({} bits)", m_idx + 1, m_len, (m_len * 8));
 
 		std::string result;
-		result.reserve(m_len * 2); // Each byte will be represented by 2 hexadecimal characters
+		result.reserve(m_len * 2);
 
 		for (int i = 0; i < m_len; i++) {
 			char buf[3];
@@ -274,6 +290,8 @@ std::map<std::string, std::string> Packet::getTexts() {
 }
 
 std::string Packet::formatBitSet(std::string bits) {
+	// this regex just divides the bits to groups of four
 	static std::regex r("(.{4})");
+	// and then we put a space between them
 	return std::regex_replace(bits, r, "$1 ");
 }

@@ -89,12 +89,12 @@ public:
 				opt = new TCPSACK(this);
 				break;
 			default:
+				// this gets compiled out anyway, but i felt i should keep it in
+				// like a battle scar ;)
 #ifdef _DEBUG
 				std::stringstream ss;
 				ss << "bad tcp option of code " << code << " at packet index " << idx;
 				Logger::log(ss.str());
-				Capture::dump(header, pkt_data);
-				// exit(code);
 #endif
 				continue;
 			}
@@ -111,6 +111,7 @@ public:
 
 		m_process = SDK::getProcFromPort(m_srcPort);
 		if (m_process.at(0) == '<' && m_process.at(m_process.size() - 1) == '>') {
+			// bad process try again
 			m_process = SDK::getProcFromPort(m_destPort);
 		}
 
@@ -126,7 +127,7 @@ public:
 		Packet::m_properties.insert({ "proto", "tcp" });
 		Packet::m_properties.insert({ "sport", std::to_string(m_srcPort) });
 		Packet::m_properties.insert({ "dport", std::to_string(m_destPort) });
-		Packet::m_properties.insert({ "proc", m_process });
+		Packet::m_properties.insert({ "proc", m_process.c_str()});
 	}
 
 	std::string toString() override {
@@ -227,7 +228,7 @@ public:
 				Packet::m_texts[Data::TCPFlags[i + 1]] = std::format("\t\t{} = {}: {}", base, flagNames[i], flagBits[idx] == '1' ? "Set" : "Not Set");
 			}
 
-			Packet::m_texts["RES"] = std::format("\t\t{} .  . . . .  . . . . = Reserved: {}", flagBits.substr(0, 3), flagBits.substr(0, 3) == "000" ? "Not Set" : "Set");
+			Packet::m_texts["RES"] = std::format("\t\t{} .  . . . .  . . . . = Reserved: {}", flagBits.substr(0, 3), flagBits.starts_with("000") ? "Not Set" : "Set");
 
 			Packet::m_texts["TCPFlags"] = std::format("   Flags: 0x{:03x} ({})", m_TCPflags, ss.str());
 

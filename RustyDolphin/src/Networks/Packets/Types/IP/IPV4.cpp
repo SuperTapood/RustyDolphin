@@ -55,7 +55,6 @@ IPV4::IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 			std::stringstream ss;
 			ss << "bad ip option of packet data: " << code;
 			Logger::log(ss.str());
-			Capture::dump(header, pkt_data);
 			parse(diff);
 			diff = 0;
 #endif
@@ -214,6 +213,8 @@ std::map<std::string, std::string> IPV4::getTexts() {
 	return m_texts;
 }
 
+// used for the hop map
+// just gets the packet address that isn't the user's ip
 std::string IPV4::getAlienAddr() {
 	if (m_srcAddr == SDK::ipAddress) {
 		return m_destAddr;

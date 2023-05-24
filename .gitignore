@@ -30,3 +30,5 @@ RustyDolphin/x64/Release/RustyDolphin.iobj
 RustyDolphin/x64/Release/RustyDolphin.ipdb
 *.pcapng
 *.ini
+*.xml
+*.sarif

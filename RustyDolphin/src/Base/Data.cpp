@@ -1,6 +1,7 @@
 #include "Data.h"
 #include <iostream>
 
+// define global static variables needed to manage this program
 std::vector<Packet*> Data::captured;
 int Data::selected = -1;
 bool Data::doneCounting = false;
@@ -287,6 +288,7 @@ void Data::addPacket(Packet* p) {
 }
 
 void Data::processFilter() {
+	// set defaults to prevent filter retention
 	filter["ip"] = "";
 	filter["sport"] = "";
 	filter["dport"] = "";
@@ -296,6 +298,7 @@ void Data::processFilter() {
 	filter["num"] = "";
 	filter["len"] = "";
 	filter["proc"] = "";
+	// we need to refilter every packet
 	Data::newFilter = true;
 
 	// filter is empty
@@ -307,30 +310,39 @@ void Data::processFilter() {
 	std::string current;
 	std::size_t first, last;
 
+	// for every comma seperated expression
 	while (std::getline(ss, current, ',')) {
+		// find where the two values seperate
 		auto eq = current.find_first_of('=');
 		if (eq != current.find_last_of('=')) {
+			// there is more than one =, invalid input
 			showBadFilter = true;
 			filterIssue = std::format("{} is not a valid filter", current);
+			// show no packet
 			filter["num"] = "-1";
 			return;
 		}
+		// substring out the key
 		auto key = current.substr(0, eq);
 		first = key.find_first_not_of(' ');
 		last = key.find_last_not_of(' ');
+		// removing trailing and leading spaces
 		key = key.substr(first, last - first + 1);
 
+		// same thing for the value
 		auto value = current.substr(eq + 1);
 		first = value.find_first_not_of(' ');
 		last = value.find_last_not_of(' ');
 		value = value.substr(first, last - first + 1);
 
+		// lowercase both the key and the value
 		std::ranges::transform(key.begin(), key.end(), key.begin(),
 			[](unsigned char c) { return std::tolower(c); });
 
 		std::ranges::transform(value.begin(), value.end(), value.begin(),
 			[](unsigned char c) { return std::tolower(c); });
 
+		// add them as arguments
 		args.push_back(key);
 		args.push_back(value);
 	}
@@ -345,8 +357,8 @@ void Data::processFilter() {
 	for (int idx = 0; idx < args.size(); idx += 2) {
 		auto key = args.at(idx);
 		auto value = args.at(idx + 1);
-		//std::cout << key << " - " << value << std::endl;
 
+		// check if a valid filter was given
 		if (!filterKeys.contains(key)) {
 			showBadFilter = true;
 			filterIssue = std::format("'{}' isn't a valid filter flag.", key);
@@ -356,10 +368,6 @@ void Data::processFilter() {
 
 		filter[key] = value;
 	}
-
-	/*for (auto key : filter) {
-		std::cout << key.first << ":" << key.second << std::endl;
-	}*/
 }
 
 std::pair<double, double> Data::mercatorProjection(double longitude, double latitude) {
@@ -371,11 +379,13 @@ std::pair<double, double> Data::mercatorProjection(double longitude, double lati
 	double x = (longitude + 180) * (mapWidth / 360);
 
 	// convert from degrees to radians
-	double latRad = latitude * PI / 180;
+	double latRad = latitude * (PI / 180);
 
 	// get y value
 	double mercN = std::log(std::tan((PI / 4) + (latRad / 2)));
+
 	double y = (mapHeight / 2) - (mapWidth * mercN / (2 * PI));
 
+	// return results as pair bc i do not want to have TWO of this function
 	return { x, y };
 }

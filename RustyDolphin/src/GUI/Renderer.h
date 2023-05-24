@@ -17,6 +17,12 @@ class ICMPV6;
 template <typename T>
 class IGMP;
 
+// this class handles all of the rendering
+// each `render` function renders a packet on the table (only the packet which need special treatment are implemented)
+// each `renderExpanded` is specific for each type as it presents a lot more specific data
+// renderExpanded also call the father class's renderExpanded
+// for example, renderExpanded for tcp<IPV4> also calls renderExpanded for IPV4 which calls renderExpanded for Packet
+
 class Renderer {
 public:
 	static void filterPacket(Packet* p);

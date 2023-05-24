@@ -11,6 +11,7 @@ using json = nlohmann::ordered_json;
 class SDK {
 public:
 	static std::string ipAddress;
+	// execute cmd in the, well, cmd (when the program is compiled it will open a cmd window for a moment)
 	static std::string exec(const char* cmd);
 	static void findIP(char* adName);
 	static void init();
@@ -18,24 +19,30 @@ public:
 	static DWORD getPIDFromPort(DWORD port);
 	static std::string getProcFromPID(DWORD PID);
 	static std::string getProcFromPort(DWORD port);
+	// geolocate the address
 	static json geoLocate(std::string addr);
+	// find the addresses a packet heading to addr might take
 	static std::vector<std::string> traceRoute(std::string addr);
+	// find location data for each of the hops to an address
 	static void geoTrace(std::string addr);
+	// used to prettify the mac address
 	static std::string lookupMAC(std::string addr);
 
 private:
 	static std::map<DWORD, DWORD> PORT2PID;
 	static std::map<DWORD, std::string> PID2PROC;
 
+	// manif but in the memory
 	static std::map<std::string, std::string> MACS;
 
-	// tracert stuff
+	// used for the hopping map
+	// but even the packets didn't hop as much as my sanity did when implementing this
 
-	static HANDLE hIcmpFile;
+	static HANDLE icmpHandle;
 	static DWORD dwRetVal;
-	static char* SendData;
-	static LPVOID ReplyBuffer;
-	static DWORD ReplySize;
+	static char* sendData;
+	static LPVOID replyBuffer;
+	static DWORD replySize;
 	static IP_OPTION_INFORMATION ipOptions;
 
 	static void initPIDCache();

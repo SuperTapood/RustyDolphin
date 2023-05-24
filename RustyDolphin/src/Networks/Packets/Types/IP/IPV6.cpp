@@ -58,10 +58,6 @@ json IPV6::jsonify() {
 	j["Destination Address"] = m_destAddr;
 	j["Header Length"] = m_headerLength;
 
-	/*if (m_options.size() > 0) {
-		j["option"] = m_options.at(0).toString();
-	}*/
-
 	return j;
 }
 
@@ -82,11 +78,6 @@ std::map<std::string, std::string> IPV6::getTexts() {
 		m_texts["DSCP"] = std::format("\t\t. . . .  {} . .  . . . .  . . . .  . . . .  . . . .  . . . . = Differentiated Services Codepoint: {} ({})", formatBitSet(dscpBits.to_string()), Data::dscpMap[dscpBits.to_ulong()], dscpBits.to_ulong());
 
 		m_texts["ECN"] = std::format("\t\t. . . .  . . . .  . . {}  . . . .  . . . .  . . . .  . . . . = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecnBits.to_ulong()], ecnBits.to_ulong());
-
-		/*std::bitset<20> flowBits;
-		for (int i = 0; i < 2; i++) {
-			flowBits[i] = (m_flowLabel >> i) & 1;
-		}*/
 
 		std::bitset<20> flowBits(m_flowLabel);
 

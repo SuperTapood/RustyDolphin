@@ -7,9 +7,10 @@
 #include <mutex>
 #include <set>
 
-// please no more global variables i beg thee
+// please no more global variables please i beg thee
 class Data {
 public:
+	// a bunch of global variables needed for the program's threads to communicate
 	static std::vector<Packet*>              captured;
 	static int                               selected;
 	static bool                              doneCounting;

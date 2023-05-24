@@ -11,7 +11,8 @@ files = []
 
 
 class CustomLexer(CppLexer):
-    extra_types = ['pcap_t', 'map', "std::vector", "std::array", "Packet", "ARP", "IPV4"]
+    extra_types = ['pcap_t', 'map', "std::vector", "std::array", "Packet", "ARP", "IPV4", "IPV6", "TCP", "UDP", "IGMP",
+                   "ICMP", "ICMPV6"]
     extra_namespaces = ["Data", "ImGui", "GUI", "SDK", "Capture", "Logger"]
 
     def get_tokens_unprocessed(self, text, stack=()):
@@ -26,7 +27,7 @@ class CustomLexer(CppLexer):
 
 def func(dir):
     for v in listdir(dir):
-        if (isdir(dir + "/" + v)):
+        if isdir(dir + "/" + v):
             dir += "/"
             func(dir=dir + "/" + v)
         else:

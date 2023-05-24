@@ -73,7 +73,7 @@ public:
 		Renderer::render(this);
 	}
 
-	virtual void renderExpanded() override {
+	void renderExpanded() override {
 		Renderer::renderExpanded(this);
 	}
 

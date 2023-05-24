@@ -1,5 +1,8 @@
 #pragma once
 
+// easier to type
+// easier to include
+
 #include "Eth/Packet.h"
 #include "Eth/ARP.h"
 #include "IP/IP.h"

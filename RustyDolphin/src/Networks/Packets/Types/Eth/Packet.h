@@ -53,11 +53,15 @@ public:
 		Renderer::renderExpanded(this);
 	}
 
+	// these aren't really used for anything other than debugging and hopefully compiled out :)
 	virtual std::string toString();
 	virtual json jsonify();
 
+	// this is used to generate the texts needed for renderExpanded when they are needed, not when the packet is created
+	// this saves A LOT of time when processing packets
 	virtual std::map<std::string, std::string> getTexts();
 
+	// functions to hopefully both optimize and obfuscate the way data is parsed from the packet data
 	std::string parseMAC();
 	std::string parseIPV4();
 	std::string parseIPV6();
@@ -67,6 +71,8 @@ public:
 	int parseInt();
 	short parseShort();
 	char parseChar();
+
+	// helper function to seperate the bits in a more nice looking way (groups of 4)
 	std::string formatBitSet(std::string bits);
 
 	int getPos() const {
@@ -78,6 +84,8 @@ protected:
 
 private:
 	unsigned int m_pos = 0;
+
+	// packet-only helper functions
 	std::string padDate(int t);
 	uint64_t htonll(uint64_t x);
 	int htoni(int x);

@@ -11,8 +11,8 @@ void GUI::init() {
 	if (!glfwInit())
 		exit(-1);
 
+	// make the window non resizable
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_REFRESH_RATE, 1000);
 
 	window = glfwCreateWindow(1280, 720, "RustyDolphin", NULL, NULL);
 	if (!window)
@@ -23,54 +23,46 @@ void GUI::init() {
 
 	glfwMakeContextCurrent(window);
 
+	// load and set the icon image
 	GLFWimage images[1]{};
-	images[0].pixels = stbi_load("deps/assets/icon.png", &images[0].width, &images[0].height, 0, 4); //rgba channels
+	images[0].pixels = stbi_load("deps/assets/icon.png", &images[0].width, &images[0].height, nullptr, 4);
 	glfwSetWindowIcon(window, 1, images);
 	stbi_image_free(images[0].pixels);
 
-	// Initialize Dear ImGui
+	// ImGui initialization
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	// Set Dear ImGui style
+	// dark mode fr fr im just like that og
 	ImGui::StyleColorsDark();
 
-	// Initialize Dear ImGui backends
+	// init imgui for opengl
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	//// Get the font atlas
-	//ImGuiIO& io = ImGui::GetIO();
-	//ImFontAtlas* atlas = io.Fonts;
-
-	//// Clear the current fonts
-	//atlas->Clear();
-
-	//// Add a single font
-	//atlas->AddFontDefault();
-
-	//atlas->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
-
-	//// Build the font atlas
-	//atlas->Build();
-
 	ImGuiIO& io = ImGui::GetIO();
 
+	// create le fonts
 	fonts.insert({ "title", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 60) });
 	fonts.insert({ "quote", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 25) });
 	fonts.insert({ "adapters", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 30) });
 	fonts.insert({ "regular", io.Fonts->AddFontFromFileTTF("deps/fonts/arial.ttf", 16) });
 	fonts.insert({ "hexView", io.Fonts->AddFontFromFileTTF("deps/fonts/consola.ttf", 16) });
+
+	// build the font altas
 	io.Fonts->Build();
 
 	glfwSwapInterval(1);
-
+	
+	// set button hovered colors (like on the table)
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.5f, 0.5f, 0.5f, 0.5f);
 
-	images[0].pixels = stbi_load("deps/assets/earth.jpeg", &images[0].width, &images[0].height, 0, 4); //rgba channels
+	// load the earth image we need for the hopping map
+	images[0].pixels = stbi_load("deps/assets/earth.jpeg", &images[0].width, &images[0].height, nullptr, 4);
 
+	// bind the earth image to a texture we can render
 	glGenTextures(1, &earthTex);
 	glBindTexture(GL_TEXTURE_2D, earthTex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -78,13 +70,16 @@ void GUI::init() {
 }
 
 void GUI::release() {
-	// Cleanup
+	// clean up clean up
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+	// it always comes back
 	glfwTerminate();
 }
+
+// two wrapper functions to make using fonts a little easier and consistent
 
 void GUI::pushFont(std::string name) {
 	ImGui::PushFont(fonts.at(name));
@@ -109,19 +104,21 @@ bool GUI::centerButton(const char* text) {
 }
 
 void GUI::startFrame() {
-	// Poll and handle events
+	// handle events
 	glfwPollEvents();
 
-	// Start the Dear ImGui frame
+	// actually start the frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
 void GUI::endFrame() {
-	// Rendering
+	// clear the frame
 	glClear(GL_COLOR_BUFFER_BIT);
+	// render the frame
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	// swap le buffers
 	glfwSwapBuffers(GUI::window);
 }

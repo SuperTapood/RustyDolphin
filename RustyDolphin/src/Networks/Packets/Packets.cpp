@@ -33,9 +33,6 @@ IPV4_PKT fromIPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx)
 		break;
 	}
 
-	Logger::log("unknown v4 protocol: ");
-	std::cout << "bad proto " << proto << std::endl;
-
 	return new IPV4(header, pkt_data, idx);
 }
 
@@ -77,7 +74,6 @@ PKT fromRaw(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 		return new ARP(header, pkt_data, idx);
 	default:
 #ifdef _DEBUG
-		Capture::dump(header, pkt_data);
 		std::stringstream ss;
 		ss << "unknown packet type: " << type << " at position " << idx;
 		Logger::log(ss.str());

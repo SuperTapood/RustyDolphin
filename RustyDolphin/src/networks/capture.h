@@ -6,8 +6,7 @@
 
 class Capture {
 public:
-	// club pinguin is kil
-	// no
+	// everyone remembers where they were when they got the news
 	Capture() = delete;
 	static void init();
 	static void release();
@@ -15,7 +14,6 @@ public:
 	static std::vector<std::string> getDeviceNames(bool verbose = false);
 	static pcap_t* createAdapter(int devIndex, bool promiscuous = false);
 	static void capturePackets();
-	static void dump(struct pcap_pkthdr* h, const u_char* pkt);
 	static pcap_t* load(std::string name);
 	static void countPackets(std::vector<int>* counts, int adapterIdx);
 	static void dumpAll(std::string filename);
@@ -24,7 +22,6 @@ private:
 	static pcap_if_t* m_alldevs;
 	static int m_devs;
 	static std::vector<std::string> m_devNames;
-	static pcap_dumper_t* m_dumpfile;
 
 	static bool LoadNpcapDlls();
 };

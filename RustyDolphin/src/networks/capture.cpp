@@ -13,7 +13,6 @@
 pcap_if_t* Capture::m_alldevs;
 int Capture::m_devs;
 std::vector<std::string> Capture::m_devNames;
-pcap_dumper_t* Capture::m_dumpfile;
 
 bool Capture::LoadNpcapDlls() {
 	_TCHAR npcap_dir[512];
@@ -46,7 +45,7 @@ void Capture::init() {
 
 	std::stringstream ss;
 
-	// get the stupid devices and put  them into the stupid variable
+	// get the stupid devices and put them into the stupid variable
 	if (pcap_findalldevs(&m_alldevs, errbuf) == -1)
 	{
 		ss << errbuf;
@@ -72,9 +71,6 @@ void Capture::init() {
 
 void Capture::release() {
 	pcap_freealldevs(m_alldevs);
-	if (m_dumpfile != NULL) {
-		pcap_dump_close(m_dumpfile);
-	}
 	WSACleanup();
 }
 
@@ -137,10 +133,6 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 	return adhandle;
 }
 
-void Capture::dump(struct pcap_pkthdr* h, const u_char* pkt) {
-	pcap_dump((u_char*)m_dumpfile, h, pkt);
-}
-
 pcap_t* Capture::load(std::string name) {
 	char errbuf[PCAP_ERRBUF_SIZE];
 
@@ -160,24 +152,22 @@ void Capture::capturePackets() {
 	const u_char* pkt_data;
 	int r;
 
-#if _DEBUG
-	m_dumpfile = pcap_dump_open(adapter, "captures/capture.pcap");
-#endif
-
 	if (Data::doneLoading) {
 		return;
 	}
 
-	while (pcap_next_ex(adapter, &header, &pkt_data) <= 0) {}
-
-	Data::epochStart = (double)header->ts.tv_sec + (double)header->ts.tv_usec / 1000000.0;
+	// find the first good packet pls
+	while (pcap_next_ex(adapter, &header, &pkt_data) <= 0);
 
 	auto p = fromRaw(header, pkt_data, Data::capIdx);
 	{
-		std::lock_guard<std::mutex> guard(Data::guard);
+		// vector is not thread safe apparently
+		// so whenever we interact with an element from it we need to do so with atomics
+		std::scoped_lock guard(Data::guard);
 		Data::captured.push_back(p);
 	}
-
+	
+	Data::epochStart = p->m_epoch;
 	Data::capIdx++;
 
 	while (true) {
@@ -187,6 +177,7 @@ void Capture::capturePackets() {
 		}
 
 		if (r == -2) {
+			// done reading
 			Data::doneCapturing = true;
 			Data::doneLoading = true;
 			return;
@@ -199,11 +190,9 @@ void Capture::capturePackets() {
 		auto p = fromRaw(header, pkt_data, Data::capIdx);
 
 		{
-			std::lock_guard<std::mutex> guard(Data::guard);
+			std::scoped_lock guard(Data::guard);
 			Data::captured.push_back(p);
 		}
-
-		//dump(header, pkt_data);
 
 		Data::capIdx++;
 	}

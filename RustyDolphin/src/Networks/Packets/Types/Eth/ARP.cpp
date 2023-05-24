@@ -58,7 +58,7 @@ std::string ARP::toString() {
 	ss << "ARP Packet at " << m_texts["time"];
 
 	if (m_opcode == 1) {
-		ss << " who tf is " << m_targetAddr << "? Tell " << m_sendAddr;
+		ss << " who is " << m_targetAddr << "? Tell " << m_sendAddr;
 	}
 	else if (m_opcode == 2) {
 		ss << " " << m_sendAddr << " is at physical address " << m_sendMAC;
@@ -102,8 +102,6 @@ std::map<std::string, std::string> ARP::getTexts() {
 
 		m_texts["arpTitle"] = std::format("Address Resolution Protocol ({})", m_texts["opcode"]);
 
-		// DO NOT LEAVE THIS IN YOU SILLY GOOSE
-		// todo: actually figure out the type of the hardware
 		m_texts["hardType"] = std::format("Ethernet ({})", std::to_string(m_hardType));
 
 		if (m_hardType < Data::arpHard.size()) {
