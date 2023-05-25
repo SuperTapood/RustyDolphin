@@ -166,7 +166,7 @@ void Capture::capturePackets() {
 		std::scoped_lock guard(Data::guard);
 		Data::captured.push_back(p);
 	}
-	
+
 	Data::epochStart = p->m_epoch;
 	Data::capIdx++;
 

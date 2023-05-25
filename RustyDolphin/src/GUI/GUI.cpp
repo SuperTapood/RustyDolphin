@@ -53,7 +53,7 @@ void GUI::init() {
 	io.Fonts->Build();
 
 	glfwSwapInterval(1);
-	
+
 	// set button hovered colors (like on the table)
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);

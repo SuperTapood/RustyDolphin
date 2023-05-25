@@ -40,6 +40,8 @@ void App::init() {
 void App::adapterScreen() {
 	getAdapter();
 
+	Data::showLoad = false;
+
 	if (Data::chosenAdapter == nullptr) {
 		exit(-1);
 	}
@@ -70,8 +72,8 @@ void App::renderAdapterMenuBar() {
 }
 
 void App::handleLoad() {
-	ImGui::SetNextWindowPos(ImVec2(100, 100));
-	ImGui::SetNextWindowSize(ImVec2(1080, 480));
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(1280, 720));
 	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".");
 
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
@@ -90,7 +92,6 @@ void App::handleLoad() {
 			Data::showLoad = false;
 		}
 
-		// close
 		ImGuiFileDialog::Instance()->Close();
 	}
 }
@@ -134,7 +135,7 @@ void App::getAdapter() {
 		threads.push_back(new std::thread(Capture::countPackets, &counts, i));
 	}
 
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	int randomNumber = rand() % Data::quotes.size();
 
@@ -232,6 +233,10 @@ void App::getAdapter() {
 	}
 
 	std::ranges::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
+
+	if (Data::chosenAdapter != nullptr) {
+		return;
+	}
 
 	Data::fileAdapter = false;
 
@@ -351,8 +356,8 @@ void App::handleSaveGoing() {
 }
 
 void App::handleSave() {
-	ImGui::SetNextWindowPos(ImVec2(100, 100));
-	ImGui::SetNextWindowSize(ImVec2(1080, 480));
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(1280, 720));
 	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
 
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
@@ -375,15 +380,12 @@ void App::handleSave() {
 }
 
 void App::handleLoadCapture() {
-	ImGui::SetNextWindowPos(ImVec2(100, 100));
-	ImGui::SetNextWindowSize(ImVec2(1080, 480));
-	// open Dialog Simple
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(1280, 720));
 	ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".pcapng,.pcap,", ".");
 
-	// display
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
 	{
-		// action if OK
 		if (ImGuiFileDialog::Instance()->IsOk())
 		{
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
@@ -409,7 +411,6 @@ void App::handleLoadCapture() {
 			Data::showLoad = false;
 		}
 
-		// close
 		ImGuiFileDialog::Instance()->Close();
 	}
 }

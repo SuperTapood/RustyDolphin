@@ -127,7 +127,7 @@ public:
 		Packet::m_properties.insert({ "proto", "tcp" });
 		Packet::m_properties.insert({ "sport", std::to_string(m_srcPort) });
 		Packet::m_properties.insert({ "dport", std::to_string(m_destPort) });
-		Packet::m_properties.insert({ "proc", m_process.c_str()});
+		Packet::m_properties.insert({ "proc", m_process.c_str() });
 	}
 
 	std::string toString() override {
