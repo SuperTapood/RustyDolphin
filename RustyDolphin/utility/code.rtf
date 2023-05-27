@@ -42,6 +42,8 @@
 }{\cf5 void}{\cf1  }{\cf8 App::adapterScreen}(){\cf1  }\{{\cf1 \par
 }{\cf1 	}getAdapter();{\cf1 \par
 }{\cf1 \par
+}{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
 }{\cf1 		}exit({\cf6 -1});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
@@ -72,8 +74,8 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 App::handleLoad}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 0}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 720}));{\cf1 \par
 }{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "});{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
@@ -92,7 +94,6 @@
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf2\i // close\par
 }{\cf1 		}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Close();{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
@@ -136,7 +137,7 @@
 }{\cf1 		}threads.push_back({\cf4\b new}{\cf1  }std{\cf6 :}{\cf6 :}{\cf4\b thread}({\cf4\b Capture}{\cf6 :}{\cf6 :}countPackets,{\cf1  }{\cf6 &}counts,{\cf1  }i));{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}srand(time({\cf4 NULL}));{\cf1 \par
+}{\cf1 	}srand(time({\cf4\b nullptr}));{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf5 int}{\cf1  }randomNumber{\cf1  }{\cf6 =}{\cf1  }rand(){\cf1  }{\cf6 %}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}quotes.size();{\cf1 \par
 }{\cf1 \par
@@ -234,6 +235,10 @@
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}ranges{\cf6 :}{\cf6 :}for_each(threads.cbegin(),{\cf1  }threads.cend(),{\cf1  }[](std{\cf6 :}{\cf6 :}{\cf4\b thread}{\cf6 *}{\cf1  }t){\cf1  }\{t{\cf6 -}{\cf6 >}join();{\cf1  }\});{\cf1 \par
+}{\cf1 \par
+}{\cf1 	}{\cf4\b if}{\cf1  }({\cf4\b Data}{\cf6 :}{\cf6 :}chosenAdapter{\cf1  }{\cf6 !}{\cf6 =}{\cf1  }{\cf4\b nullptr}){\cf1  }\{{\cf1 \par
+}{\cf1 		}{\cf4\b return};{\cf1 \par
+}{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}fileAdapter{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 \par
@@ -353,8 +358,8 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 App::handleSave}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 0}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 720}));{\cf1 \par
 }{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "},{\cf1  }{\cf6 1},{\cf1  }{\cf4\b nullptr},{\cf1  }ImGuiFileDialogFlags_ConfirmOverwrite);{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
@@ -377,15 +382,12 @@
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 void}{\cf1  }{\cf8 App::handleLoadCapture}(){\cf1  }\{{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 100},{\cf1  }{\cf6 100}));{\cf1 \par
-}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1080},{\cf1  }{\cf6 480}));{\cf1 \par
-}{\cf1 	}{\cf2\i // open Dialog Simple\par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowPos(ImVec2({\cf6 0},{\cf1  }{\cf6 0}));{\cf1 \par
+}{\cf1 	}{\cf4\b ImGui}{\cf6 :}{\cf6 :}SetNextWindowSize(ImVec2({\cf6 1280},{\cf1  }{\cf6 720}));{\cf1 \par
 }{\cf1 	}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}OpenDialog({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 Choose File}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .pcapng,.pcap,}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 .}{\cf15 "});{\cf1 \par
 }{\cf1 \par
-}{\cf1 	}{\cf2\i // display\par
 }{\cf1 	}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Display({\cf15 "}{\cf15 ChooseFileDlgKey}{\cf15 "})){\cf1 \par
 }{\cf1 	}\{{\cf1 \par
-}{\cf1 		}{\cf2\i // action if OK\par
 }{\cf1 		}{\cf4\b if}{\cf1  }(ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}IsOk()){\cf1 \par
 }{\cf1 		}\{{\cf1 \par
 }{\cf1 			}std{\cf6 :}{\cf6 :}string{\cf1  }filePathName{\cf1  }{\cf6 =}{\cf1  }ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}GetFilePathName();{\cf1 \par
@@ -411,7 +413,6 @@
 }{\cf1 			}{\cf4\b Data}{\cf6 :}{\cf6 :}showLoad{\cf1  }{\cf6 =}{\cf1  }{\cf4 false};{\cf1 \par
 }{\cf1 		}\}{\cf1 \par
 }{\cf1 \par
-}{\cf1 		}{\cf2\i // close\par
 }{\cf1 		}ImGuiFileDialog{\cf6 :}{\cf6 :}Instance(){\cf6 -}{\cf6 >}Close();{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
@@ -964,72 +965,72 @@
 }{\cf5 int}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}geoState{\cf1  }{\cf6 =}{\cf1  }{\cf6 -1};{\cf1 \par
 }std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 26}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpCodes\{{\cf1 \par
 }{\cf1 	}{\cf15 "}{\cf15 Reserved}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 REQUEST}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 REPLY}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 request Reverse}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 reply Reverse}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 DRARP-Request}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 DRARP-Reply}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 DRARP-Error}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 InARP-Request}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 InARP-Reply}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 ARP-NAK}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Request}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Multi}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-MServ}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Join}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Leave}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-NAK}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Unserv}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-SJoin}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-SLeave}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Grouplist-Request}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Grouplist-Reply}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MARS-Redirect-Map}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MAPOS-UNARP}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 OP_EXP1}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 OP_EXP2}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 REQUEST}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 REPLY}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 request Reverse}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 reply Reverse}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 DRARP-Request}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 DRARP-Reply}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 DRARP-Error}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 InARP-Request}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 InARP-Reply}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 ARP-NAK}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Request}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Multi}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-MServ}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Join}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Leave}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-NAK}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Unserv}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-SJoin}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-SLeave}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Grouplist-Request}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Grouplist-Reply}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MARS-Redirect-Map}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MAPOS-UNARP}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 OP_EXP1}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 OP_EXP2}{\cf15 "},{\cf1 \par
 }\};{\cf1 \par
 }std{\cf6 :}{\cf6 :}array{\cf6 <}std{\cf6 :}{\cf6 :}string,{\cf1  }{\cf6 39}{\cf6 >}{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}arpHard\{{\cf1 \par
 }{\cf1 	}{\cf15 "}{\cf15 Reserved}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Ethernet}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Experimental Ethernet}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Amateur Radio AX.25}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Proteon ProNET Token Ring}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Chaos}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 IEEE 802 Networks}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 ARCNET}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Hyperchannel}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Lanstar}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Autonet Short Address}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 LocalTalk}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 LocalNet (IBM PCNet or SYTEK LocalNET)}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Ultra link}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 SMDS}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Frame Relay}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 HDLC}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Fibre Channel}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Serial Line}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MIL-STD-188-220}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Metricom}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 IEEE 1394.1995}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 MAPOS}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Twinaxial}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 EUI-64}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 HIPARP}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 IP and ARP over ISO 7816-3}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 ARPSec}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 IPsec tunnel}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 InfiniBand (TM)}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 TIA-102 Project 25 Common Air Interface (CAI)}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Wiegand Interface}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Pure IP}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 HW_EXP1}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 HFI}{\cf15 "},{\cf1 \par
-}{\cf1 	}{\cf15 "}{\cf15 Unified Bus (UB)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Ethernet}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Experimental Ethernet}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Amateur Radio AX.25}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Proteon ProNET Token Ring}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Chaos}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 IEEE 802 Networks}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 ARCNET}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Hyperchannel}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Lanstar}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Autonet Short Address}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 LocalTalk}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 LocalNet (IBM PCNet or SYTEK LocalNET)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Ultra link}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 SMDS}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Frame Relay}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 HDLC}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Fibre Channel}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Serial Line}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Asynchronous Transmission Mode (ATM)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MIL-STD-188-220}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Metricom}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 IEEE 1394.1995}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 MAPOS}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Twinaxial}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 EUI-64}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 HIPARP}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 IP and ARP over ISO 7816-3}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 ARPSec}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 IPsec tunnel}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 InfiniBand (TM)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 TIA-102 Project 25 Common Air Interface (CAI)}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Wiegand Interface}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Pure IP}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 HW_EXP1}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 HFI}{\cf15 "},{\cf1 \par
+}{\cf1 		}{\cf15 "}{\cf15 Unified Bus (UB)}{\cf15 "},{\cf1 \par
 }\};{\cf1 \par
 }std{\cf6 :}{\cf6 :}string{\cf1  }{\cf4\b Data}{\cf6 :}{\cf6 :}hopAddr;{\cf1 \par
 }{\cf1 \par
@@ -1419,7 +1420,7 @@
 }{\cf3 #}{\cf3 endif}{\cf3 \par
 }{\cf1 \par
 }{\cf3 #}{\cf3 if FEATURES_ENABLED}{\cf3 \par
-}{\cf3 #}{\cf3 define CAPTURE_LIVE}{\cf3 \par
+}{\cf2\i //#define CAPTURE_LIVE\par
 }{\cf2\i //#define CAPTURE_SAMPLES\par
 }{\cf2\i //#define CAPTURE_V6\par
 }{\cf2\i //#define CAPTURE_ICMPV6\par
@@ -1483,7 +1484,7 @@
 }{\cf1 	}io.Fonts{\cf6 -}{\cf6 >}Build();{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}glfwSwapInterval({\cf6 1});{\cf1 \par
-}{\cf1 	}{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf2\i // set button hovered colors (like on the table)\par
 }{\cf1 	}ImGuiStyle{\cf6 &}{\cf1  }style{\cf1  }{\cf6 =}{\cf1  }{\cf4\b ImGui}{\cf6 :}{\cf6 :}GetStyle();{\cf1 \par
 }{\cf1 	}style.Colors[ImGuiCol_Button]{\cf1  }{\cf6 =}{\cf1  }ImVec4({\cf6 0.0f},{\cf1  }{\cf6 0.0f},{\cf1  }{\cf6 0.0f},{\cf1  }{\cf6 0.0f});{\cf1 \par
@@ -2292,7 +2293,7 @@
 }{\cf1 		}std{\cf6 :}{\cf6 :}scoped_lock{\cf1  }{\cf8 guard}({\cf4\b Data}{\cf6 :}{\cf6 :}guard);{\cf1 \par
 }{\cf1 		}{\cf4\b Data}{\cf6 :}{\cf6 :}captured.push_back(p);{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
-}{\cf1 	}{\cf1 \par
+}{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}epochStart{\cf1  }{\cf6 =}{\cf1  }p{\cf6 -}{\cf6 >}m_epoch;{\cf1 \par
 }{\cf1 	}{\cf4\b Data}{\cf6 :}{\cf6 :}capIdx{\cf6 +}{\cf6 +};{\cf1 \par
 }{\cf1 \par
@@ -2480,6 +2481,7 @@
 }{\cf3 #}{\cf3 include}{\cf1  }{\cf2\i "Types/Types.h"}{\cf3 \par
 }{\cf1 \par
 }{\cf2\i // think of this function as the sorting hat for packets\par
+}{\cf2\i // this takes in a packet, figures out its type, and return it masked as a Packet*\par
 }PKT{\cf1  }{\cf8 fromRaw}(pcap_pkthdr{\cf6 *}{\cf1  }header,{\cf1  }{\cf4\b const}{\cf1  }u_char{\cf6 *}{\cf1  }pkt_data,{\cf1  }{\cf5 unsigned}{\cf1  }{\cf5 int}{\cf1  }idx);{\cf1 \par
 }{\cf1 \par
 }{\cf2\i //ICMP.h\par
@@ -3142,7 +3144,7 @@
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proto}{\cf15 "},{\cf1  }{\cf15 "}{\cf15 tcp}{\cf15 "}{\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 sport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_srcPort){\cf1  }\});{\cf1 \par
 }{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 dport}{\cf15 "},{\cf1  }std{\cf6 :}{\cf6 :}to_string(m_destPort){\cf1  }\});{\cf1 \par
-}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proc}{\cf15 "},{\cf1  }m_process.c_str()\});{\cf1 \par
+}{\cf1 		}{\cf4 Packet}{\cf6 :}{\cf6 :}m_properties.insert(\{{\cf1  }{\cf15 "}{\cf15 proc}{\cf15 "},{\cf1  }m_process.c_str(){\cf1  }\});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 \par
 }{\cf1 	}std{\cf6 :}{\cf6 :}string{\cf1  }toString(){\cf1  }{\cf4\b override}{\cf1  }\{{\cf1 \par
@@ -3932,22 +3934,22 @@
 }{\cf1 \par
 }uint64_t{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}htonll(uint64_t{\cf1  }x){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(htonl({\cf6 1}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 1}){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf2\i // The system is already in network byte order\par
+}{\cf1 		}{\cf2\i // the system is already in network byte order\par
 }{\cf1 		}{\cf4\b return}{\cf1  }x;{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 	}{\cf4\b else}{\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf2\i // Swap the bytes\par
+}{\cf1 		}{\cf2\i // swap the bytes\par
 }{\cf1 		}{\cf4\b return}{\cf1  }((uint64_t)htonl(x{\cf1  }{\cf6 &}{\cf1  }{\cf6 0xFFFFFFFF}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf6 32}){\cf1  }{\cf6 |}{\cf1  }htonl(x{\cf1  }{\cf6 >}{\cf6 >}{\cf1  }{\cf6 32});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par
 }{\cf1 \par
 }{\cf5 int}{\cf1  }{\cf4 Packet}{\cf6 :}{\cf6 :}htoni({\cf5 int}{\cf1  }x){\cf1  }\{{\cf1 \par
 }{\cf1 	}{\cf4\b if}{\cf1  }(htons({\cf6 1}){\cf1  }{\cf6 =}{\cf6 =}{\cf1  }{\cf6 1}){\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf2\i // The system is already in network byte order\par
+}{\cf1 		}{\cf2\i // the system is already in network byte order\par
 }{\cf1 		}{\cf4\b return}{\cf1  }x;{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }{\cf1 	}{\cf4\b else}{\cf1  }\{{\cf1 \par
-}{\cf1 		}{\cf2\i // Swap the bytes\par
+}{\cf1 		}{\cf2\i // swap the bytes\par
 }{\cf1 		}{\cf4\b return}{\cf1  }(({\cf5 int})htons(x{\cf1  }{\cf6 &}{\cf1  }{\cf6 0xFFFFFFFF}){\cf1  }{\cf6 <}{\cf6 <}{\cf1  }{\cf6 16}){\cf1  }{\cf6 |}{\cf1  }htons(x{\cf1  }{\cf6 >}{\cf6 >}{\cf1  }{\cf6 16});{\cf1 \par
 }{\cf1 	}\}{\cf1 \par
 }\}{\cf1 \par

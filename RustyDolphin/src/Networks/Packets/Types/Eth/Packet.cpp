@@ -166,22 +166,22 @@ std::string Packet::parse(unsigned long long size) {
 
 uint64_t Packet::htonll(uint64_t x) {
 	if (htonl(1) == 1) {
-		// The system is already in network byte order
+		// the system is already in network byte order
 		return x;
 	}
 	else {
-		// Swap the bytes
+		// swap the bytes
 		return ((uint64_t)htonl(x & 0xFFFFFFFF) << 32) | htonl(x >> 32);
 	}
 }
 
 int Packet::htoni(int x) {
 	if (htons(1) == 1) {
-		// The system is already in network byte order
+		// the system is already in network byte order
 		return x;
 	}
 	else {
-		// Swap the bytes
+		// swap the bytes
 		return ((int)htons(x & 0xFFFFFFFF) << 16) | htons(x >> 16);
 	}
 }
