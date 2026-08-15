@@ -8,7 +8,8 @@ ICMPV6Type::ICMPV6Type(Packet* packet) {
 	m_type = packet->parseChar();
 	m_code = packet->parseChar();
 
-	m_typeStr = Data::icmpv6Types[m_type];
+	auto type = Data::icmpv6Types.find(m_type);
+	m_typeStr = type != Data::icmpv6Types.end() ? type->second : std::to_string(m_type);
 
 	switch ((int)m_type) {
 	case 1:
@@ -68,6 +69,7 @@ std::string ICMPV6Type::resolveDestUnreach(unsigned char code) {
 	case 8:
 		return "Headers too long";
 	}
+	return std::to_string(code);
 }
 
 std::string ICMPV6Type::resolveTimeExceeded(unsigned char code) {
@@ -103,6 +105,7 @@ std::string ICMPV6Type::resolveParameterProblem(unsigned char code) {
 	case 10:
 		return "Option too big";
 	}
+	return std::to_string(code);
 }
 
 std::string ICMPV6Type::resolveRouterRenumbering(unsigned char code) {
@@ -114,6 +117,7 @@ std::string ICMPV6Type::resolveRouterRenumbering(unsigned char code) {
 	case 255:
 		return "Sequence Number Reset";
 	}
+	return std::to_string(code);
 }
 
 std::string ICMPV6Type::resolveNodeQuery(unsigned char code) {
@@ -125,6 +129,7 @@ std::string ICMPV6Type::resolveNodeQuery(unsigned char code) {
 	case 2:
 		return "The Data field contains an IPv4 address which is the Subject of this Query.";
 	}
+	return std::to_string(code);
 }
 
 std::string ICMPV6Type::resolveNodeInfo(unsigned char code) {
@@ -136,6 +141,7 @@ std::string ICMPV6Type::resolveNodeInfo(unsigned char code) {
 	case 2:
 		return "The Qtype of the Query is unknown to the Responder. The Reply Data field will be empty.";
 	}
+	return std::to_string(code);
 }
 
 std::string ICMPV6Type::resolveDupeAddrReq(unsigned char code) {
@@ -171,4 +177,5 @@ std::string ICMPV6Type::resolveExtendedEchoRep(unsigned char code) {
 	case 4:
 		return "Multiple Interfaces Satisfy Query";
 	}
+	return std::to_string(code);
 }

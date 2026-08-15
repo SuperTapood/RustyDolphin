@@ -75,7 +75,7 @@ void Capture::release() {
 }
 
 pcap_if_t* Capture::getDev(int index) {
-	if (index < 0 || index > m_devs) {
+	if (index < 0 || index >= m_devs) {
 		std::stringstream ss;
 		ss << index;
 		Logger::log("device index " + ss.str() + " does not exist :(");
@@ -156,8 +156,18 @@ void Capture::capturePackets() {
 		return;
 	}
 
-	// find the first good packet pls
-	while (pcap_next_ex(adapter, &header, &pkt_data) <= 0);
+	// Live captures may time out, while offline captures report EOF. Do not spin
+	// forever when a capture is empty, invalid, or is asked to stop.
+	do {
+		r = pcap_next_ex(adapter, &header, &pkt_data);
+		if (r < 0 || Data::doneCapturing) {
+			Data::doneCapturing = true;
+			if (r == -2) {
+				Data::doneLoading = true;
+			}
+			return;
+		}
+	} while (r == 0);
 
 	auto p = fromRaw(header, pkt_data, Data::capIdx);
 	{

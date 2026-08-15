@@ -314,7 +314,7 @@ void Data::processFilter() {
 	while (std::getline(ss, current, ',')) {
 		// find where the two values seperate
 		auto eq = current.find_first_of('=');
-		if (eq != current.find_last_of('=')) {
+		if (eq == std::string::npos || eq != current.find_last_of('=')) {
 			// there is more than one =, invalid input
 			showBadFilter = true;
 			filterIssue = std::format("{} is not a valid filter", current);
@@ -326,6 +326,12 @@ void Data::processFilter() {
 		auto key = current.substr(0, eq);
 		first = key.find_first_not_of(' ');
 		last = key.find_last_not_of(' ');
+		if (first == std::string::npos) {
+			showBadFilter = true;
+			filterIssue = std::format("{} has an empty filter name", current);
+			filter["num"] = "-1";
+			return;
+		}
 		// removing trailing and leading spaces
 		key = key.substr(first, last - first + 1);
 
@@ -333,6 +339,12 @@ void Data::processFilter() {
 		auto value = current.substr(eq + 1);
 		first = value.find_first_not_of(' ');
 		last = value.find_last_not_of(' ');
+		if (first == std::string::npos) {
+			showBadFilter = true;
+			filterIssue = std::format("{} has an empty filter value", current);
+			filter["num"] = "-1";
+			return;
+		}
 		value = value.substr(first, last - first + 1);
 
 		// lowercase both the key and the value

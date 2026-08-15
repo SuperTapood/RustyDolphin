@@ -1,13 +1,14 @@
 #include "App.h"
 #include <Windows.h>
 
-void main()
+int main()
 {
 	App::init();
 
 	App::adapterScreen();
 
 	App::captureScreen();
+	return 0;
 }
 
 #ifdef NDEBUG
@@ -16,8 +17,7 @@ void main()
 // because nothing can ever be simple in this operating system
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	main();
-	return 0;
+	return main();
 }
 
 #endif

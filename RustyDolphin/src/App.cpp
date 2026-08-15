@@ -232,7 +232,10 @@ void App::getAdapter() {
 		GUI::endFrame();
 	}
 
-	std::ranges::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {t->join(); });
+	std::ranges::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {
+		t->join();
+		delete t;
+	});
 
 	if (Data::chosenAdapter != nullptr) {
 		return;
@@ -243,7 +246,9 @@ void App::getAdapter() {
 	if (selected != -1) {
 		Data::chosenAdapter = Capture::createAdapter(selected);
 	}
-	SDK::findIP(Capture::getDev(selected)->name);
+	if (selected != -1) {
+		SDK::findIP(Capture::getDev(selected)->name);
+	}
 }
 
 void App::handleStop() {
@@ -841,8 +846,8 @@ void App::render() {
 			Data::selected = max(Data::selected - 1, 0);
 		}
 
-		if (ImGui::IsKeyPressed(downArrow)) {
-			Data::selected = min(Data::selected + 1, Data::capIdx);
+		if (ImGui::IsKeyPressed(downArrow) && Data::capIdx > 0) {
+			Data::selected = min(Data::selected + 1, Data::capIdx - 1);
 		}
 
 		GUI::endFrame();
