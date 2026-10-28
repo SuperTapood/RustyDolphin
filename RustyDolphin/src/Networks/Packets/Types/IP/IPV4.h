@@ -2,10 +2,11 @@
 
 #include "../Eth/Packet.h"
 #include "IPV4Options/IPV4Options.h"
+#include <memory>
 
 class IPV4 : public Packet {
 public:
-	unsigned char m_version = 4;
+	unsigned char m_version = 0;
 	unsigned char m_headerLength;
 	unsigned char m_differServ;
 	unsigned short m_totalLength;
@@ -18,26 +19,17 @@ public:
 	std::string m_srcAddr;
 	std::string m_destAddr;
 	unsigned int m_IPoptionsCount;
-	std::vector<IPV4Option*> m_opts;
+	std::vector<std::unique_ptr<IPV4Option>> m_opts;
 
 	std::vector<std::string> m_ipOptTexts;
-	long m_optSize;
+	long m_optSize = 0;
 
 	IPV4(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	~IPV4() override = default;
 
 	std::string toString() override;
 	json jsonify() override;
-
-	virtual void render() override {
-		Renderer::render(this);
-	}
-
-	virtual void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	virtual std::map<std::string, std::string> getTexts() override;
+virtual std::map<std::string, std::string> getTexts() override;
 
 	std::string getAlienAddr();
 };

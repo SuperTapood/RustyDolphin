@@ -5,14 +5,16 @@
 #include <WinSock2.h>
 #include <iphlpapi.h>
 #include <json.hpp>
+#include <optional>
+#include <stop_token>
+#include "../Base/GeoLocation.h"
+struct ApplicationState;
 
 using json = nlohmann::ordered_json;
 
 class SDK {
 public:
 	static std::string ipAddress;
-	// execute cmd in the, well, cmd (when the program is compiled it will open a cmd window for a moment)
-	static std::string exec(const char* cmd);
 	static void findIP(char* adName);
 	static void init();
 	static void release();
@@ -20,11 +22,11 @@ public:
 	static std::string getProcFromPID(DWORD PID);
 	static std::string getProcFromPort(DWORD port);
 	// geolocate the address
-	static json geoLocate(std::string addr);
+	static std::optional<GeoLocation> geoLocate(const std::string& addr, std::stop_token stopToken = {});
 	// find the addresses a packet heading to addr might take
-	static std::vector<std::string> traceRoute(std::string addr);
+	static std::vector<std::string> traceRoute(ApplicationState& state, const std::string& addr, std::stop_token stopToken);
 	// find location data for each of the hops to an address
-	static void geoTrace(std::string addr);
+	static void geoTrace(std::stop_token stopToken, ApplicationState& state, std::string addr);
 	// used to prettify the mac address
 	static std::string lookupMAC(std::string addr);
 

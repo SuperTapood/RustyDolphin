@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../IP/IP.h"
-#include "../../../../../GUI/Renderer.h"
 
 #include <string>
 #include <pcap.h>
@@ -68,16 +67,7 @@ public:
 
 		return j;
 	}
-
-	void render() override {
-		Renderer::render(this);
-	}
-
-	void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() override {
+std::map<std::string, std::string> getTexts() override {
 		if (Packet::m_texts.empty()) {
 			IPVersion::getTexts();
 

@@ -1,4 +1,10 @@
 /target
+/.vs/
+/build/
+/out/
+RustyDolphin/.vs/
+RustyDolphin/x64/
+**/x64/
 *.vcxproj
 *.user
 *.idb
@@ -13,6 +19,7 @@ RustyDolphin/.vs/RustyDolphin/v17/.suo
 *.tlog
 *.pdb
 *.txt
+!CMakeLists.txt
 *.log
 *.ilk
 *.recipe

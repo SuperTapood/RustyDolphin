@@ -4,7 +4,6 @@
 #include "../../IP/IP.h"
 #include <pcap.h>
 #include <uchar.h>
-#include "../../../../../GUI/Renderer.h"
 #include <type_traits>
 
 #include "ICMPV6Types/ICMPV6Types.h"
@@ -50,16 +49,7 @@ public:
 
 		return j;
 	}
-
-	void render() override {
-		Renderer::render(this);
-	}
-
-	void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() {
+std::map<std::string, std::string> getTexts() {
 		if (m_texts.empty()) {
 			IPV6::getTexts();
 

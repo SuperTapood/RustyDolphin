@@ -3,6 +3,9 @@
 #include <pcap.h>
 #include <string>
 #include <vector>
+#include <atomic>
+#include "PcapHandle.h"
+struct ApplicationState;
 
 class Capture {
 public:
@@ -12,11 +15,11 @@ public:
 	static void release();
 	static pcap_if_t* getDev(int index);
 	static std::vector<std::string> getDeviceNames(bool verbose = false);
-	static pcap_t* createAdapter(int devIndex, bool promiscuous = false);
-	static void capturePackets();
-	static pcap_t* load(std::string name);
-	static void countPackets(std::vector<int>* counts, int adapterIdx);
-	static void dumpAll(std::string filename);
+	static PcapHandle createAdapter(int devIndex, bool promiscuous = false);
+	static void capturePackets(ApplicationState& state);
+	static PcapHandle load(ApplicationState& state, std::string name);
+	static void countPackets(ApplicationState& state, std::vector<std::atomic_int>& counts, int adapterIdx);
+	static void dumpAll(ApplicationState& state, std::string filename);
 
 private:
 	static pcap_if_t* m_alldevs;

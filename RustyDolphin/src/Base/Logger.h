@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <mutex>
 
 /// <summary>
 /// Static logging class
@@ -28,4 +29,5 @@ private:
 	///
 	/// </summary>
 	static std::ofstream m_file;
+	static std::mutex m_guard;
 };

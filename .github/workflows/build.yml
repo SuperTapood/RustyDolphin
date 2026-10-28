@@ -1,0 +1,20 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake --preset vs2022
+      - name: Build
+        run: cmake --build --preset ${{ matrix.configuration == 'Debug' && 'debug' || 'release' }}
+      - name: Test
+        run: ctest --preset ${{ matrix.configuration == 'Debug' && 'debug' || 'release' }}

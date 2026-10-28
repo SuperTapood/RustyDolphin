@@ -13,6 +13,7 @@ public:
 	unsigned int m_size;
 
 	TCPOption(int code);
+	virtual ~TCPOption() = default;
 
 	const virtual std::string toString();
 };

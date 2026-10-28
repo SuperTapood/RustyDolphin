@@ -14,5 +14,6 @@ public:
 	std::vector<std::string> data;
 
 	IPV4Option(int code, std::string name);
+	virtual ~IPV4Option() = default;
 	virtual std::string toString();
 };

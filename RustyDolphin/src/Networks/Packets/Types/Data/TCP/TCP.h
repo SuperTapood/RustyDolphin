@@ -4,13 +4,13 @@
 #include "../../Eth/Packet.h"
 #include "../../IP/IP.h"
 #include "../../../../../Win/SDK.h"
-#include "../../../../../GUI/Renderer.h"
-#include "../../../.././../Base/Data.h"
+#include "../../../.././../Base/ProtocolCatalog.h"
 #include "../../../.././../Base/Logger.h"
 #include "../../../../../Networks/capture.h"
 
 #include <iostream>
 #include <bitset>
+#include <memory>
 
 template <typename IPVersion>
 class TCP : public IPVersion {
@@ -24,11 +24,11 @@ public:
 	unsigned short m_window;
 	unsigned short m_TCPchecksum;
 	unsigned short m_urgentPtr;
-	unsigned short m_optSize;
+	unsigned int m_optSize;
 
-	std::vector<TCPOption*> m_options;
+	std::vector<std::unique_ptr<TCPOption>> m_options;
 
-	long m_payloadLength;
+	long m_payloadLength = 0;
 	std::string m_payload;
 
 	std::string m_process;
@@ -47,7 +47,8 @@ public:
 
 		m_TCPLength = (len >> 4) * 4;
 
-		m_TCPflags = (len & 0x1111) | flags;
+		m_TCPflags = static_cast<unsigned short>(((len & 0x01) << 8) |
+			static_cast<unsigned char>(flags));
 
 		m_window = Packet::parseShort();
 
@@ -61,7 +62,6 @@ public:
 		constexpr auto WSCALE = 3;
 		constexpr auto SACKPERM = 4;
 		constexpr auto SACK = 5;
-		constexpr auto TIMESTAMPS = 8;
 
 		int total = m_TCPLength + ETHLEN + IPVersion::m_headerLength;
 
@@ -70,23 +70,23 @@ public:
 		while (total - Packet::getPos() > 0) {
 			unsigned char code = Packet::parseChar();
 
-			TCPOption* opt;
+			std::unique_ptr<TCPOption> opt;
 
 			switch ((int)code) {
 			case NOP:
-				opt = new TCPNOP();
+				opt = std::make_unique<TCPNOP>();
 				break;
 			case MSS:
-				opt = new TCPMSS(this);
+				opt = std::make_unique<TCPMSS>(this);
 				break;
 			case WSCALE:
-				opt = new TCPWScale(this);
+				opt = std::make_unique<TCPWScale>(this);
 				break;
 			case SACKPERM:
-				opt = new TCPSACKPerm(this);
+				opt = std::make_unique<TCPSACKPerm>(this);
 				break;
 			case SACK:
-				opt = new TCPSACK(this);
+				opt = std::make_unique<TCPSACK>(this);
 				break;
 			default:
 				// this gets compiled out anyway, but i felt i should keep it in
@@ -101,10 +101,10 @@ public:
 
 			m_optSize += opt->m_size;
 
-			m_options.push_back(opt);
+			m_options.push_back(std::move(opt));
 		}
 
-		if (Packet::m_len > Packet::getPos()) {
+		if (Packet::m_len > static_cast<unsigned int>(Packet::getPos())) {
 			m_payloadLength = Packet::m_len - Packet::getPos();
 			m_payload = Packet::parse(m_payloadLength);
 		}
@@ -130,6 +130,8 @@ public:
 		Packet::m_properties.insert({ "proc", m_process.c_str() });
 	}
 
+	~TCP() override = default;
+
 	std::string toString() override {
 		std::stringstream ss;
 
@@ -137,7 +139,7 @@ public:
 
 		if (m_options.size() > 0) {
 			ss << " with options : (";
-			for (auto o : m_options) {
+			for (const auto& o : m_options) {
 				ss << o->toString() << ", ";
 			}
 			ss << ")";
@@ -164,7 +166,7 @@ public:
 		j["Number of Options"] = m_options.size();
 
 		std::stringstream ss;
-		for (auto o : m_options) {
+		for (const auto& o : m_options) {
 			ss << o->toString() << ", ";
 		}
 
@@ -174,16 +176,7 @@ public:
 
 		return j;
 	}
-
-	void render() override {
-		Renderer::render(this);
-	}
-
-	void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() {
+std::map<std::string, std::string> getTexts() {
 		if (Packet::m_texts.empty()) {
 			IPVersion::getTexts();
 
@@ -217,7 +210,7 @@ public:
 			for (int i = 0; i < 9; i++) {
 				std::string base = ". . . .  . . . .  . . . .";
 				if (flagBits[i + 3] == '1') {
-					ss << Data::TCPFlags[i + 1] << ", ";
+					ss << ProtocolCatalog::TCPFlags[i + 1] << ", ";
 				}
 
 				auto idx = i + 3;
@@ -225,7 +218,7 @@ public:
 
 				base[idx * 2 + group] = flagBits[i + 3];
 
-				Packet::m_texts[Data::TCPFlags[i + 1]] = std::format("\t\t{} = {}: {}", base, flagNames[i], flagBits[idx] == '1' ? "Set" : "Not Set");
+				Packet::m_texts[ProtocolCatalog::TCPFlags[i + 1]] = std::format("\t\t{} = {}: {}", base, flagNames[i], flagBits[idx] == '1' ? "Set" : "Not Set");
 			}
 
 			Packet::m_texts["RES"] = std::format("\t\t{} .  . . . .  . . . . = Reserved: {}", flagBits.substr(0, 3), flagBits.starts_with("000") ? "Not Set" : "Set");

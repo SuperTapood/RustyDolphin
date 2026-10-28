@@ -9,4 +9,5 @@ public:
 	unsigned short m_length;
 
 	IPV6Option(Packet* packet);
+	virtual ~IPV6Option() = default;
 };

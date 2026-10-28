@@ -3,7 +3,6 @@
 #include "../../Eth/Packet.h"
 #include "../../IP/IP.h"
 #include "../../src/Win/SDK.h"
-#include "../../../../../GUI/Renderer.h"
 
 template <typename IPVersion>
 class UDP : public IPVersion {
@@ -73,16 +72,7 @@ public:
 
 		return j;
 	}
-
-	void render() override {
-		Renderer::render(this);
-	}
-
-	void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() {
+std::map<std::string, std::string> getTexts() {
 		if (Packet::m_texts.empty()) {
 			IPVersion::getTexts();
 

@@ -12,13 +12,14 @@
 #include <regex>
 #include <format>
 #include <chrono>
+#include <stdexcept>
 
 #include "../../../../Win/SDK.h"
-#include "../../../../Base/Data.h"
-
-std::map<std::string, bool> Packet::m_expands;
 
 Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
+	if (header == nullptr || pkt_data == nullptr || header->caplen < 14) {
+		throw std::invalid_argument("truncated Ethernet frame");
+	}
 	this->m_idx = idx;
 
 	// table indices are 1 indexed
@@ -34,18 +35,10 @@ Packet::Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) {
 	// same with the header, we just borrow them for a hot sec
 	m_header = new pcap_pkthdr(*header);
 
-	if (!Data::fileAdapter) {
-		auto now = std::chrono::system_clock::now();
-		auto duration = now.time_since_epoch();
-		auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
-		m_epoch = (long double)nanoseconds.count() / 1e9;
-
-		header->ts.tv_sec = (int)m_epoch;
-		header->ts.tv_usec = (long)(m_epoch - ((int)m_epoch)) * 1e6;
-	}
-	else {
-		m_epoch = ((double)header->ts.tv_sec + (double)header->ts.tv_usec / 1e6);
-	}
+	// libpcap supplies capture timestamps for both live and offline packets.
+	// Keeping that source timestamp makes packet models independent of UI/session state.
+	m_epoch = static_cast<long double>(header->ts.tv_sec) +
+		static_cast<long double>(header->ts.tv_usec) / 1e6L;
 
 	m_phyDst = parseMAC();
 
@@ -104,10 +97,11 @@ std::string Packet::padDate(int t) {
 
 std::string Packet::parseMAC() {
 	constexpr auto size = 6;
+	ensureAvailable(size);
 	std::stringstream ss;
 	std::string mac;
 
-	for (int i = m_pos + size; m_pos < i; m_pos++) {
+	for (size_t i = m_pos + size; m_pos < i; m_pos++) {
 		ss << std::setfill('0') << std::setw(2) << std::hex << (int)m_pktData[m_pos] << ":";
 	}
 
@@ -119,10 +113,11 @@ std::string Packet::parseMAC() {
 
 std::string Packet::parseIPV4() {
 	constexpr auto size = 4;
+	ensureAvailable(size);
 	std::stringstream ss;
 	std::string ip;
 
-	for (int i = m_pos + size; m_pos < i; m_pos++) {
+	for (size_t i = m_pos + size; m_pos < i; m_pos++) {
 		ss << (int)m_pktData[m_pos] << ".";
 	}
 
@@ -134,10 +129,11 @@ std::string Packet::parseIPV4() {
 
 std::string Packet::parseIPV6() {
 	constexpr auto size = 16;
+	ensureAvailable(size);
 	std::stringstream ss;
 	std::string ip;
 
-	for (int i = m_pos + size; m_pos < i; m_pos += 2) {
+	for (size_t i = m_pos + size; m_pos < i; m_pos += 2) {
 		if ((int)m_pktData[m_pos] == 0 && (int)m_pktData[m_pos + 1] == 0) {
 			ss << ":";
 			continue;
@@ -152,10 +148,11 @@ std::string Packet::parseIPV6() {
 }
 
 std::string Packet::parse(unsigned long long size) {
+	ensureAvailable(static_cast<size_t>(size));
 	std::string result;
 	result.reserve(size * 2); // each byte is 2 hex
 
-	for (int end = m_pos + size; m_pos < end; m_pos++) {
+	for (size_t end = m_pos + static_cast<size_t>(size); m_pos < end; m_pos++) {
 		char buf[3];
 		sprintf_s(buf, "%02x", (int)m_pktData[m_pos]); // fun isn't it
 		result.append(buf);
@@ -176,20 +173,14 @@ uint64_t Packet::htonll(uint64_t x) {
 }
 
 int Packet::htoni(int x) {
-	if (htons(1) == 1) {
-		// the system is already in network byte order
-		return x;
-	}
-	else {
-		// swap the bytes
-		return ((int)htons(x & 0xFFFFFFFF) << 16) | htons(x >> 16);
-	}
+	return static_cast<int>(htonl(static_cast<u_long>(x)));
 }
 
 long long Packet::parseLongLong() {
 	long long out;
 
 	constexpr auto len = 8;
+	ensureAvailable(len);
 
 	// using memcpy and converting the network host byte order headache is just faster than using bitshifts
 	std::memcpy(&out, m_pktData + m_pos, len);
@@ -203,6 +194,7 @@ long Packet::parseLong() {
 	long out;
 
 	constexpr auto len = 4;
+	ensureAvailable(len);
 
 	std::memcpy(&out, m_pktData + m_pos, len);
 
@@ -215,6 +207,7 @@ int Packet::parseInt() {
 	int out;
 
 	constexpr auto len = 4;
+	ensureAvailable(len);
 
 	std::memcpy(&out, m_pktData + m_pos, len);
 
@@ -227,6 +220,7 @@ short Packet::parseShort() {
 	short out;
 
 	constexpr auto len = 2;
+	ensureAvailable(len);
 
 	std::memcpy(&out, m_pktData + m_pos, len);
 
@@ -239,12 +233,19 @@ char Packet::parseChar() {
 	char out;
 
 	constexpr auto len = 1;
+	ensureAvailable(len);
 
 	std::memcpy(&out, m_pktData + m_pos, len);
 
 	m_pos += len;
 
 	return out;
+}
+
+void Packet::ensureAvailable(size_t size) const {
+	if (size > m_len || m_pos > m_len - size) {
+		throw std::out_of_range("packet data is truncated");
+	}
 }
 
 std::map<std::string, std::string> Packet::getTexts() {
@@ -267,7 +268,7 @@ std::map<std::string, std::string> Packet::getTexts() {
 		std::string result;
 		result.reserve(m_len * 2);
 
-		for (int i = 0; i < m_len; i++) {
+		for (size_t i = 0; i < m_len; i++) {
 			char buf[3];
 			sprintf_s(buf, "%02x", (int)m_pktData[i]);
 			result.append(buf);

@@ -4,8 +4,7 @@
 #include "../../IP/IP.h"
 #include <pcap.h>
 #include <uchar.h>
-#include "../../../../../GUI/Renderer.h"
-#include "../../../../../Base/Data.h"
+#include "../../../../../Base/ProtocolCatalog.h"
 #include <type_traits>
 
 class ICMP : public IPV4 {
@@ -35,8 +34,8 @@ public:
 		Packet::m_strType = "ICMP (" + Packet::m_strType + ")";
 		std::stringstream ss;
 
-		if (m_ICMPtype < Data::icmpTypes.size()) {
-			ss << Data::icmpTypes.at(m_ICMPtype);
+		if (m_ICMPtype < ProtocolCatalog::icmpTypes.size()) {
+			ss << ProtocolCatalog::icmpTypes.at(m_ICMPtype);
 		}
 		else {
 			ss << "Uknown code " << m_ICMPtype << " (Possibly Reserved)";
@@ -78,16 +77,7 @@ public:
 
 		return j;
 	}
-
-	void render() override {
-		Renderer::render(this);
-	}
-
-	void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() override {
+std::map<std::string, std::string> getTexts() override {
 		if (Packet::m_texts.empty()) {
 			IPV4::getTexts();
 

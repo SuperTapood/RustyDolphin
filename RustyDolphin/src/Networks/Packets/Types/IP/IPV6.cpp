@@ -1,16 +1,19 @@
 #include "IPV6.h"
 
 #include <sstream>
-#include "../../../../GUI/Renderer.h"
 #include <bitset>
-#include "../../../../Base/Data.h"
+#include "../../../../Base/ProtocolCatalog.h"
 #include <format>
+#include <stdexcept>
 
 IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Packet(header, pkt_data, idx) {
-	auto thingy = parseLong();
-	m_trafficCls = ((short)(thingy >> 30) & 4080);
-
-	m_flowLabel = thingy & 1048575;
+	const auto versionClassFlow = static_cast<uint32_t>(parseLong());
+	m_version = static_cast<unsigned char>(versionClassFlow >> 28);
+	if (m_version != 6) {
+		throw std::invalid_argument("invalid IPv6 header");
+	}
+	m_trafficCls = static_cast<unsigned short>((versionClassFlow >> 20) & 0xFF);
+	m_flowLabel = versionClassFlow & 0xFFFFF;
 
 	m_payloadLength = parseShort();
 
@@ -23,7 +26,7 @@ IPV6::IPV6(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx) : Pack
 	m_destAddr = parseIPV6();
 
 	if (m_nextHeader == IPPROTO_HOPOPTS) {
-		m_options.push_back(new HopByHop(this));
+		m_options.push_back(std::make_unique<HopByHop>(this));
 	}
 
 	m_expands.insert({ "IPV6 Title", false });
@@ -73,11 +76,11 @@ std::map<std::string, std::string> IPV6::getTexts() {
 
 		std::bitset<2> ecnBits(m_trafficCls << 6);
 
-		m_texts["Traffic Class"] = std::format("   . . . .  {} . . . .  . . . .  . . . .  . . . .  . . . . = Traffic Class 0x{:x} (DSCP: {}, ECN: {})", formatBitSet(trafficCls.to_string()), m_trafficCls, Data::dscpMap[dscpBits.to_ulong()], Data::ecnMap[ecnBits.to_ulong()]);
+		m_texts["Traffic Class"] = std::format("   . . . .  {} . . . .  . . . .  . . . .  . . . .  . . . . = Traffic Class 0x{:x} (DSCP: {}, ECN: {})", formatBitSet(trafficCls.to_string()), m_trafficCls, ProtocolCatalog::dscpMap[dscpBits.to_ulong()], ProtocolCatalog::ecnMap[ecnBits.to_ulong()]);
 
-		m_texts["DSCP"] = std::format("\t\t. . . .  {} . .  . . . .  . . . .  . . . .  . . . .  . . . . = Differentiated Services Codepoint: {} ({})", formatBitSet(dscpBits.to_string()), Data::dscpMap[dscpBits.to_ulong()], dscpBits.to_ulong());
+		m_texts["DSCP"] = std::format("\t\t. . . .  {} . .  . . . .  . . . .  . . . .  . . . .  . . . . = Differentiated Services Codepoint: {} ({})", formatBitSet(dscpBits.to_string()), ProtocolCatalog::dscpMap[dscpBits.to_ulong()], dscpBits.to_ulong());
 
-		m_texts["ECN"] = std::format("\t\t. . . .  . . . .  . . {}  . . . .  . . . .  . . . .  . . . . = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), Data::ecnMap[ecnBits.to_ulong()], ecnBits.to_ulong());
+		m_texts["ECN"] = std::format("\t\t. . . .  . . . .  . . {}  . . . .  . . . .  . . . .  . . . . = Explicit Congestion Notification: {} ({})", ecnBits.to_string(), ProtocolCatalog::ecnMap[ecnBits.to_ulong()], ecnBits.to_ulong());
 
 		std::bitset<20> flowBits(m_flowLabel);
 
@@ -116,7 +119,7 @@ std::map<std::string, std::string> IPV6::getTexts() {
 		if (m_options.size() > 0) {
 			m_expands.insert({ "IPV6 Option Title", false });
 			m_texts["IPV6 Option Title"] = std::format("   IPV6 Hop-by-Hop Option");
-			auto option = (HopByHop*)m_options.at(0);
+			auto option = static_cast<HopByHop*>(m_options.at(0).get());
 
 			auto nh = option->m_nextHeader;
 
@@ -139,7 +142,7 @@ std::map<std::string, std::string> IPV6::getTexts() {
 			m_texts["IPV6 Option Length"] = std::format("\t\tLength: {} ({})", option->m_length, option->m_length + 8);
 
 			for (auto o : option->m_options) {
-				m_ipOptTexts.push_back(std::format("\t\t{} (0x{:x}) Length: {}, Data: {}", Data::hopMap[o.m_type], o.m_type, o.m_length, o.m_data));
+				m_ipOptTexts.push_back(std::format("\t\t{} (0x{:x}) Length: {}, Data: {}", ProtocolCatalog::hopMap[o.m_type], o.m_type, o.m_length, o.m_data));
 			}
 		}
 	}

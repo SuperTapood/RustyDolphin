@@ -2,10 +2,11 @@
 #include "ImageLoader.h"
 #include <imgui_internal.h>
 #include <iostream>
+#include "../Base/Logger.h"
 
 GLFWwindow* GUI::window;
 std::map<std::string, ImFont*> GUI::fonts;
-GLuint GUI::earthTex;
+GLuint GUI::earthTex = 0;
 
 void GUI::init() {
 	if (!glfwInit())
@@ -26,7 +27,9 @@ void GUI::init() {
 	// load and set the icon image
 	GLFWimage images[1]{};
 	images[0].pixels = stbi_load("deps/assets/icon.png", &images[0].width, &images[0].height, nullptr, 4);
-	glfwSetWindowIcon(window, 1, images);
+	if (images[0].pixels != nullptr) {
+		glfwSetWindowIcon(window, 1, images);
+	}
 	stbi_image_free(images[0].pixels);
 
 	// ImGui initialization
@@ -61,15 +64,24 @@ void GUI::init() {
 
 	// load the earth image we need for the hopping map
 	images[0].pixels = stbi_load("deps/assets/earth.jpeg", &images[0].width, &images[0].height, nullptr, 4);
+	if (images[0].pixels == nullptr) {
+		Logger::log("Unable to load deps/assets/earth.jpeg");
+		return;
+	}
 
 	// bind the earth image to a texture we can render
 	glGenTextures(1, &earthTex);
 	glBindTexture(GL_TEXTURE_2D, earthTex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, images[0].width, images[0].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, images[0].pixels);
+	stbi_image_free(images[0].pixels);
 }
 
 void GUI::release() {
+	if (earthTex != 0) {
+		glDeleteTextures(1, &earthTex);
+		earthTex = 0;
+	}
 	// clean up clean up
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

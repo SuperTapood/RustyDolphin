@@ -3,7 +3,8 @@
 #include "SDK.h"
 
 #include "../Base/Logger.h"
-#include "../Base/Data.h"
+#include "../Base/ProtocolCatalog.h"
+#include "../Base/ApplicationState.h"
 
 #include <string>
 #include <array>
@@ -18,97 +19,137 @@
 #include <IcmpAPI.h>
 #include <fstream>
 #include <cstring>
+#include <TlHelp32.h>
+#include <stdexcept>
+#include <WinHttp.h>
+
+namespace {
+std::string utf8(const wchar_t* value) {
+	if (value == nullptr || value[0] == L'\0') return {};
+	const int size = WideCharToMultiByte(CP_UTF8, 0, value, -1, nullptr, 0, nullptr, nullptr);
+	if (size <= 1) return {};
+	std::string result(static_cast<size_t>(size), '\0');
+	WideCharToMultiByte(CP_UTF8, 0, value, -1, result.data(), size, nullptr, nullptr);
+	result.pop_back();
+	return result;
+}
+
+struct InternetHandleCloser {
+	void operator()(HINTERNET handle) const noexcept { if (handle) WinHttpCloseHandle(handle); }
+};
+using InternetHandle = std::unique_ptr<void, InternetHandleCloser>;
+
+std::wstring urlEncode(std::string_view value) {
+	static constexpr wchar_t hex[] = L"0123456789ABCDEF";
+	std::wstring encoded;
+	for (const unsigned char byte : value) {
+		if ((byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') ||
+			(byte >= '0' && byte <= '9') || byte == '.' || byte == '-' || byte == '_' || byte == ':') {
+			encoded.push_back(static_cast<wchar_t>(byte));
+		}
+		else {
+			encoded += L'%';
+			encoded += hex[byte >> 4];
+			encoded += hex[byte & 0x0f];
+		}
+	}
+	return encoded;
+}
+
+std::string httpGetGeo(std::string_view address, std::stop_token stopToken) {
+	if (stopToken.stop_requested()) throw std::runtime_error("geolocation cancelled");
+	InternetHandle session(WinHttpOpen(L"keycdn-tools:https://github.com/SuperTapood/RustyDolphin",
+		WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0));
+	if (!session) throw std::runtime_error("unable to initialize WinHTTP");
+	WinHttpSetTimeouts(session.get(), 3000, 3000, 3000, 5000);
+	InternetHandle connection(WinHttpConnect(session.get(), L"tools.keycdn.com", INTERNET_DEFAULT_HTTPS_PORT, 0));
+	if (!connection) throw std::runtime_error("unable to connect to the geolocation service");
+	const auto path = std::wstring(L"/geo.json?host=") + urlEncode(address);
+	InternetHandle request(WinHttpOpenRequest(connection.get(), L"GET", path.c_str(), nullptr,
+		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE));
+	if (!request || !WinHttpSendRequest(request.get(), WINHTTP_NO_ADDITIONAL_HEADERS, 0,
+		WINHTTP_NO_REQUEST_DATA, 0, 0, 0) || !WinHttpReceiveResponse(request.get(), nullptr)) {
+		throw std::runtime_error("geolocation request failed");
+	}
+	DWORD status = 0;
+	DWORD statusSize = sizeof(status);
+	if (!WinHttpQueryHeaders(request.get(), WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+		WINHTTP_HEADER_NAME_BY_INDEX, &status, &statusSize, WINHTTP_NO_HEADER_INDEX) || status != 200) {
+		throw std::runtime_error("geolocation service returned HTTP " + std::to_string(status));
+	}
+	std::string body;
+	for (;;) {
+		if (stopToken.stop_requested()) throw std::runtime_error("geolocation cancelled");
+		DWORD available = 0;
+		if (!WinHttpQueryDataAvailable(request.get(), &available)) throw std::runtime_error("unable to read geolocation response");
+		if (available == 0) break;
+		const auto oldSize = body.size();
+		body.resize(oldSize + available);
+		DWORD read = 0;
+		if (!WinHttpReadData(request.get(), body.data() + oldSize, available, &read))
+			throw std::runtime_error("unable to read geolocation response");
+		body.resize(oldSize + read);
+	}
+	return body;
+}
+}
 
 std::map<DWORD, DWORD> SDK::PORT2PID;
 std::map<DWORD, std::string> SDK::PID2PROC;
-HANDLE SDK::icmpHandle;
+HANDLE SDK::icmpHandle = INVALID_HANDLE_VALUE;
 DWORD SDK::dwRetVal;
-char* SDK::sendData;
-LPVOID SDK::replyBuffer;
+char* SDK::sendData = nullptr;
+LPVOID SDK::replyBuffer = nullptr;
 DWORD SDK::replySize;
 IP_OPTION_INFORMATION SDK::ipOptions;
 std::map<std::string, std::string> SDK::MACS;
 std::string SDK::ipAddress;
 
-std::string SDK::exec(const char* cmd) {
-	std::array<char, 128> buffer{};
-	std::string result;
-	std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "rt"), &_pclose);
-	if (!pipe) {
-		Logger::log("popen() failed!");
-		exit(1);
+std::optional<GeoLocation> SDK::geoLocate(const std::string& addr, std::stop_token stopToken) {
+	auto res = httpGetGeo(addr, stopToken);
+	const auto response = json::parse(res);
+	if (response.value("status", "") != "success" || !response.contains("data") ||
+		!response["data"].contains("geo")) {
+		throw std::runtime_error(response.value("description", "geolocation service returned no data"));
 	}
 
-	while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-		result += buffer.data();
-	}
-	return result;
-}
+	const auto& geo = response["data"]["geo"];
+	auto text = [&geo](const char* key, std::string fallback = "Unknown") {
+		if (!geo.contains(key) || geo[key].is_null()) return fallback;
+		if (geo[key].is_string()) return geo[key].get<std::string>();
+		return geo[key].dump();
+	};
+	auto number = [&geo](const char* key) -> std::optional<double> {
+		if (!geo.contains(key) || geo[key].is_null() || !geo[key].is_number()) return std::nullopt;
+		return geo[key].get<double>();
+	};
 
-json SDK::geoLocate(std::string addr) {
-	// we use curl and ask a 3rd party site to locate the address for us
-	std::string cmd = R"(curl -s -H "User-Agent: keycdn-tools:https://amalb.iscool.co.il/" "https://tools.keycdn.com/geo.json?host=")";
-	cmd += addr;
-	auto res = SDK::exec(cmd.c_str());
-	auto j = json::parse(res);
-
-	return j;
+	return GeoLocation{
+		.ip = text("ip", addr),
+		.reverseDns = text("rdns"),
+		.isp = text("isp"),
+		.timezone = text("timezone"),
+		.latitude = number("latitude"),
+		.longitude = number("longitude")
+	};
 }
 
 void SDK::initPIDCache() {
-	std::string tasklist = exec("tasklist");
-	size_t pos;
-	size_t p;
-	while (true) {
-		size_t ps = tasklist.find(" Services");
-		size_t pc = tasklist.find(" Console");
-		std::string str;
-		if (ps == std::string::npos) {
-			if (pc == std::string::npos) {
-				break;
-			}
-			str = " Console";
-			p = pc;
-		}
-		else {
-			if (pc == std::string::npos) {
-				str = " Services";
-				p = ps;
-			}
-			else {
-				if (pc < ps) {
-					str = " Console";
-					p = pc;
-				}
-				else {
-					str = " Services";
-					p = ps;
-				}
-			}
-		}
-		pos = p;
-		pos -= 1;
-		DWORD pid = 0;
-		int len = 0;
-		while (isdigit(tasklist.at(pos))) {
-			pid += (int(tasklist.at(pos)) - 48) * std::pow(10, len++);
-			pos--;
-		}
-
-		for (; tasklist.at(pos) == ' '; pos--);
-
-		std::string name = "";
-		while (tasklist.at(pos) != '\n') {
-			name = tasklist.at(pos) + name;
-			pos--;
-		}
-
-		if (!PID2PROC.contains(pid)) {
-			PID2PROC.try_emplace(pid, name);
-		}
-
-		tasklist.erase(0, p + str.length());
+	PID2PROC.clear();
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (snapshot == INVALID_HANDLE_VALUE) {
+		Logger::log("Unable to create a process snapshot");
+		return;
 	}
+
+	PROCESSENTRY32 entry{};
+	entry.dwSize = sizeof(entry);
+	if (Process32First(snapshot, &entry)) {
+		do {
+			PID2PROC.insert_or_assign(entry.th32ProcessID, utf8(entry.szExeFile));
+		} while (Process32Next(snapshot, &entry));
+	}
+	CloseHandle(snapshot);
 }
 
 PMIB_TCPTABLE_OWNER_PID SDK::getTCPTable() {
@@ -140,6 +181,9 @@ PMIB_TCPTABLE_OWNER_PID SDK::getTCPTable() {
 
 void SDK::refreshTCP() {
 	auto table = SDK::getTCPTable();
+	if (table == nullptr) {
+		return;
+	}
 
 	for (DWORD i = 0; i < table->dwNumEntries; i++) {
 		auto const& row = table->table[i];
@@ -180,6 +224,9 @@ PMIB_UDPTABLE_OWNER_PID SDK::getUDPTable() {
 
 void SDK::refreshUDP() {
 	auto table = SDK::getUDPTable();
+	if (table == nullptr) {
+		return;
+	}
 
 	for (DWORD i = 0; i < table->dwNumEntries; i++) {
 		auto& row = table->table[i];
@@ -192,6 +239,7 @@ void SDK::refreshUDP() {
 }
 
 void SDK::refreshTables() {
+	PORT2PID.clear();
 	refreshTCP();
 	refreshUDP();
 }
@@ -254,7 +302,9 @@ void SDK::initICMP() {
 	}
 
 	// set reply buffer size
-	replySize = sizeof(ICMP_ECHO_REPLY) + sizeof(sendData);
+	// IcmpSendEcho requires room for the reply header, request payload, and at
+	// least eight additional bytes of ICMP error data.
+	replySize = sizeof(ICMP_ECHO_REPLY) + static_cast<DWORD>(temp.size()) + 8;
 	replyBuffer = malloc(replySize);
 	if (replyBuffer == NULL) {
 		printf("Unable to allocate memory for reply buffer\n");
@@ -287,7 +337,12 @@ void SDK::release() {
 	if (replyBuffer != NULL) {
 		free(replyBuffer);
 	}
-	IcmpCloseHandle(icmpHandle);
+	delete[] sendData;
+	sendData = nullptr;
+	if (icmpHandle != INVALID_HANDLE_VALUE) {
+		IcmpCloseHandle(icmpHandle);
+		icmpHandle = INVALID_HANDLE_VALUE;
+	}
 }
 
 DWORD SDK::getPIDFromPort(DWORD port) {
@@ -324,18 +379,16 @@ std::string SDK::getProcFromPID(DWORD PID) {
 		return "<BADPROCESS>";
 	}
 
-	if (!GetModuleBaseName(proc, nullptr, procName, sizeof(procName))) {
+	if (!GetModuleBaseName(proc, nullptr, procName, _countof(procName))) {
 		// process has not name
+		CloseHandle(proc);
 		return "<NAMELESS>";
 	}
 
 	std::string processName;
 
 	// comvert TCHAR to std string :)
-	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, procName, -1, nullptr, 0, nullptr, nullptr);
-	std::vector<char> buffer(sizeNeeded);
-	WideCharToMultiByte(CP_UTF8, 0, procName, -1, &buffer[0], sizeNeeded, nullptr, nullptr);
-	processName.assign(buffer.begin(), buffer.end() - 1); // remove the null terminator
+	processName = utf8(procName);
 
 	// close the handle we opened
 	CloseHandle(proc);
@@ -350,85 +403,101 @@ std::string SDK::getProcFromPort(DWORD port) {
 	return getProcFromPID(getPIDFromPort(port));
 }
 
-std::vector<std::string> SDK::traceRoute(std::string addr) {
+std::vector<std::string> SDK::traceRoute(ApplicationState& state, const std::string& addr, std::stop_token stopToken) {
 	unsigned long ipaddr = INADDR_NONE;
 	// IP address string to binary
 	ipaddr = inet_addr(addr.c_str());
 	if (ipaddr == INADDR_NONE) {
-		printf("Unable to parse IP address\n");
-		exit(1);
+		Logger::log("Unable to trace invalid IPv4 address: " + addr);
+		return {};
 	}
 
 	u_char ttl = 1;
 	std::vector<std::string> addrs;
+	bool receivedRouteReply = false;
 
-	while (ttl < 60) {
-		if (Data::geoTerminate) {
+	while (ttl <= 30) {
+		if (stopToken.stop_requested() || state.geoTerminate) {
 			return addrs;
 		}
 		ipOptions.Ttl = ttl++;
 		// send ICMP echo request
-		dwRetVal = IcmpSendEcho(icmpHandle, ipaddr, sendData, sizeof(sendData),
-			&ipOptions, replyBuffer, replySize, 100);
+		dwRetVal = IcmpSendEcho(icmpHandle, ipaddr, sendData,
+			static_cast<WORD>(std::strlen(sendData)),
+			&ipOptions, replyBuffer, replySize, 150);
 		if (dwRetVal != 0) {
 			PICMP_ECHO_REPLY echoReply = (PICMP_ECHO_REPLY)replyBuffer;
 			struct in_addr replyAddr;
 			replyAddr.S_un.S_addr = echoReply->Address;
-			addrs.emplace_back(inet_ntoa(replyAddr));
+			const std::string replyAddress = inet_ntoa(replyAddr);
+			receivedRouteReply = true;
+			if (std::ranges::find(addrs, replyAddress) == addrs.end()) {
+				addrs.emplace_back(replyAddress);
+			}
 
-			if (echoReply->Status == 0 || inet_ntoa(replyAddr) == addr) {
+			if (echoReply->Status == 0 || replyAddress == addr) {
 				break;
 			}
 		}
-		// nothing to do if the icmp fails
-		//else {
-		//	DWORD errorMessageID = GetLastError();
+	}
 
-		//	LPSTR messageBuffer = NULL;
-		//	size_t size = FormatMessageA(
-		//		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		//		NULL,
-		//		errorMessageID,
-		//		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		//		(LPSTR)&messageBuffer,
-		//		0,
-		//		NULL
-		//	);
-		//	std::stringstream ss;
-		//	ss << "error: " << messageBuffer;
-		//	//addrs.push_back(ss.str());
-		//	LocalFree(messageBuffer);
-		//}
+	if (stopToken.stop_requested() || state.geoTerminate) return addrs;
+	if (std::ranges::find(addrs, addr) == addrs.end()) addrs.emplace_back(addr);
+	if (!receivedRouteReply) {
+		std::scoped_lock guard(state.geoGuard);
+		state.geoError = "Intermediate routers blocked traceroute replies; showing the destination lookup.";
 	}
 
 	return addrs;
 }
 
-void SDK::geoTrace(std::string addr) {
-	Data::hopAddr = addr;
-	Data::geoDone = false;
-	Data::geoState = 1;
-	auto vec = traceRoute(addr);
-	Data::geoState = 2;
+void SDK::geoTrace(std::stop_token stopToken, ApplicationState& state, std::string addr) {
+	{
+		std::scoped_lock guard(state.geoGuard);
+		state.hopAddr = addr;
+		state.geoError.clear();
+		state.locs.clear();
+	}
+	state.geoDone = false;
+	state.geoState = 1;
+	auto vec = traceRoute(state, addr, stopToken);
+	if (stopToken.stop_requested()) {
+		state.geoDone = true;
+		return;
+	}
+	state.geoState = 2;
 
 	for (const auto& add : vec) {
-		if (Data::geoTerminate) {
+		if (stopToken.stop_requested() || state.geoTerminate) {
+			state.geoDone = true;
 			return;
 		}
-		auto j = geoLocate(add);
-		{
-			std::scoped_lock guard(Data::geoGuard);
-			Data::locs.emplace_back(j);
+		try {
+			auto location = geoLocate(add, stopToken);
+			if (location) {
+				std::scoped_lock guard(state.geoGuard);
+				state.locs.emplace_back(std::move(*location));
+			}
+		}
+		catch (const std::exception& error) {
+			Logger::log(std::string("Unable to geolocate ") + add + ": " + error.what());
+			std::scoped_lock guard(state.geoGuard);
+			state.geoError = error.what();
 		}
 	}
 
-	if (Data::locs.empty()) {
-		Data::geoState = 3;
+	bool locationsEmpty;
+	{
+		std::scoped_lock guard(state.geoGuard);
+		locationsEmpty = state.locs.empty();
+	}
+	if (locationsEmpty) {
+		state.geoState = 3;
 	}
 	else {
-		Data::geoState = 4;
+		state.geoState = 4;
 	}
-	Data::geoDone = true;
+	state.geoDone = true;
 }
 
 std::string SDK::lookupMAC(std::string addr) {

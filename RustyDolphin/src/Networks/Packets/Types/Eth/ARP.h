@@ -18,14 +18,5 @@ public:
 
 	std::string toString() override;
 	json jsonify() override;
-
-	void render() override {
-		Renderer::render(this);
-	}
-
-	void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() override;
+std::map<std::string, std::string> getTexts() override;
 };

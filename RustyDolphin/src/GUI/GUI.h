@@ -2,6 +2,8 @@
 
 #define IMGUI_USE_STB_SPRINTF
 
+#include <WinSock2.h>
+#include <Windows.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>

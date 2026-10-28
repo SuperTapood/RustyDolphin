@@ -2,14 +2,14 @@
 
 #include "../../../Eth/Packet.h"
 
-#include "../../../../../../Base/Data.h"
+#include "../../../../../../Base/ProtocolCatalog.h"
 
 ICMPV6Type::ICMPV6Type(Packet* packet) {
 	m_type = packet->parseChar();
 	m_code = packet->parseChar();
 
-	auto type = Data::icmpv6Types.find(m_type);
-	m_typeStr = type != Data::icmpv6Types.end() ? type->second : std::to_string(m_type);
+	auto type = ProtocolCatalog::icmpv6Types.find(m_type);
+	m_typeStr = type != ProtocolCatalog::icmpv6Types.end() ? type->second : std::to_string(m_type);
 
 	switch ((int)m_type) {
 	case 1:
@@ -160,7 +160,7 @@ std::string ICMPV6Type::resolveDupeAddrCon(unsigned char code) {
 	return std::format("EDAC message with {}-bit ROVR field", 64 * (int)code);
 }
 
-std::string ICMPV6Type::resolveExtendedEchoReq(unsigned char code) {
+std::string ICMPV6Type::resolveExtendedEchoReq(unsigned char) {
 	return "No Error";
 }
 

@@ -5,6 +5,7 @@
 #include "IPV6Options/IPV6Options.h"
 
 #include <pcap.h>
+#include <memory>
 
 class IPV6 : public Packet {
 public:
@@ -16,7 +17,7 @@ public:
 	unsigned char m_hopLimit;
 	std::string m_srcAddr;
 	std::string m_destAddr;
-	std::vector<IPV6Option*> m_options;
+	std::vector<std::unique_ptr<IPV6Option>> m_options;
 	std::vector<std::string> m_ipOptTexts;
 
 	int m_headerLength = 40;
@@ -26,13 +27,5 @@ public:
 
 	std::string toString() override;
 	json jsonify() override;
-	virtual void render() override {
-		Renderer::render(this);
-	}
-
-	virtual void renderExpanded() override {
-		Renderer::renderExpanded(this);
-	}
-
-	std::map<std::string, std::string> getTexts() override;
+std::map<std::string, std::string> getTexts() override;
 };

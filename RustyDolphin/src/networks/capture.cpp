@@ -5,9 +5,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <atomic>
 #include "Packets/Packets.h"
 #include "../Base/MacroSettings.h"
-#include "../Base/Data.h"
+#include "../Base/ProtocolCatalog.h"
+#include "../Base/ApplicationState.h"
 #include "../Base/Logger.h"
 
 pcap_if_t* Capture::m_alldevs;
@@ -112,7 +114,7 @@ std::vector<std::string> Capture::getDeviceNames(bool verbose) {
 	return m_devNames;
 }
 
-pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
+PcapHandle Capture::createAdapter(int devIndex, bool promiscuous) {
 	auto dev = getDev(devIndex);
 	int prom = 1;
 	if (!promiscuous) {
@@ -130,56 +132,56 @@ pcap_t* Capture::createAdapter(int devIndex, bool promiscuous) {
 		exit(1);
 	}
 
-	return adhandle;
+	return PcapHandle(adhandle);
 }
 
-pcap_t* Capture::load(std::string name) {
+PcapHandle Capture::load(ApplicationState& state, std::string name) {
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	auto handle = pcap_open_offline(name.c_str(), errbuf);
 
 	if (handle == nullptr) {
-		Logger::log("Unable to open the file.");
-		exit(1);
+		Logger::log(std::string("Unable to open capture file: ") + errbuf);
+		return {};
 	}
 
-	return handle;
+	state.loadedCapturePath = std::move(name);
+	return PcapHandle(handle);
 }
 
-void Capture::capturePackets() {
-	auto adapter = Data::chosenAdapter;
+void Capture::capturePackets(ApplicationState& state) {
+	auto* adapter = state.chosenAdapter.get();
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
 
-	if (Data::doneLoading) {
+	if (state.doneLoading) {
 		return;
 	}
 
-	// Live captures may time out, while offline captures report EOF. Do not spin
-	// forever when a capture is empty, invalid, or is asked to stop.
-	do {
+	std::unique_ptr<Packet> p;
+	while (p == nullptr) {
+		// Live captures may time out, while offline captures report EOF. Do not
+		// spin forever when a capture is empty, invalid, or is asked to stop.
 		r = pcap_next_ex(adapter, &header, &pkt_data);
-		if (r < 0 || Data::doneCapturing) {
-			Data::doneCapturing = true;
-			if (r == -2) {
-				Data::doneLoading = true;
-			}
+		if (r == 0) {
+			if (state.doneCapturing) return;
+			continue;
+		}
+		if (r < 0 || state.doneCapturing) {
+			state.doneCapturing = true;
+			if (r == -2) state.doneLoading = true;
 			return;
 		}
-	} while (r == 0);
-
-	auto p = fromRaw(header, pkt_data, Data::capIdx);
-	{
-		// vector is not thread safe apparently
-		// so whenever we interact with an element from it we need to do so with atomics
-		std::scoped_lock guard(Data::guard);
-		Data::captured.push_back(p);
+		try {
+			p.reset(fromRaw(header, pkt_data, static_cast<unsigned int>(state.capIdx.load())));
+		}
+		catch (const std::exception& error) {
+			Logger::log(std::string("Skipping malformed packet: ") + error.what());
+		}
 	}
-
-	Data::epochStart = p->m_epoch;
-	Data::capIdx++;
-
+	state.epochStart = p->m_epoch;
+	state.addPacket(std::move(p));
 	while (true) {
 		r = pcap_next_ex(adapter, &header, &pkt_data);
 		if (r == 0) {
@@ -188,51 +190,56 @@ void Capture::capturePackets() {
 
 		if (r == -2) {
 			// done reading
-			Data::doneCapturing = true;
-			Data::doneLoading = true;
+			state.doneCapturing = true;
+			state.doneLoading = true;
 			return;
 		}
 
-		if (Data::doneCapturing) {
+		if (state.doneCapturing) {
 			return;
 		}
 
-		auto p = fromRaw(header, pkt_data, Data::capIdx);
-
-		{
-			std::scoped_lock guard(Data::guard);
-			Data::captured.push_back(p);
+		std::unique_ptr<Packet> nextPacket;
+		try {
+			nextPacket.reset(fromRaw(header, pkt_data, static_cast<unsigned int>(state.capIdx.load())));
+		}
+		catch (const std::exception& error) {
+			Logger::log(std::string("Skipping malformed packet: ") + error.what());
+			continue;
 		}
 
-		Data::capIdx++;
+		state.addPacket(std::move(nextPacket));
 	}
 }
 
-void Capture::countPackets(std::vector<int>* counts, int adapterIdx) {
-	auto d = getDev(adapterIdx);
+void Capture::countPackets(ApplicationState& state, std::vector<std::atomic_int>& counts, int adapterIdx) {
 	auto adhandle = createAdapter(adapterIdx, true);
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	int r;
 
-	while ((r = pcap_next_ex(adhandle, &header, &pkt_data)) >= 0) {
-		if (Data::doneCounting) {
+	while ((r = pcap_next_ex(adhandle.get(), &header, &pkt_data)) >= 0) {
+		if (state.doneCounting) {
 			break;
 		}
 		if (r == 0) {
 			continue;
 		}
 
-		counts->at(adapterIdx) += 1;
+		counts.at(adapterIdx).fetch_add(1, std::memory_order_relaxed);
 	}
 
-	pcap_close(adhandle);
 }
 
-void Capture::dumpAll(std::string filename) {
-	auto dumpfile = pcap_dump_open(Data::chosenAdapter, filename.c_str());
+void Capture::dumpAll(ApplicationState& state, std::string filename) {
+	auto dumpfile = pcap_dump_open(state.chosenAdapter.get(), filename.c_str());
+	if (dumpfile == nullptr) {
+		Logger::log("Unable to save capture to " + filename);
+		return;
+	}
 
-	for (auto p : Data::captured) {
+	std::scoped_lock guard(state.guard);
+	for (const auto& p : state.captured) {
 		pcap_dump((u_char*)dumpfile, p->m_header, p->m_pktData);
 	}
 

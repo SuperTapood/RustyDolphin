@@ -1,4 +1,5 @@
 #pragma once
+#include "Base/ApplicationState.h"
 
 class App {
 public:
@@ -8,6 +9,7 @@ public:
 	static void captureScreen();
 
 private:
+	static ApplicationState state;
 	static void handleStop();
 	static void handleStart();
 	static void handleStartFile();

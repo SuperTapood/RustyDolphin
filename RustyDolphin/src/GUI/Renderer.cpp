@@ -1,13 +1,35 @@
 #include "Renderer.h"
 
-#include "../Base/Data.h"
+#include "../Base/ProtocolCatalog.h"
+#include "../Base/ApplicationState.h"
 #include "../Networks/Packets/Types/Types.h"
+
+void Renderer::renderPacket(Packet* p) {
+	if (auto* ipv4 = dynamic_cast<IPV4*>(p)) return render(ipv4);
+	if (auto* ipv6 = dynamic_cast<IPV6*>(p)) return render(ipv6);
+	renderBase(p);
+}
+
+void Renderer::renderDetails(Packet* p) {
+	if (auto* value = dynamic_cast<TCP<IPV4>*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<TCP<IPV6>*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<UDP<IPV4>*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<UDP<IPV6>*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<IGMP<IPV4>*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<IGMP<IPV6>*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<ICMP*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<ICMPV6*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<ARP*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<IPV4*>(p)) return renderExpanded(value);
+	if (auto* value = dynamic_cast<IPV6*>(p)) return renderExpanded(value);
+	renderExpandedBase(p);
+}
 
 bool Renderer::filter(Packet* p) {
 	using enum FilterFlag;
 
 	// filter isn't new, we can use the flag on the packet
-	if (!Data::newFilter) {
+	if (!state.newFilter) {
 		if (p->m_flag == Passed) {
 			return true;
 		}
@@ -17,7 +39,7 @@ bool Renderer::filter(Packet* p) {
 	}
 
 	// we need to filter if its either a new filter, or the packet is yet to be filtered
-	for (auto pair : Data::filter) {
+	for (auto pair : state.filter) {
 		if (pair.second == "") {
 			// filter wasn't selected
 			continue;
@@ -42,19 +64,19 @@ bool Renderer::filter(Packet* p) {
 
 void Renderer::filterPacket(Packet* p) {
 	if (filter(p)) {
-		Data::displayed++;
+		state.displayed++;
 		ImGui::TableNextRow();
-		p->render();
+		renderPacket(p);
 	}
 }
 
-void Renderer::render(Packet* p) {
+void Renderer::renderBase(Packet* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->m_idx;
+		state.selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch - Data::epochStart);
+	ImGui::Text("%f", p->m_epoch - state.epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_phySrc.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -67,7 +89,7 @@ void Renderer::render(Packet* p) {
 	ImGui::Text(p->m_description.c_str());
 }
 
-void Renderer::renderExpanded(Packet* p) {
+void Renderer::renderExpandedBase(Packet* p) {
 	auto map = p->getTexts();
 	if (ImGui::Button(map.at("title").c_str())) {
 		p->m_expands.at("Packet Title") = !p->m_expands.at("Packet Title");
@@ -82,7 +104,7 @@ void Renderer::renderExpanded(Packet* p) {
 }
 
 void Renderer::renderExpanded(ARP* p) {
-	renderExpanded((Packet*)p);
+	renderExpandedBase((Packet*)p);
 
 	auto map = p->getTexts();
 
@@ -106,10 +128,10 @@ void Renderer::renderExpanded(ARP* p) {
 void Renderer::render(IPV4* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->m_idx;
+		state.selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch - Data::epochStart);
+	ImGui::Text("%f", p->m_epoch - state.epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -123,7 +145,7 @@ void Renderer::render(IPV4* p) {
 }
 
 void Renderer::renderExpanded(IPV4* p) {
-	renderExpanded((Packet*)p);
+	renderExpandedBase((Packet*)p);
 
 	auto m = p->getTexts();
 
@@ -184,8 +206,14 @@ void Renderer::renderExpanded(IPV4* p) {
 		}
 
 		if (ImGui::Button("   Geo Trace this Packet? (will open a pop up with the info)")) {
-			Data::showGeoTrace = p->m_idx;
-			Data::geoLocThread = std::jthread(SDK::geoTrace, p->getAlienAddr());
+			if (state.geoLocThread.joinable()) {
+				state.geoLocThread.request_stop();
+				state.geoLocThread.join();
+			}
+			state.geoTerminate = false;
+			state.geoDone = false;
+			state.showGeoTrace = p->m_idx;
+			state.geoLocThread = std::jthread(SDK::geoTrace, std::ref(state), p->getAlienAddr());
 		}
 	}
 }
@@ -193,10 +221,10 @@ void Renderer::renderExpanded(IPV4* p) {
 void Renderer::render(IPV6* p) {
 	ImGui::TableSetColumnIndex(0);
 	if (ImGui::Selectable(p->m_idxStr.c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-		Data::selected = p->m_idx;
+		state.selected = p->m_idx;
 	}
 	ImGui::TableSetColumnIndex(1);
-	ImGui::Text("%f", p->m_epoch - Data::epochStart);
+	ImGui::Text("%f", p->m_epoch - state.epochStart);
 	ImGui::TableSetColumnIndex(2);
 	ImGui::Text(p->m_srcAddr.c_str());
 	ImGui::TableSetColumnIndex(3);
@@ -210,7 +238,7 @@ void Renderer::render(IPV6* p) {
 }
 
 void Renderer::renderExpanded(IPV6* p) {
-	renderExpanded((Packet*)p);
+	renderExpandedBase((Packet*)p);
 	auto m = p->getTexts();
 	if (ImGui::Button(m.at("IPV6 Title").c_str())) {
 		p->m_expands["IPV6 Title"] = !p->m_expands["IPV6 Title"];
@@ -271,7 +299,7 @@ void Renderer::renderExpanded(TCP<IPV4>* p) {
 		}
 
 		if (p->m_expands.at("TCP Flags")) {
-			for (auto s : Data::TCPFlags) {
+			for (auto s : ProtocolCatalog::TCPFlags) {
 				ImGui::Text(m.at(s).c_str());
 			}
 		}
@@ -284,7 +312,7 @@ void Renderer::renderExpanded(TCP<IPV4>* p) {
 		}
 
 		if (p->m_expands["TCP Options"]) {
-			for (auto opt : p->m_options) {
+			for (const auto& opt : p->m_options) {
 				ImGui::Text(("\t\t" + opt->toString()).c_str());
 			}
 		}
@@ -312,7 +340,7 @@ void Renderer::renderExpanded(TCP<IPV6>* p) {
 		}
 
 		if (p->m_expands.at("TCP Flags")) {
-			for (auto s : Data::TCPFlags) {
+			for (auto s : ProtocolCatalog::TCPFlags) {
 				ImGui::Text(m.at(s).c_str());
 			}
 		}
@@ -325,7 +353,7 @@ void Renderer::renderExpanded(TCP<IPV6>* p) {
 		}
 
 		if (p->m_expands["TCP Options"]) {
-			for (auto opt : p->m_options) {
+			for (const auto& opt : p->m_options) {
 				ImGui::Text(("\t\t" + opt->toString()).c_str());
 			}
 		}

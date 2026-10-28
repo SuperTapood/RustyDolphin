@@ -2,35 +2,44 @@
 
 #include <stdlib.h>
 
-#include "Base/Data.h"
+#include "Base/ProtocolCatalog.h"
 #include "Base/MacroSettings.h"
 #include "GUI/GUI.h"
+#include "GUI/Renderer.h"
 #include "Base/Logger.h"
 #include "Networks/capture.h"
 #include "Win/SDK.h"
 #include "ImGuiFileDialog.h"
 #include <iostream>
 
+ApplicationState App::state;
+
 void App::release() {
-	Data::doneCounting = true;
-	Data::doneCapturing = true;
-	Data::geoTerminate = true;
-	Logger::release();
-	Capture::release();
-	SDK::release();
-	GUI::release();
-	if (Data::chosenAdapter != nullptr) {
-		pcap_close(Data::chosenAdapter);
+	state.doneCounting = true;
+	state.doneCapturing = true;
+	state.geoTerminate = true;
+	if (state.captureThread.joinable()) {
+		state.captureThread.join();
 	}
+	if (state.geoLocThread.joinable()) {
+		state.geoLocThread.request_stop();
+		state.geoLocThread.join();
+	}
+	GUI::release();
+	if (state.chosenAdapter != nullptr) {
+		state.chosenAdapter.reset();
+	}
+	state.clearPackets();
+	SDK::release();
+	Capture::release();
+	Logger::release();
 }
 
 void App::init() {
 	remove("captures/output.pcap");
 	remove("captures/output.txt");
 	remove("imgui.ini");
-	// make sure resources are always released
-	atexit(App::release);
-	Data::init();
+	ProtocolCatalog::init();
 	Logger::init();
 	Capture::init();
 	SDK::init();
@@ -40,21 +49,21 @@ void App::init() {
 void App::adapterScreen() {
 	getAdapter();
 
-	Data::showLoad = false;
+	state.showLoad = false;
 
-	if (Data::chosenAdapter == nullptr) {
+	if (state.chosenAdapter == nullptr) {
 		exit(-1);
 	}
 }
 
 void App::captureScreen() {
 	// jthread just because they join by default when they go out of scope
-	Data::captureThread = std::jthread(Capture::capturePackets);
+	state.captureThread = std::jthread([] { Capture::capturePackets(state); });
 
 	render();
 
-	Data::doneCapturing = true;
-	Data::captureThread.join();
+	state.doneCapturing = true;
+	state.captureThread.join();
 }
 
 void App::renderAdapterMenuBar() {
@@ -62,7 +71,7 @@ void App::renderAdapterMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Load")) {
-				Data::showLoad = true;
+				state.showLoad = true;
 			}
 			ImGui::EndMenu();
 		}
@@ -83,13 +92,13 @@ void App::handleLoad() {
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 
-			Data::fileAdapter = true;
-			Data::chosenAdapter = Capture::load(filePathName);
-			Data::doneCounting = true;
-			Data::showLoad = false;
+			state.fileAdapter = true;
+			state.chosenAdapter = Capture::load(state, filePathName);
+			state.doneCounting = true;
+			state.showLoad = false;
 		}
 		else {
-			Data::showLoad = false;
+			state.showLoad = false;
 		}
 
 		ImGuiFileDialog::Instance()->Close();
@@ -98,24 +107,24 @@ void App::handleLoad() {
 
 void App::getAdapter() {
 #ifdef CAPTURE_LIVE
-	Data::fileAdapter = false;
-	Data::chosenAdapter = Capture::createAdapter(3);
+	state.fileAdapter = false;
+	state.chosenAdapter = Capture::createAdapter(3);
 	SDK::findIP(Capture::getDev(3)->name);
 	return;
 #endif
 #ifdef CAPTURE_SAMPLES
-	Data::fileAdapter = true;
-	Data::chosenAdapter = Capture::load("samples.pcapng");
+	state.fileAdapter = true;
+	state.chosenAdapter = Capture::load(state, "samples.pcapng");
 	return;
 #endif
 #ifdef CAPTURE_V6
-	Data::fileAdapter = true;
-	Data::chosenAdapter = Capture::load("v6.pcapng");
+	state.fileAdapter = true;
+	state.chosenAdapter = Capture::load(state, "v6.pcapng");
 	return;
 #endif
 #ifdef CAPTURE_ICMPV6
-	Data::fileAdapter = true;
-	Data::chosenAdapter = Capture::load("icmpv6.pcapng");
+	state.fileAdapter = true;
+	state.chosenAdapter = Capture::load(state, "icmpv6.pcapng");
 	return;
 #endif
 	using std::chrono::high_resolution_clock;
@@ -125,19 +134,19 @@ void App::getAdapter() {
 
 	auto names = Capture::getDeviceNames();
 
-	auto counts = std::vector<int>(names.size(), 0);
+	auto counts = std::vector<std::atomic_int>(names.size());
 
-	auto threads = std::vector<std::thread*>();
+	auto threads = std::vector<std::jthread>();
 
 	auto t1 = high_resolution_clock::now();
 
 	for (int i = 0; i < names.size(); i++) {
-		threads.push_back(new std::thread(Capture::countPackets, &counts, i));
+		threads.emplace_back(Capture::countPackets, std::ref(state), std::ref(counts), i);
 	}
 
-	srand(time(nullptr));
+	srand(static_cast<unsigned int>(time(nullptr)));
 
-	int randomNumber = rand() % Data::quotes.size();
+	int randomNumber = rand() % ProtocolCatalog::quotes.size();
 
 	std::vector<float> rates;
 
@@ -146,7 +155,7 @@ void App::getAdapter() {
 	int last = 0;
 	int selected = -1;
 
-	while (!Data::doneCounting) {
+	while (!state.doneCounting) {
 		GUI::startFrame();
 
 		if (glfwWindowShouldClose(GUI::window)) {
@@ -159,7 +168,7 @@ void App::getAdapter() {
 
 		renderAdapterMenuBar();
 
-		if (Data::showLoad) {
+		if (state.showLoad) {
 			GUI::pushFont("regular");
 			handleLoad();
 			GUI::popFont();
@@ -171,7 +180,7 @@ void App::getAdapter() {
 		GUI::popFont();
 
 		GUI::pushFont("quote");
-		GUI::centerText(Data::quotes.at(randomNumber));
+		GUI::centerText(ProtocolCatalog::quotes.at(randomNumber));
 		GUI::popFont();
 
 		GUI::pushFont("adapters");
@@ -184,7 +193,7 @@ void App::getAdapter() {
 
 		if (secs >= ((double)last / 5.0)) {
 			for (int i = 0; i < rates.size(); i++) {
-				rates.at(i) = ((float)counts.at(i) / secs);
+				rates.at(i) = static_cast<float>(counts.at(i).load(std::memory_order_relaxed) / secs);
 			}
 			last++;
 		}
@@ -209,7 +218,7 @@ void App::getAdapter() {
 				GUI::centerText("Are you sure you want this adapter?");
 				ImGui::SetCursorPosY(350);
 				if (GUI::centerButton("Yes")) {
-					Data::doneCounting = true;
+					state.doneCounting = true;
 					GUI::popFont();
 					ImGui::EndPopup();
 					ImGui::End();
@@ -232,19 +241,17 @@ void App::getAdapter() {
 		GUI::endFrame();
 	}
 
-	std::ranges::for_each(threads.cbegin(), threads.cend(), [](std::thread* t) {
-		t->join();
-		delete t;
-	});
+	// std::jthread joins automatically when the vector leaves scope.
+	threads.clear();
 
-	if (Data::chosenAdapter != nullptr) {
+	if (state.chosenAdapter != nullptr) {
 		return;
 	}
 
-	Data::fileAdapter = false;
+	state.fileAdapter = false;
 
 	if (selected != -1) {
-		Data::chosenAdapter = Capture::createAdapter(selected);
+		state.chosenAdapter = Capture::createAdapter(selected);
 	}
 	if (selected != -1) {
 		SDK::findIP(Capture::getDev(selected)->name);
@@ -262,12 +269,12 @@ void App::handleStop() {
 		GUI::centerText("Are you sure you want stop the current capture?");
 		ImGui::SetCursorPosY(350);
 		if (GUI::centerButton("Yes")) {
-			Data::doneCapturing = true;
-			Data::showStop = false;
+			state.doneCapturing = true;
+			state.showStop = false;
 		}
 		ImGui::SetCursorPosY(430);
 		if (GUI::centerButton("No")) {
-			Data::showStop = false;
+			state.showStop = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -287,21 +294,17 @@ void App::handleStart() {
 		GUI::centerText("(the current one will be reset)");
 		ImGui::SetCursorPosY(350);
 		if (GUI::centerButton("Yes")) {
-			Data::doneCapturing = true;
-			Data::selected = -1;
-			Data::showStart = false;
-			Data::captureThread.join();
-			for (auto p : Data::captured) {
-				delete p;
-			}
-			Data::captured.clear();
-			Data::capIdx = 0;
-			Data::doneCapturing = false;
-			Data::captureThread = std::jthread(Capture::capturePackets);
+			state.doneCapturing = true;
+			state.selected = -1;
+			state.showStart = false;
+			state.captureThread.join();
+			state.clearPackets();
+			state.doneCapturing = false;
+			state.captureThread = std::jthread([] { Capture::capturePackets(state); });
 		}
 		ImGui::SetCursorPosY(430);
 		if (GUI::centerButton("No")) {
-			Data::showStart = false;
+			state.showStart = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -317,25 +320,29 @@ void App::handleStartFile() {
 	if (ImGui::BeginPopupModal("StartCapture", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
 	{
 		GUI::centerText("Your current capture is from a file.");
-		GUI::centerText("file captures cannot be re-started.");
-		GUI::centerText("would you like to reset the currently captured packets?");
+		GUI::centerText("Would you like to replay it from the beginning?");
 		ImGui::SetCursorPosY(350);
 		if (GUI::centerButton("Yes")) {
-			Data::doneCapturing = true;
-			Data::selected = -1;
-			Data::showStart = false;
-			Data::captureThread.join();
-			for (auto p : Data::captured) {
-				delete p;
+			state.doneCapturing = true;
+			state.selected = -1;
+			state.showStart = false;
+			state.captureThread.join();
+			state.clearPackets();
+			if (state.chosenAdapter != nullptr) {
+				state.chosenAdapter.reset();
 			}
-			Data::captured.clear();
-			Data::capIdx = 0;
-			Data::doneCapturing = false;
-			Data::captureThread = std::jthread(Capture::capturePackets);
+			state.doneCapturing = false;
+			state.doneLoading = false;
+			state.chosenAdapter = Capture::load(state, state.loadedCapturePath);
+			if (state.chosenAdapter == nullptr) {
+				state.doneCapturing = true;
+				return;
+			}
+			state.captureThread = std::jthread([] { Capture::capturePackets(state); });
 		}
 		ImGui::SetCursorPosY(430);
 		if (GUI::centerButton("No")) {
-			Data::showStart = false;
+			state.showStart = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -353,7 +360,7 @@ void App::handleSaveGoing() {
 		GUI::centerText("Stop the current capture to save.");
 		ImGui::SetCursorPosY(350);
 		if (GUI::centerButton("OK")) {
-			Data::showSave = false;
+			state.showSave = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -372,12 +379,12 @@ void App::handleSave() {
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 
-			Capture::dumpAll(filePathName);
+			Capture::dumpAll(state, filePathName);
 
-			Data::showSave = false;
+			state.showSave = false;
 		}
 		else {
-			Data::showSave = false;
+			state.showSave = false;
 		}
 
 		ImGuiFileDialog::Instance()->Close();
@@ -396,24 +403,25 @@ void App::handleLoadCapture() {
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
 			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 
-			Data::doneCapturing = true;
-			Data::selected = -1;
-			Data::showStart = false;
-			Data::captureThread.join();
-			for (auto p : Data::captured) {
-				delete p;
+			state.doneCapturing = true;
+			state.selected = -1;
+			state.showStart = false;
+			state.captureThread.join();
+			state.clearPackets();
+			state.doneCapturing = false;
+			state.doneLoading = false;
+			state.fileAdapter = true;
+			state.showLoad = false;
+			if (state.chosenAdapter != nullptr) {
+				state.chosenAdapter.reset();
 			}
-			Data::captured.clear();
-			Data::capIdx = 0;
-			Data::doneCapturing = false;
-			Data::doneLoading = false;
-			Data::fileAdapter = true;
-			Data::showLoad = false;
-			Data::chosenAdapter = Capture::load(filePathName);
-			Data::captureThread = std::jthread(Capture::capturePackets);
+			state.chosenAdapter = Capture::load(state, filePathName);
+			if (state.chosenAdapter != nullptr) {
+				state.captureThread = std::jthread([] { Capture::capturePackets(state); });
+			}
 		}
 		else {
-			Data::showLoad = false;
+			state.showLoad = false;
 		}
 
 		ImGuiFileDialog::Instance()->Close();
@@ -484,7 +492,7 @@ void App::filterHelp() {
 		GUI::popFont();
 		ImGui::Text("\n\n");
 		if (GUI::centerButton("OK")) {
-			Data::showFilterHelp = false;
+			state.showFilterHelp = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -495,29 +503,29 @@ void App::renderCaptureMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Load")) {
-				Data::showLoad = true;
+				state.showLoad = true;
 			}
 			if (ImGui::MenuItem("Save")) {
-				Data::showSave = true;
+				state.showSave = true;
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Capture")) {
 			if (ImGui::MenuItem("Start")) {
-				Data::showStart = true;
+				state.showStart = true;
 			}
 			if (ImGui::MenuItem("Stop")) {
-				Data::showStop = true;
+				state.showStop = true;
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("Filter Docs")) {
-				Data::showFilterHelp = true;
+				state.showFilterHelp = true;
 			}
 			ImGui::EndMenu();
 		}
-		std::string text = std::format("total packet captured: {} | packets displayed: {}", Data::capIdx, Data::displayed);
+		std::string text = std::format("total packet captured: {} | packets displayed: {}", state.capIdx.load(), state.displayed);
 		ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
 		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - textSize.x);
 		ImGui::Text(text.c_str());
@@ -528,6 +536,12 @@ void App::renderCaptureMenuBar() {
 constexpr auto columns = 7;
 
 void App::renderTable() {
+	std::vector<Packet*> packets;
+	{
+		std::scoped_lock guard(state.guard);
+		packets.reserve(state.captured.size());
+		for (const auto& packet : state.captured) packets.push_back(packet.get());
+	}
 	if (ImGui::BeginTable("Packet Table", columns, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg))
 	{
 		ImGui::TableSetupScrollFreeze(0, 1);
@@ -540,35 +554,54 @@ void App::renderTable() {
 		ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 560.0f);
 		ImGui::TableHeadersRow();
 
-		Data::displayed = 0;
+		std::vector<Packet*> visible;
+		visible.reserve(packets.size());
+		for (auto* packet : packets) {
+			Renderer renderer(state);
+			if (renderer.filter(packet)) visible.push_back(packet);
+		}
+		state.displayed = static_cast<long>(visible.size());
 
-		for (int row = 0; row < Data::capIdx; row++)
-		{
-			auto p = Data::captured.at(row);
-			{
-				std::scoped_lock guard(Data::guard);
-				Renderer::filterPacket(p);
-			}
-
-			if (row == Data::selected)
-			{
-				ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5)));
+		ImGuiListClipper clipper;
+		clipper.Begin(static_cast<int>(visible.size()));
+		while (clipper.Step()) {
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+				auto* packet = visible[static_cast<size_t>(row)];
+				ImGui::TableNextRow();
+				Renderer renderer(state);
+				renderer.renderPacket(packet);
+				if (static_cast<int>(packet->m_idx) == state.selected) {
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+						ImGui::ColorConvertFloat4ToU32(ImVec4(56.f / 255.f, 123.f / 255.f, 203.f / 255.f, 0.5f)));
+				}
 			}
 		}
 
 		// after one frame the filter is no longer new
-		Data::newFilter = false;
+		state.newFilter = false;
 		ImGui::EndTable();
 	}
 	ImGui::End();
 }
 
 void App::renderExpandedPacket() {
+	Packet* selectedPacket = nullptr;
+	{
+		std::scoped_lock guard(state.guard);
+		if (state.selected >= 0 && static_cast<size_t>(state.selected) < state.captured.size()) {
+			selectedPacket = state.captured[static_cast<size_t>(state.selected)].get();
+		}
+	}
+	if (selectedPacket == nullptr) {
+		state.selected = -1;
+		return;
+	}
 	ImGui::SetNextWindowPos(ImVec2(0, 380));
 	ImGui::SetNextWindowSize(ImVec2(780, 340));
 	ImGui::Begin("Expanded Packet", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
-	Data::captured.at(Data::selected)->renderExpanded();
+		Renderer renderer(state);
+		renderer.renderDetails(selectedPacket);
 
 	ImGui::End();
 
@@ -580,7 +613,7 @@ void App::renderExpandedPacket() {
 
 	GUI::pushFont("hexView");
 
-	auto p = Data::captured.at(Data::selected);
+	auto p = selectedPacket;
 
 	int inc = 0;
 
@@ -618,13 +651,13 @@ void App::alertFilter() {
 	if (ImGui::BeginPopupModal("Bad Filter", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
 	{
 		GUI::centerText("Your filter is not correct:");
-		GUI::centerText(Data::filterIssue.c_str());
+		GUI::centerText(state.filterIssue.c_str());
 		GUI::centerText("\nIf you need help with filtering");
 		GUI::centerText("You can use the documentation:");
 		GUI::centerText("Help->Filter Docs");
 		ImGui::SetCursorPosY(350);
 		if (GUI::centerButton("OK")) {
-			Data::showBadFilter = false;
+			state.showBadFilter = false;
 		}
 		ImGui::EndPopup();
 	}
@@ -632,27 +665,30 @@ void App::alertFilter() {
 }
 
 void App::renderFilterBox() {
-	ImGui::InputText("##", Data::filterTxt, IM_ARRAYSIZE(Data::filterTxt));
+	ImGui::InputText("##", state.filterTxt, IM_ARRAYSIZE(state.filterTxt));
 
 	ImGui::SameLine();
 
 	if (ImGui::Button("Apply")) {
-		Data::processFilter();
+		state.processFilter();
 	}
 
 	ImGui::SameLine();
 
 	if (ImGui::Button("Clear")) {
-		Data::filterTxt[0] = '\0';
+		state.filterTxt[0] = '\0';
+		state.processFilter();
 	}
 
-	if (Data::showBadFilter) {
+	if (state.showBadFilter) {
 		alertFilter();
 	}
 }
 
 void App::geoTable() {
-	if (ImGui::BeginTable("Geo Table", columns, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg, ImVec2(1250, 500)))
+	std::scoped_lock guard(state.geoGuard);
+	if (ImGui::BeginTable("Geo Table", columns, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg,
+		ImGui::GetContentRegionAvail()))
 	{
 		GUI::pushFont("regular");
 		ImGui::TableSetupScrollFreeze(0, 1);
@@ -665,28 +701,23 @@ void App::geoTable() {
 		ImGui::TableSetupColumn("Timezone", ImGuiTableColumnFlags_WidthFixed, 180.0f);
 		ImGui::TableHeadersRow();
 
-		for (int row = 0; row < Data::locs.size(); row++) {
+		for (size_t row = 0; row < state.locs.size(); row++) {
 			ImGui::TableNextRow();
-			auto j = Data::locs.at(row);
-
-			{
-				auto data = j.at("data").at("geo");
-				std::lock_guard<std::mutex> guard(Data::geoGuard);
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text(std::to_string(row).c_str());
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text(data.at("ip").dump(0).c_str());
-				ImGui::TableSetColumnIndex(2);
-				ImGui::Text(data.at("rdns").dump(0).c_str());
-				ImGui::TableSetColumnIndex(3);
-				ImGui::Text(data.at("isp").dump(0).c_str());
-				ImGui::TableSetColumnIndex(4);
-				ImGui::Text(data.at("latitude").dump(0).c_str());
-				ImGui::TableSetColumnIndex(5);
-				ImGui::Text(data.at("longitude").dump(0).c_str());
-				ImGui::TableSetColumnIndex(6);
-				ImGui::Text(data.at("timezone").dump(0).c_str());
-			}
+			const auto& location = state.locs.at(row);
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("%zu", row + 1);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::TextUnformatted(location.ip.c_str());
+			ImGui::TableSetColumnIndex(2);
+			ImGui::TextUnformatted(location.reverseDns.c_str());
+			ImGui::TableSetColumnIndex(3);
+			ImGui::TextUnformatted(location.isp.c_str());
+			ImGui::TableSetColumnIndex(4);
+			ImGui::TextUnformatted(location.latitude ? std::to_string(*location.latitude).c_str() : "Unknown");
+			ImGui::TableSetColumnIndex(5);
+			ImGui::TextUnformatted(location.longitude ? std::to_string(*location.longitude).c_str() : "Unknown");
+			ImGui::TableSetColumnIndex(6);
+			ImGui::TextUnformatted(location.timezone.c_str());
 		}
 
 		GUI::popFont();
@@ -695,39 +726,30 @@ void App::geoTable() {
 }
 
 void App::showHops() {
-	ImVec2 window_size = ImGui::GetContentRegionAvail();
-	auto xShift = (window_size.x - 1024) * 0.5f;
+	std::scoped_lock guard(state.geoGuard);
+	const ImVec2 available = ImGui::GetContentRegionAvail();
+	const float scale = (std::max)(0.1f, (std::min)(available.x / 1024.0f, available.y / 794.0f));
+	const ImVec2 imageSize(1024.0f * scale, 794.0f * scale);
+	auto xShift = (available.x - imageSize.x) * 0.5f;
 	ImGui::SetCursorPosX(xShift);
-	ImGui::Image((void*)(intptr_t)GUI::earthTex, ImVec2(1024, 794));
+	const ImVec2 imageTopLeft = ImGui::GetCursorScreenPos();
+	ImGui::Image((void*)(intptr_t)GUI::earthTex, imageSize);
 	std::pair<double, double> lastCoords = { -1, -1 };
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	constexpr auto r = 4;
-	for (int row = 0; row < Data::locs.size(); row++) {
-		auto j = Data::locs.at(row);
-		double longitude;
-		double latitude;
-		{
-			auto data = j.at("data").at("geo");
-			std::scoped_lock guard(Data::geoGuard);
-			auto longS = data.at("longitude").dump(0);
-			if (longS == "\"\"" || longS == "null") {
-				continue;
-			}
-			longitude = std::stod(longS);
-			auto latS = data.at("latitude").dump(0);
-			if (latS == "\"\"" || latS == "null") {
-				continue;
-			}
-			latitude = std::stod(latS);
-		}
-		auto [x, y] = Data::mercatorProjection(longitude, latitude);
-
-		ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
-		ImVec2 circle_pos = ImVec2(cursor_pos.x + xShift + x - r, cursor_pos.y + y - 794 - r);
+	for (size_t row = 0; row < state.locs.size(); row++) {
+		const auto& location = state.locs.at(row);
+		if (!location.longitude || !location.latitude) continue;
+		auto [x, y] = ProtocolCatalog::mercatorProjection(*location.longitude, *location.latitude);
+		ImVec2 circle_pos = ImVec2(
+			imageTopLeft.x + static_cast<float>(x) * scale,
+			imageTopLeft.y + static_cast<float>(y) * scale);
 		draw_list->AddCircleFilled(circle_pos, r, IM_COL32(255, 0, 0, 255));
 
 		if (lastCoords.first != -1) {
-			draw_list->AddLine(ImVec2(lastCoords.first, lastCoords.second), circle_pos, IM_COL32(255, 0, 0, 255), r / 2);
+			draw_list->AddLine(
+				ImVec2(static_cast<float>(lastCoords.first), static_cast<float>(lastCoords.second)),
+				circle_pos, IM_COL32(255, 0, 0, 255), r / 2.0f);
 		}
 
 		lastCoords.first = circle_pos.x;
@@ -742,46 +764,50 @@ void App::showGeoTrace() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	if (ImGui::BeginPopupModal("GeoLoc", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
 	{
-		GUI::centerText(std::format("Hopping Map for address {}", Data::hopAddr).c_str());
-		if (Data::geoState == 1) {
+		std::string hopAddress;
+		std::string geoError;
+		{
+			std::scoped_lock guard(state.geoGuard);
+			hopAddress = state.hopAddr;
+			geoError = state.geoError;
+		}
+		GUI::centerText(std::format("Route geolocation for {}", hopAddress).c_str());
+		if (state.geoState.load() == 1) {
 			GUI::centerText("Querying Address...");
 		}
-		else if (Data::geoState == 2) {
+		else if (state.geoState.load() == 2) {
 			GUI::centerText("Processing Replies...");
 		}
-		else if (Data::geoState == 3) {
-			GUI::centerText("No address could be reached :(");
+		else if (state.geoState.load() == 3) {
+			GUI::centerText("No public geolocation data was available for this address.");
 		}
-		else if (Data::geoState == 4) {
+		else if (state.geoState.load() == 4) {
 			GUI::centerText("Processing Done");
 		}
-		geoTable();
-		showHops();
-		if (GUI::centerButton("OK")) {
-			if (!Data::geoDone) {
-				Data::geoAlert = true;
+		if (!geoError.empty()) {
+			ImGui::TextWrapped("Some lookups failed: %s", geoError.c_str());
+		}
+		if (ImGui::BeginTabBar("Geo views")) {
+			if (ImGui::BeginTabItem("Locations")) {
+				geoTable();
+				ImGui::EndTabItem();
 			}
-			else {
-				Data::geoLocThread.join();
-				Data::showGeoTrace = -1;
-				Data::locs.clear();
+			if (ImGui::BeginTabItem("Map")) {
+				showHops();
+				ImGui::EndTabItem();
 			}
+			ImGui::EndTabBar();
 		}
 
-		if (Data::geoAlert) {
-			ImGui::OpenPopup("hotshot");
-			ImGui::SetNextWindowSize(ImVec2(600, 500));
-			ImGui::SetNextWindowPos(ImVec2(640 - 300, 360 - 250));
-			if (ImGui::BeginPopupModal("hotshot", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
-			{
-				GUI::centerText("you cannot exit just yet");
-				GUI::centerText("the data caputring is not yet done\n");
-				ImGui::SetCursorPosY(350);
-				if (GUI::centerButton("OK")) {
-					Data::geoAlert = false;
-				}
-				ImGui::EndPopup();
+		const bool done = state.geoDone.load();
+		if (GUI::centerButton(done ? "Close" : "Cancel")) {
+			if (state.geoLocThread.joinable()) {
+				state.geoLocThread.request_stop();
+				state.geoLocThread.join();
 			}
+			state.showGeoTrace = -1;
+			std::scoped_lock guard(state.geoGuard);
+			state.locs.clear();
 		}
 	}
 	ImGui::End();
@@ -807,47 +833,47 @@ void App::render() {
 
 		renderTable();
 
-		if (Data::showFilterHelp) {
+		if (state.showFilterHelp) {
 			filterHelp();
 		}
 
-		if (Data::selected != -1) {
+		if (state.selected != -1) {
 			renderExpandedPacket();
 		}
 
-		if (Data::showStop) {
+		if (state.showStop) {
 			handleStop();
 		}
-		else if (Data::showStart && !Data::fileAdapter) {
+		else if (state.showStart && !state.fileAdapter) {
 			handleStart();
 		}
-		else if (Data::showStart && Data::fileAdapter) {
+		else if (state.showStart && state.fileAdapter) {
 			handleStartFile();
 		}
 
-		else if (!Data::doneCapturing && Data::showSave) {
+		else if (!state.doneCapturing && state.showSave) {
 			handleSaveGoing();
 		}
-		else if (Data::doneCapturing && Data::showSave) {
+		else if (state.doneCapturing && state.showSave) {
 			handleSave();
 		}
 
-		else if (Data::showLoad) {
+		else if (state.showLoad) {
 			handleLoadCapture();
 		}
 
-		else if (Data::showGeoTrace != -1) {
+		else if (state.showGeoTrace != -1) {
 			showGeoTrace();
 		}
 
 		GUI::popFont();
 
 		if (ImGui::IsKeyPressed(upArrow)) {
-			Data::selected = max(Data::selected - 1, 0);
+			state.selected = max(state.selected - 1, 0);
 		}
 
-		if (ImGui::IsKeyPressed(downArrow) && Data::capIdx > 0) {
-			Data::selected = min(Data::selected + 1, Data::capIdx - 1);
+		if (ImGui::IsKeyPressed(downArrow) && state.capIdx.load() > 0) {
+			state.selected = min(state.selected + 1, static_cast<int>(state.capIdx.load() - 1));
 		}
 
 		GUI::endFrame();

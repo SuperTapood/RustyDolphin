@@ -1,11 +1,10 @@
-#include "Data.h"
+#include "ProtocolCatalog.h"
 #include <iostream>
+#include <algorithm>
+#include "../Core/FilterParser.h"
 
 // define global static variables needed to manage this program
-std::vector<Packet*> Data::captured;
-int Data::selected = -1;
-bool Data::doneCounting = false;
-std::array<const char*, 30> Data::quotes = {
+std::array<const char*, 30> ProtocolCatalog::quotes = {
 	"Less Cheese = More Cheese",
 	"A man chooses, a slave obeys",
 	"*sigh* i guess you are my little pugchamp",
@@ -37,45 +36,15 @@ std::array<const char*, 30> Data::quotes = {
 	"The C++ giveth, and the C++ taketh away",
 	"this quote has been left as an exercise for the reader"
 };
-long double Data::epochStart;
-std::map<int, std::string> Data::dscpMap;
-std::map<int, std::string> Data::ecnMap;
-std::map<int, std::string> Data::hopMap;
-std::map<unsigned char, std::string> Data::icmpv6Types;
-bool Data::doneCapturing = false;
-long Data::capIdx = 0;
-bool Data::showStop = false;
-bool Data::showStart = false;
-bool Data::doneLoading = false;
-bool Data::showSave = false;
-bool Data::showLoad = false;
-bool Data::showFilterHelp = false;
-std::jthread Data::captureThread;
-pcap_t* Data::chosenAdapter;
-std::mutex Data::guard;
-bool Data::fileAdapter;
-std::array<const char*, 10> Data::TCPFlags = {
+std::map<int, std::string> ProtocolCatalog::dscpMap;
+std::map<int, std::string> ProtocolCatalog::ecnMap;
+std::map<int, std::string> ProtocolCatalog::hopMap;
+std::map<unsigned char, std::string> ProtocolCatalog::icmpv6Types;
+std::array<const char*, 10> ProtocolCatalog::TCPFlags = {
 	"RES", "ACN", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"
 };
 
-char Data::filterTxt[1024];
-std::set<std::string> Data::filterKeys = {
-	"ip", "sport", "dport", "saddr", "daddr", "proto", "num", "len", "proc"
-};
-std::map<std::string, std::string> Data::filter;
-std::string Data::filterIssue;
-bool Data::showBadFilter;
-bool Data::newFilter = true;
-long Data::displayed = 0;
-long Data::showGeoTrace = -1;
-std::vector<json> Data::locs;
-std::jthread Data::geoLocThread;
-std::mutex Data::geoGuard;
-bool Data::geoDone;
-bool Data::geoAlert;
-bool Data::geoTerminate = false;
-int Data::geoState = -1;
-std::array<std::string, 26> Data::arpCodes{
+std::array<std::string, 26> ProtocolCatalog::arpCodes{
 	"Reserved",
 		"REQUEST",
 		"REPLY",
@@ -103,7 +72,7 @@ std::array<std::string, 26> Data::arpCodes{
 		"OP_EXP1",
 		"OP_EXP2",
 };
-std::array<std::string, 39> Data::arpHard{
+std::array<std::string, 39> ProtocolCatalog::arpHard{
 	"Reserved",
 		"Ethernet",
 		"Experimental Ethernet",
@@ -144,9 +113,8 @@ std::array<std::string, 39> Data::arpHard{
 		"HFI",
 		"Unified Bus (UB)",
 };
-std::string Data::hopAddr;
 
-std::array<std::string, 44> Data::icmpTypes = {
+std::array<std::string, 44> ProtocolCatalog::icmpTypes = {
 	"Echo (ping) Reply",
 	"Unassigned",
 	"Unassigned",
@@ -193,7 +161,7 @@ std::array<std::string, 44> Data::icmpTypes = {
 	"Extended Echo Reply",
 };
 
-void Data::init() {
+void ProtocolCatalog::init() {
 	dscpMap[0] = "Default";
 	dscpMap[10] = "AF11";
 	dscpMap[12] = "AF12";
@@ -283,109 +251,15 @@ void Data::init() {
 	icmpv6Types[161] = "Extended Echo Reply";
 }
 
-void Data::addPacket(Packet* p) {
-	captured.push_back(p);
-}
-
-void Data::processFilter() {
-	// set defaults to prevent filter retention
-	filter["ip"] = "";
-	filter["sport"] = "";
-	filter["dport"] = "";
-	filter["saddr"] = "";
-	filter["daddr"] = "";
-	filter["proto"] = "";
-	filter["num"] = "";
-	filter["len"] = "";
-	filter["proc"] = "";
-	// we need to refilter every packet
-	Data::newFilter = true;
-
-	// filter is empty
-	if (Data::filterTxt[0] == '\0') {
-		return;
-	}
-	std::vector<std::string> args;
-	std::stringstream ss(filterTxt);
-	std::string current;
-	std::size_t first, last;
-
-	// for every comma seperated expression
-	while (std::getline(ss, current, ',')) {
-		// find where the two values seperate
-		auto eq = current.find_first_of('=');
-		if (eq == std::string::npos || eq != current.find_last_of('=')) {
-			// there is more than one =, invalid input
-			showBadFilter = true;
-			filterIssue = std::format("{} is not a valid filter", current);
-			// show no packet
-			filter["num"] = "-1";
-			return;
-		}
-		// substring out the key
-		auto key = current.substr(0, eq);
-		first = key.find_first_not_of(' ');
-		last = key.find_last_not_of(' ');
-		if (first == std::string::npos) {
-			showBadFilter = true;
-			filterIssue = std::format("{} has an empty filter name", current);
-			filter["num"] = "-1";
-			return;
-		}
-		// removing trailing and leading spaces
-		key = key.substr(first, last - first + 1);
-
-		// same thing for the value
-		auto value = current.substr(eq + 1);
-		first = value.find_first_not_of(' ');
-		last = value.find_last_not_of(' ');
-		if (first == std::string::npos) {
-			showBadFilter = true;
-			filterIssue = std::format("{} has an empty filter value", current);
-			filter["num"] = "-1";
-			return;
-		}
-		value = value.substr(first, last - first + 1);
-
-		// lowercase both the key and the value
-		std::ranges::transform(key.begin(), key.end(), key.begin(),
-			[](unsigned char c) { return std::tolower(c); });
-
-		std::ranges::transform(value.begin(), value.end(), value.begin(),
-			[](unsigned char c) { return std::tolower(c); });
-
-		// add them as arguments
-		args.push_back(key);
-		args.push_back(value);
-	}
-
-	if (args.size() % 2 == 1) {
-		showBadFilter = true;
-		filterIssue = "the number of arguments isn't even.";
-		filter["num"] = "-1";
-		return;
-	}
-
-	for (int idx = 0; idx < args.size(); idx += 2) {
-		auto key = args.at(idx);
-		auto value = args.at(idx + 1);
-
-		// check if a valid filter was given
-		if (!filterKeys.contains(key)) {
-			showBadFilter = true;
-			filterIssue = std::format("'{}' isn't a valid filter flag.", key);
-			filter["num"] = "-1";
-			return;
-		}
-
-		filter[key] = value;
-	}
-}
-
-std::pair<double, double> Data::mercatorProjection(double longitude, double latitude) {
+std::pair<double, double> ProtocolCatalog::mercatorProjection(double longitude, double latitude) {
 	constexpr double mapWidth = 1024;
 	constexpr double mapHeight = 794;
 	static double PI = 2 * std::acos(0);
+
+	// Web Mercator is undefined at the poles. Clamp unexpected API data before
+	// applying logarithms so the renderer never receives infinity or NaN.
+	latitude = (std::clamp)(latitude, -85.05112878, 85.05112878);
+	longitude = (std::clamp)(longitude, -180.0, 180.0);
 
 	// get x value
 	double x = (longitude + 180) * (mapWidth / 360);

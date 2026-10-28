@@ -1,8 +1,7 @@
 #include "ARP.h"
 
 #include <sstream>
-#include "../../../../GUI/Renderer.h"
-#include "../../../../Base/Data.h"
+#include "../../../../Base/ProtocolCatalog.h"
 #include <iostream>
 
 constexpr auto ETHERTYPE_IPV4 = 0x0800;
@@ -93,8 +92,8 @@ std::map<std::string, std::string> ARP::getTexts() {
 	if (m_texts.empty()) {
 		Packet::getTexts();
 
-		if (m_opcode < Data::arpCodes.size()) {
-			m_texts["opcode"] = Data::arpCodes.at(m_opcode);
+		if (m_opcode < ProtocolCatalog::arpCodes.size()) {
+			m_texts["opcode"] = ProtocolCatalog::arpCodes.at(m_opcode);
 		}
 		else {
 			m_texts["opcode"] = "unknown";
@@ -104,8 +103,8 @@ std::map<std::string, std::string> ARP::getTexts() {
 
 		m_texts["hardType"] = std::format("Ethernet ({})", std::to_string(m_hardType));
 
-		if (m_hardType < Data::arpHard.size()) {
-			m_texts["hardType"] = std::format("{} ({})", Data::arpHard.at(m_hardType), std::to_string(m_hardType));
+		if (m_hardType < ProtocolCatalog::arpHard.size()) {
+			m_texts["hardType"] = std::format("{} ({})", ProtocolCatalog::arpHard.at(m_hardType), std::to_string(m_hardType));
 		}
 		else if (m_hardType == 256) {
 			m_texts["hardType"] = "HW_EXP2 (256)";

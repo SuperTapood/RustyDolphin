@@ -5,6 +5,7 @@
 #include "GUI.h"
 
 class Packet;
+struct ApplicationState;
 class ARP;
 class IPV4;
 class IPV6;
@@ -25,23 +26,27 @@ class IGMP;
 
 class Renderer {
 public:
-	static void filterPacket(Packet* p);
-	static void render(Packet* p);
-	static void renderExpanded(Packet* p);
-	static void renderExpanded(ARP* p);
-	static void render(IPV4* p);
-	static void renderExpanded(IPV4* p);
-	static void renderExpanded(IGMP<IPV4>* p);
-	static void renderExpanded(IGMP<IPV6>* p);
-	static void renderExpanded(TCP<IPV4>* p);
-	static void renderExpanded(TCP<IPV6>* p);
-	static void renderExpanded(UDP<IPV4>* p);
-	static void renderExpanded(ICMP* p);
-	static void renderExpanded(UDP<IPV6>* p);
-	static void render(IPV6* p);
-	static void renderExpanded(IPV6* p);
-	static void renderExpanded(ICMPV6* p);
+	explicit Renderer(ApplicationState& applicationState) : state(applicationState) {}
+	void renderPacket(Packet* p);
+	void renderDetails(Packet* p);
+	bool filter(Packet* p);
+	void filterPacket(Packet* p);
+	void renderBase(Packet* p);
+	void renderExpandedBase(Packet* p);
+	void renderExpanded(ARP* p);
+	void render(IPV4* p);
+	void renderExpanded(IPV4* p);
+	void renderExpanded(IGMP<IPV4>* p);
+	void renderExpanded(IGMP<IPV6>* p);
+	void renderExpanded(TCP<IPV4>* p);
+	void renderExpanded(TCP<IPV6>* p);
+	void renderExpanded(UDP<IPV4>* p);
+	void renderExpanded(ICMP* p);
+	void renderExpanded(UDP<IPV6>* p);
+	void render(IPV6* p);
+	void renderExpanded(IPV6* p);
+	void renderExpanded(ICMPV6* p);
 
 private:
-	static bool filter(Packet* p);
+	ApplicationState& state;
 };

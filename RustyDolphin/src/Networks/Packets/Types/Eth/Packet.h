@@ -5,11 +5,8 @@
 #include <pcap.h>
 #include <string>
 #include <json.hpp>
-#include <imgui.h>
-#include <GLFW/glfw3.h>
 #include <map>
 
-#include "../../../../GUI/Renderer.h"
 
 using json = nlohmann::ordered_json;
 
@@ -25,7 +22,7 @@ public:
 	unsigned int m_idx;
 	std::string m_idxStr;
 	std::string m_description;
-	static std::map<std::string, bool> m_expands;
+	std::map<std::string, bool> m_expands;
 
 	// header stuff
 	long double m_epoch;
@@ -44,16 +41,7 @@ public:
 
 	Packet(pcap_pkthdr* header, const u_char* pkt_data, unsigned int idx);
 	virtual ~Packet();
-
-	virtual void render() {
-		Renderer::render(this);
-	}
-
-	virtual void renderExpanded() {
-		Renderer::renderExpanded(this);
-	}
-
-	// these aren't really used for anything other than debugging and hopefully compiled out :)
+// these aren't really used for anything other than debugging and hopefully compiled out :)
 	virtual std::string toString();
 	virtual json jsonify();
 
@@ -84,6 +72,7 @@ protected:
 
 private:
 	unsigned int m_pos = 0;
+	void ensureAvailable(size_t size) const;
 
 	// packet-only helper functions
 	std::string padDate(int t);
